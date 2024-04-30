@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Trash">
+      <UniqueIdentifier>{147db4de-c64c-4d8b-b3d8-4f6ffd160a5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Default">
+      <UniqueIdentifier>{d15b5043-2ad4-44ea-8b69-28a14529b21c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{927b3c7d-2939-4ed4-a5eb-a1ff737447b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Core">
+      <UniqueIdentifier>{5b603e8e-ccec-48ed-8c38-ba8001fbd0eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\D3DUtils">
+      <UniqueIdentifier>{db4e7466-0569-4b16-abd5-4fc52ebf4fce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GeometryGenerator">
+      <UniqueIdentifier>{a1fd50fa-3540-4311-bbea-3cc5cf6ba4a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh">
+      <UniqueIdentifier>{bf389dae-c00c-4fd1-be02-0bd985d098d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Shader">
+      <UniqueIdentifier>{4a86f6c7-0991-439b-abf1-9b4bc464475c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh\CubeMap">
+      <UniqueIdentifier>{dc8acba1-a0ea-47c2-bafb-8b9ce09857a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh\Normal">
+      <UniqueIdentifier>{9275b0c9-9dd4-49d8-8d1a-23b8df243570}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\KeyMgr">
+      <UniqueIdentifier>{73356f60-5b3e-49e1-b829-927a36976fc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\MeshGroup">
+      <UniqueIdentifier>{04d031b9-6872-4b76-b4fd-b7f122cde5f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Camera">
+      <UniqueIdentifier>{4c70851a-3ff4-4383-bcab-ec50a9fd08df}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h">
+      <Filter>Trash</Filter>
+    </ClInclude>
+    <ClInclude Include="Space.h">
+      <Filter>Trash</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Trash</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>Trash</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Default</Filter>
+    </ClInclude>
+    <ClInclude Include="Core.h">
+      <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Define.h">
+      <Filter>Default</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DUtils.h">
+      <Filter>Engine\D3DUtils</Filter>
+    </ClInclude>
+    <ClInclude Include="Struct.h">
+      <Filter>Default</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryGenerator.h">
+      <Filter>Engine\GeometryGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Engine\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeMap.h">
+      <Filter>Engine\Mesh\CubeMap</Filter>
+    </ClInclude>
+    <ClInclude Include="Normal.h">
+      <Filter>Engine\Mesh\Normal</Filter>
+    </ClInclude>
+    <ClInclude Include="Enum.h">
+      <Filter>Default</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyMgr.h">
+      <Filter>Engine\KeyMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshGroup.h">
+      <Filter>Engine\MeshGroup</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Engine\Camera</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Space.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="Space.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Default</Filter>
+    </ClCompile>
+    <ClCompile Include="Core.cpp">
+      <Filter>Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DUtils.cpp">
+      <Filter>Engine\D3DUtils</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryGenerator.cpp">
+      <Filter>Engine\GeometryGenerator</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Engine\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeMap.cpp">
+      <Filter>Engine\Mesh\CubeMap</Filter>
+    </ClCompile>
+    <ClCompile Include="Normal.cpp">
+      <Filter>Engine\Mesh\Normal</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyMgr.cpp">
+      <Filter>Engine\KeyMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshGroup.cpp">
+      <Filter>Engine\MeshGroup</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Engine\Camera</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="BasicVertexShader.hlsl">
+      <Filter>Engine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="BasicPixelShader.hlsl">
+      <Filter>Engine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="CubeMapVertexShader.hlsl">
+      <Filter>Engine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="CubeMapPixelShader.hlsl">
+      <Filter>Engine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="NormalVertexShader.hlsl">
+      <Filter>Engine\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="NormalPixelShader.hlsl">
+      <Filter>Engine\Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Header.hlsli">
+      <Filter>Engine\Shader</Filter>
+    </None>
+  </ItemGroup>
+</Project>
