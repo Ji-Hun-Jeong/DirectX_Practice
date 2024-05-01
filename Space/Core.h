@@ -22,6 +22,7 @@ private:
 	shared_ptr<CubeMap> m_cubeMap;
 
 public:
+	float m_normalSize = 1.0f;
 	PixelConstantData m_pixelConstantData;
 	bool m_drawNormal = false;
 	bool m_drawWireFrame = false;

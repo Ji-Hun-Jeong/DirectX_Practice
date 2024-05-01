@@ -6,7 +6,7 @@
 D3DUtils D3DUtils::m_inst;
 D3DUtils::D3DUtils()
 {
-
+	
 }
 
 bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
@@ -34,19 +34,19 @@ bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	swapChainDesc.BufferUsage = DXGI_USAGE_SHADER_INPUT | DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.OutputWindow = Core::GetInst().GetMainWindow();
 	swapChainDesc.Windowed = TRUE;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	if (numOfMultiSamplingLevel > 0)
 	{
-		swapChainDesc.SampleDesc.Count = 4; // how many multisamples
+		swapChainDesc.SampleDesc.Count = 4; 
 		swapChainDesc.SampleDesc.Quality = numOfMultiSamplingLevel - 1;
 	}
 	else 
 	{
-		swapChainDesc.SampleDesc.Count = 1; // how many multisamples
+		swapChainDesc.SampleDesc.Count = 1;
 		swapChainDesc.SampleDesc.Quality = 0;
 	}
 	HRESULT result = D3D11CreateDeviceAndSwapChain(nullptr, driverType, 0
@@ -121,7 +121,25 @@ void D3DUtils::CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPt
 	if (FAILED(result))
 		assert(0);
 	result = m_device->CreateInputLayout(inputLayoutDesc.data(), UINT(inputLayoutDesc.size())
-		, shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), &inputLayout);
+		, shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), inputLayout.GetAddressOf());
+	if (FAILED(result))
+		assert(0);
+}
+
+void D3DUtils::CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11GeometryShader>& gs)
+{
+	ComPtr<ID3DBlob> shaderBlob;
+	ComPtr<ID3DBlob> errorBlob;
+	wstring fileName = hlslPrefix + L"GeometryShader.hlsl";
+	UINT compileFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)
+	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+	HRESULT result = D3DCompileFromFile(fileName.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		"main", "gs_5_0", compileFlags, 0, shaderBlob.GetAddressOf(), errorBlob.GetAddressOf());
+	if (FAILED(result))
+		assert(0);
+	result = m_device->CreateGeometryShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, &gs);
 	if (FAILED(result))
 		assert(0);
 }

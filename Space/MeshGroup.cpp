@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "MeshGroup.h"
 #include "Mesh.h"
-#include "Normal.h"
 #include "GeometryGenerator.h"
 
 
@@ -18,11 +17,6 @@ void MeshGroup::AddMesh(const string& name, const MeshData& meshData, const wstr
 	auto mesh = make_shared<Mesh>(m_translation, m_rotation1, m_rotation2, m_scale);
 	mesh->Init(name, meshData, vertexShaderPrefix, pixelShaderPrefix);
 	m_vecMeshes.push_back(mesh);
-
-	MeshData normalData = GeometryGenerator::MakeNormal(meshData);
-	auto normal = make_shared<Normal>(mesh);
-	normal->Init(name + "Normal", normalData, L"Normal", L"Normal");
-	m_vecNormals.push_back(normal);
 }
 
 void MeshGroup::Update(float dt, bool updateNormal)
@@ -32,14 +26,6 @@ void MeshGroup::Update(float dt, bool updateNormal)
 		if (mesh)
 			mesh->Update(dt);
 	}
-	if (updateNormal)
-	{
-		for (auto& normal : m_vecNormals)
-		{
-			if (normal)
-				normal->Update(dt);
-		}
-	}
 }
 
 void MeshGroup::Render(ID3D11DeviceContext* context, bool drawNormal)
@@ -48,14 +34,6 @@ void MeshGroup::Render(ID3D11DeviceContext* context, bool drawNormal)
 	{
 		if (mesh)
 			mesh->Render(context);
-	}
-	if (drawNormal)
-	{
-		for (auto& normal : m_vecNormals)
-		{
-			if (normal)
-				normal->Render(context);
-		}
 	}
 }
 

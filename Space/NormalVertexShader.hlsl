@@ -5,21 +5,22 @@ cbuffer NormalConstant : register(b0)
     matrix view;
     matrix projection;
     matrix invTranspose;
+    float normalSize;
+    float3 dummy;
 };
-PSInput main(VSInput input) 
+GSInput main(VSInput input) 
 {
-    PSInput output;
+    GSInput output;
     float4 pos = float4(input.position, 1.0f);
     float4 normal = float4(input.normal, 0.0f);
     pos = mul(pos, model);
-    output.normal = mul(normal, invTranspose);
-    output.normal = normalize(output.normal);
+   
+    normal = mul(normal, invTranspose);
+    normal = normalize(normal);
     
-    pos.xyz += output.normal * input.uv.x * 30.0f;
-    output.posWorld = pos;
-    pos = mul(pos, view);
-    pos = mul(pos, projection);
-    output.posProj = pos;
-    output.uv = input.uv;
+    output.position = pos.xyz;
+    output.normal = normal;
+     
+    output.uv.xy = 0.0f;
     return output;
 }

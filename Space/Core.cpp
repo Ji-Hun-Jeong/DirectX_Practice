@@ -4,7 +4,6 @@
 #include "GeometryGenerator.h"
 #include "Mesh.h"
 #include "CubeMap.h"
-#include "Normal.h"
 #include "KeyMgr.h"
 #include "MeshGroup.h"
 #include "Camera.h"
@@ -134,6 +133,7 @@ void Core::UpdateGUI()
 {
 	ImGui::Checkbox("DrawWireFrame", &m_drawWireFrame);
 	ImGui::Checkbox("DrawNormal", &m_drawNormal);
+	ImGui::SliderFloat("NormalSize", &m_normalSize, 0.0f, 100.0f);
 	ImGui::SliderFloat3("Rotation", &m_focusMeshGroup->GetMesh("Solar")->m_rotation1.x, 0.0f, 3.14f);
 	ImGui::SliderFloat("LightStrength", &m_pixelConstantData.light.lightStrength.x, 0.0f, 1.0f);
 	ImGui::SliderFloat3("LightPos", &m_pixelConstantData.light.lightPos.x, -1000.0f, 1000.0f);
@@ -320,12 +320,12 @@ bool Core::CreateDepthStencilView()
 	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // 깊이에 24비트, 스텐실에 8비트 지원 32비트 z-버퍼 형식입니다.
 	if (m_iNumOfMultiSamplingLevel > 0) 
 	{
-		depthBufferDesc.SampleDesc.Count = 4; // how many multisamples
+		depthBufferDesc.SampleDesc.Count = 4; 
 		depthBufferDesc.SampleDesc.Quality = m_iNumOfMultiSamplingLevel - 1;
 	}
 	else 
 	{
-		depthBufferDesc.SampleDesc.Count = 1; // how many multisamples
+		depthBufferDesc.SampleDesc.Count = 1; 
 		depthBufferDesc.SampleDesc.Quality = 0;
 	}
 	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;

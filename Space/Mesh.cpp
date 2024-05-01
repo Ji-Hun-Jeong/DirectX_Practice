@@ -11,8 +11,9 @@ Mesh::Mesh(const Vector3& translation, const Vector3& rotation1, const Vector3& 
 	, m_rotation2(rotation2)
 	, m_scale(scale)
 	, m_topology(topology)
+	, m_normalTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_POINTLIST)
 {
-	
+
 }
 void Mesh::Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
 {
@@ -22,6 +23,7 @@ void Mesh::Init(const string& name, const MeshData& meshData, const wstring& ver
 	D3DUtils::GetInst().CreateIndexBuffer<uint32_t>(meshData.indices, m_indexBuffer);
 	D3DUtils::GetInst().CreateConstantBuffer<VertexConstantData>(m_vertexConstantData, m_vertexConstantBuffer);
 	D3DUtils::GetInst().CreateConstantBuffer<PixelConstantData>(m_pixelConstantData, m_pixelConstantBuffer);
+	D3DUtils::GetInst().CreateConstantBuffer<NormalConstantData>(m_normalConstantData, m_normalConstantBuffer);
 	D3DUtils::GetInst().CreateSamplerState(m_samplerState);
 	if (!meshData.textureName.empty())
 	{
@@ -29,14 +31,21 @@ void Mesh::Init(const string& name, const MeshData& meshData, const wstring& ver
 		CreateShaderResourceView(meshData.textureName);
 	}
 
-	CreateVertexShaderAndInputLayout(vertexShaderPrefix);
-	CreatePixelShader(pixelShaderPrefix);
+	CreateVertexShaderAndInputLayout(vertexShaderPrefix, m_vertexShader);
+	CreatePixelShader(pixelShaderPrefix, m_pixelShader);
+	// CreateGeometryShader(L"Basic", m_geometryShader);
+
+	CreateVertexShaderAndInputLayout(L"Normal", m_normalVertexShader);
+	CreatePixelShader(L"Normal", m_normalPixelShader);
+	CreateGeometryShader(L"Normal", m_normalGeometryShader);
 }
 void Mesh::Update(float dt)
 {
 	this->UpdateVertexConstantData(dt);
+	this->UpdateNormalConstantData();
 	this->UpdatePixelConstantData();
 	D3DUtils::GetInst().UpdateBuffer<VertexConstantData>(m_vertexConstantBuffer, m_vertexConstantData);
+	D3DUtils::GetInst().UpdateBuffer<NormalConstantData>(m_normalConstantBuffer, m_normalConstantData);
 	D3DUtils::GetInst().UpdateBuffer<PixelConstantData>(m_pixelConstantBuffer, m_pixelConstantData);
 }
 
@@ -44,6 +53,7 @@ void Mesh::UpdateVertexConstantData(float dt)
 {
 	static float time = 0.0f;
 	time += dt;
+	time = 0.0f;
 	Core& core = Core::GetInst();
 	if (time < 0)
 		time = 0;
@@ -57,11 +67,13 @@ void Mesh::UpdateVertexConstantData(float dt)
 		* Matrix::CreateRotationX(m_rotation2.x * time)
 		* Matrix::CreateRotationY(m_rotation2.y * time)
 		* Matrix::CreateRotationZ(m_rotation2.z * time);
-	m_vertexConstantData.model = m_vertexConstantData.model.Transpose();
 
 	m_vertexConstantData.invTranspose = m_vertexConstantData.model;
 	m_vertexConstantData.invTranspose.Translation(Vector3(0.0f));
 	m_vertexConstantData.invTranspose = m_vertexConstantData.invTranspose.Invert().Transpose();
+
+	m_vertexConstantData.model = m_vertexConstantData.model.Transpose();
+	m_vertexConstantData.invTranspose = m_vertexConstantData.invTranspose.Transpose();
 
 	m_vertexConstantData.view = Core::GetInst().GetCamera()->GetViewRow();
 	m_vertexConstantData.view = m_vertexConstantData.view.Transpose();
@@ -72,6 +84,16 @@ void Mesh::UpdateVertexConstantData(float dt)
 	float farZ = core.GetFarZ();
 	m_vertexConstantData.projection = XMMatrixPerspectiveFovLH(angleY, aspect, nearZ, farZ);
 	m_vertexConstantData.projection = m_vertexConstantData.projection.Transpose();
+}
+
+void Mesh::UpdateNormalConstantData()
+{
+	m_normalConstantData.model = m_vertexConstantData.model;
+	m_normalConstantData.invTranspose = m_vertexConstantData.invTranspose;
+	m_normalConstantData.view = m_vertexConstantData.view;
+	m_normalConstantData.projection = m_vertexConstantData.projection;
+
+	m_normalConstantData.normalSize = Core::GetInst().m_normalSize;
 }
 
 void Mesh::UpdatePixelConstantData()
@@ -87,6 +109,8 @@ void Mesh::Render(ID3D11DeviceContext* context)
 {
 	ReadyToRender(context);
 	context->DrawIndexed(m_indexCount, 0, 0);
+
+	DrawNormal(context);
 }
 
 void Mesh::ReadyToRender(ID3D11DeviceContext* context)
@@ -101,13 +125,31 @@ void Mesh::ReadyToRender(ID3D11DeviceContext* context)
 	context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	context->VSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
 
+	context->GSSetShader(m_geometryShader.Get(), nullptr, 0);
+	context->GSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
+
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	context->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
 	context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 	context->PSSetShaderResources(0, (UINT)m_vecShaderResourceViews.size(), m_vecShaderResourceViews.data()->GetAddressOf());
 }
 
-void Mesh::CreateVertexShaderAndInputLayout(const wstring& hlslPrefix)
+void Mesh::DrawNormal(ID3D11DeviceContext* context)
+{
+	context->IASetPrimitiveTopology(m_normalTopology);
+	
+	context->VSSetShader(m_normalVertexShader.Get(), nullptr, 0);
+	context->VSSetConstantBuffers(0, 1, m_normalConstantBuffer.GetAddressOf());
+
+	context->GSSetShader(m_normalGeometryShader.Get(), nullptr, 0);
+	context->GSSetConstantBuffers(0, 1, m_normalConstantBuffer.GetAddressOf());
+
+	context->PSSetShader(m_normalPixelShader.Get(), nullptr, 0);
+
+	context->DrawIndexed(m_indexCount, 0, 0);
+}
+
+void Mesh::CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vertexShader)
 {
 	vector<D3D11_INPUT_ELEMENT_DESC> inputElements =
 	{
@@ -115,12 +157,17 @@ void Mesh::CreateVertexShaderAndInputLayout(const wstring& hlslPrefix)
 		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 + 4 * 3, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
-	D3DUtils::GetInst().CreateVertexShaderAndInputLayout(hlslPrefix, m_vertexShader, inputElements, m_inputLayout);
+	D3DUtils::GetInst().CreateVertexShaderAndInputLayout(hlslPrefix, vertexShader, inputElements, m_inputLayout);
 }
 
-void Mesh::CreatePixelShader(const wstring& hlslPrefix)
+void Mesh::CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& pixelShader)
 {
-	D3DUtils::GetInst().CreatePixelShader(hlslPrefix, m_pixelShader);
+	D3DUtils::GetInst().CreatePixelShader(hlslPrefix, pixelShader);
+}
+
+void Mesh::CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11GeometryShader>& geometryShader)
+{
+	D3DUtils::GetInst().CreateGeometryShader(hlslPrefix, geometryShader);
 }
 
 void Mesh::CreateShaderResourceView(const string& textureName)

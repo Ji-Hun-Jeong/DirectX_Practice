@@ -41,5 +41,11 @@ struct PixelConstantData	// 96
 	Light light;
 	Material mat;
 };
+struct NormalConstantData : public VertexConstantData	// 48
+{
+	float normalSize = 1.0f;
+	float dummy[3];
+};
 static_assert(sizeof(VertexConstantData) % 16 == 0,"VertexConstantData Size Check");
 static_assert(sizeof(PixelConstantData) % 16 == 0, "PixelConstantData Size Check");
+static_assert(sizeof(NormalConstantData) % 16 == 0, "GeometryConstantData Size Check");

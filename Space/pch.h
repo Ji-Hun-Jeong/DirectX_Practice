@@ -30,6 +30,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <map>
 #include <algorithm>
 
 // using
@@ -39,6 +40,7 @@ using std::vector;
 using std::wstring;
 using std::string;
 using std::vector;
+using std::map;
 using std::shared_ptr;
 using std::make_shared;
 using std::reverse;

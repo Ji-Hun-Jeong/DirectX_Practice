@@ -7,6 +7,9 @@
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
+      <FullPath>C:\Users\Jeong\source\repos\DX_Space\x64\Debug\BasicGeometryShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>C:\Users\Jeong\source\repos\DX_Space\x64\Debug\BasicPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
@@ -17,6 +20,9 @@
     </ContentFile>
     <ContentFile>
       <FullPath>C:\Users\Jeong\source\repos\DX_Space\x64\Debug\CubeMapVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\Jeong\source\repos\DX_Space\x64\Debug\NormalGeometryShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
       <FullPath>C:\Users\Jeong\source\repos\DX_Space\x64\Debug\NormalPixelShader.cso</FullPath>
