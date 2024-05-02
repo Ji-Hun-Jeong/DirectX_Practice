@@ -39,6 +39,8 @@ void MeshGroup::Render(ID3D11DeviceContext* context, bool drawNormal)
 
 shared_ptr<Mesh>& MeshGroup::GetMesh(const string& name)
 {
+	// test
+	int a = 1;
 	for (auto& mesh : m_vecMeshes)
 	{
 		if (!mesh)
