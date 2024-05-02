@@ -7,6 +7,7 @@
 #include "KeyMgr.h"
 #include "MeshGroup.h"
 #include "Camera.h"
+#include "ImageFilter.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd,
 	UINT msg,
 	WPARAM wParam,
@@ -26,6 +27,7 @@ bool Core::Init()
 		return false;
 	InitMesh();
 	InitCubeMap();
+	CreateFilters();
 	return true;
 }
 
@@ -47,7 +49,7 @@ void Core::InitMesh()
 	venus->AddMesh("Venus", venusData, L"Basic", L"Basic");
 	m_vecMeshGroups.push_back(venus);
 
-	MeshData earthData = GeometryGenerator::MakeSphere(1.0f, 30, 30,"image/earth.jpg");
+	MeshData earthData = GeometryGenerator::MakeSphere(1.0f, 30, 30, "image/earth.jpg");
 	auto earth = make_shared<MeshGroup>(Vector3(114.16f, 0.0f, 0.0f), Vector3{ 0.0f,0.0023f,0.4091f }, Vector3{ 0.0f,0.062f,0.0f }, Vector3(1.0f));
 	earth->AddMesh("Earth", earthData, L"Basic", L"Basic");
 	m_vecMeshGroups.push_back(earth);
@@ -78,7 +80,7 @@ void Core::InitMesh()
 	auto neptune = make_shared<MeshGroup>(Vector3(264.68f, 0.0f, 0.0f), Vector3{ 0.0f,0.0134f,0.4943f }, Vector3{ 0.0f,0.011f,0.0f }, Vector3(1.0f));
 	neptune->AddMesh("Neptune", neptuneData, L"Basic", L"Basic");
 	m_vecMeshGroups.push_back(neptune);
-	
+
 	m_focusMeshGroup = solar;
 }
 
@@ -101,7 +103,7 @@ bool Core::InitGUI()
 	ImGui::StyleColorsLight();
 
 	// Setup Platform/Renderer backends
-	
+
 	if (!ImGui_ImplDX11_Init(D3DUtils::GetInst().GetDevice().Get(), D3DUtils::GetInst().GetContext().Get())) {
 		return false;
 	}
@@ -118,15 +120,24 @@ void Core::Update(float dt)
 	KeyMgr::GetInst().Update();
 	if (KEYCHECK(ESC, TAP))
 		exit(0);
+
 	m_camera->Update(dt);
 	m_pixelConstantData.eyePos = m_camera->GetPos();
+
 	for (auto& meshGroup : m_vecMeshGroups)
 	{
 		if (meshGroup)
-			meshGroup->Update(dt,m_drawNormal);
+			meshGroup->Update(dt, m_drawNormal);
 	}
+
 	if (m_cubeMap)
 		m_cubeMap->Update(dt);
+
+	for (auto& filter : m_filters)
+	{
+		if (filter)
+			filter->Update(dt);
+	}
 }
 
 void Core::UpdateGUI()
@@ -134,6 +145,8 @@ void Core::UpdateGUI()
 	ImGui::Checkbox("DrawWireFrame", &m_drawWireFrame);
 	ImGui::Checkbox("DrawNormal", &m_drawNormal);
 	ImGui::SliderFloat("NormalSize", &m_normalSize, 0.0f, 100.0f);
+	ImGui::SliderFloat("Threshold", &m_pixelConstantData.threshold, 0.0f, 1.0f);
+	ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloomLightStrength, 0.0f, 1.0f);
 	ImGui::SliderFloat3("Rotation", &m_focusMeshGroup->GetMesh("Solar")->m_rotation1.x, 0.0f, 3.14f);
 	ImGui::SliderFloat("LightStrength", &m_pixelConstantData.light.lightStrength.x, 0.0f, 1.0f);
 	ImGui::SliderFloat3("LightPos", &m_pixelConstantData.light.lightPos.x, -1000.0f, 1000.0f);
@@ -152,19 +165,29 @@ void Core::Render()
 	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
 	context->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
 	context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	if(m_drawWireFrame)
+
+	if (m_drawWireFrame)
 		context->RSSetState(m_wireRasterizerState.Get());
 	else
 		context->RSSetState(m_solidRasterizerState.Get());
+
 	context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
 	context->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
+
 	for (auto& meshGroup : m_vecMeshGroups)
 	{
 		if (meshGroup)
 			meshGroup->Render(context.Get(), m_drawNormal);
 	}
+
 	if (m_cubeMap)
 		m_cubeMap->Render(context.Get(), m_drawNormal);
+
+	for (auto& filter : m_filters)
+	{
+		if (filter)
+			filter->Render(context.Get(), m_drawNormal);
+	}
 }
 
 int Core::Progress()
@@ -193,7 +216,7 @@ int Core::Progress()
 
 			ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
 			ImGui::End();
-            ImGui::Render(); // 렌더링할 것들 기록 끝
+			ImGui::Render(); // 렌더링할 것들 기록 끝
 
 			Update(ImGui::GetIO().DeltaTime);
 			Render();
@@ -251,6 +274,8 @@ bool Core::InitDirect3D()
 		return false;
 	if (!CreateRenderTargetView())
 		return false;
+	D3D11_RENDER_TARGET_VIEW_DESC desc;
+	m_renderTargetView->GetDesc(&desc);
 	if (!CreateRasterizerState())
 		return false;
 	CreateViewPort();
@@ -269,6 +294,9 @@ bool Core::CreateRenderTargetView()
 	ComPtr<ID3D11Device>& device = D3DUtils::GetInst().GetDevice();
 	ComPtr<ID3D11Texture2D> swapChainBackBuffer;
 	swapChain->GetBuffer(0, IID_PPV_ARGS(swapChainBackBuffer.GetAddressOf()));
+	HRESULT result = device->CreateShaderResourceView(swapChainBackBuffer.Get(), nullptr, m_shaderResourceView.GetAddressOf());
+	if (FAILED(result))
+		assert(0);
 	return D3DUtils::GetInst().CreateRenderTargetView(swapChainBackBuffer.Get(), nullptr, m_renderTargetView);
 }
 
@@ -318,14 +346,14 @@ bool Core::CreateDepthStencilView()
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
 	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // 깊이에 24비트, 스텐실에 8비트 지원 32비트 z-버퍼 형식입니다.
-	if (m_iNumOfMultiSamplingLevel > 0) 
+	if (m_iNumOfMultiSamplingLevel > 0)
 	{
-		depthBufferDesc.SampleDesc.Count = 4; 
+		depthBufferDesc.SampleDesc.Count = 4;
 		depthBufferDesc.SampleDesc.Quality = m_iNumOfMultiSamplingLevel - 1;
 	}
-	else 
+	else
 	{
-		depthBufferDesc.SampleDesc.Count = 1; 
+		depthBufferDesc.SampleDesc.Count = 1;
 		depthBufferDesc.SampleDesc.Quality = 0;
 	}
 	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -346,11 +374,61 @@ bool Core::CreateDepthStencilState()
 	return D3DUtils::GetInst().CreateDepthStencilState(&desc, m_depthStencilState);
 }
 
+void Core::CreateFilters()
+{
+	m_pixelConstantData.dx = 1.0f / m_fWidth;
+	m_pixelConstantData.dy = 1.0f / m_fHeight;
+
+	auto copyFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Copy");
+	copyFilter->SetShaderResourceViews({ m_shaderResourceView.Get() });
+	m_filters.push_back(copyFilter);
+
+	// blur
+	// DownSampling으로 Aliasing 현상을 줄임
+	int down = 64;
+	for (int height = 2; height <= down; height *= 2)
+	{
+		auto downFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"Copy");
+		downFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
+		m_filters.push_back(downFilter);
+	}
+
+	// Blur처리를 하면서 원본 크기까지 UpSampling
+	for (int height = down; height >= 1; height /= 2)
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			auto blurXFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"BlurX");
+			blurXFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
+			m_filters.push_back(blurXFilter);
+
+			auto blurYFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"BlurY");
+			blurYFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
+			m_filters.push_back(blurYFilter);
+		}
+	}
+
+	// 결과를 Bloom
+	auto bloomFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Bloom");
+	bloomFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
+	m_filters.push_back(bloomFilter);
+
+	// 원본영상에 합침
+	auto combineFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Combine");
+	combineFilter->SetShaderResourceViews(
+		{
+			copyFilter->GetShaderResourceView().Get(),
+		m_filters.back()->GetShaderResourceView().Get() }
+	);
+	combineFilter->SetRenderTargetViews({ m_renderTargetView.Get() });
+	m_filters.push_back(combineFilter);
+}
+
 LRESULT Core::MsgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
 		return true;
-	switch (message) 
+	switch (message)
 	{
 	case WM_SIZE:
 		break;
@@ -361,7 +439,7 @@ LRESULT Core::MsgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 		// cout << "Mouse " << LOWORD(lParam) << " " << HIWORD(lParam) << endl;
 		break;
-	case WM_LBUTTONUP:		
+	case WM_LBUTTONUP:
 		// cout << "WM_LBUTTONUP Left mouse button" << endl;
 		break;
 	case WM_RBUTTONUP:

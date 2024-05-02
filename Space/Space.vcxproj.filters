@@ -50,6 +50,12 @@
     <Filter Include="Engine\Shader\NormalShader">
       <UniqueIdentifier>{68e49bcb-de5c-4660-9bb6-ad57de88e9c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Shader\FilterShader">
+      <UniqueIdentifier>{5cb0d3db-5a75-4614-9170-a68336fc0f2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh\ImageFilter">
+      <UniqueIdentifier>{f3c25483-e812-42b0-94ce-c2bdec7d6eb1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -100,6 +106,9 @@
     <ClInclude Include="Camera.h">
       <Filter>Engine\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="ImageFilter.h">
+      <Filter>Engine\Mesh\ImageFilter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -142,6 +151,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Engine\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="ImageFilter.cpp">
+      <Filter>Engine\Mesh\ImageFilter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicVertexShader.hlsl">
@@ -167,6 +179,24 @@
     </FxCompile>
     <FxCompile Include="NormalGeometryShader.hlsl">
       <Filter>Engine\Shader\NormalShader</Filter>
+    </FxCompile>
+    <FxCompile Include="CopyVertexShader.hlsl">
+      <Filter>Engine\Shader\FilterShader</Filter>
+    </FxCompile>
+    <FxCompile Include="BloomPixelShader.hlsl">
+      <Filter>Engine\Shader\FilterShader</Filter>
+    </FxCompile>
+    <FxCompile Include="CopyPixelShader.hlsl">
+      <Filter>Engine\Shader\FilterShader</Filter>
+    </FxCompile>
+    <FxCompile Include="CombinePixelShader.hlsl">
+      <Filter>Engine\Shader\FilterShader</Filter>
+    </FxCompile>
+    <FxCompile Include="BlurXPixelShader.hlsl">
+      <Filter>Engine\Shader\FilterShader</Filter>
+    </FxCompile>
+    <FxCompile Include="BlurYPixelShader.hlsl">
+      <Filter>Engine\Shader\FilterShader</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

@@ -48,7 +48,6 @@ using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
 
-
 #include "Enum.h"
 #include "Struct.h"
 

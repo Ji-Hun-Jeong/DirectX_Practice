@@ -2,6 +2,7 @@
 class CubeMap;
 class MeshGroup;
 class Camera;
+class ImageFilter;
 class Core
 {
 // Start
@@ -41,6 +42,7 @@ protected:
 	float m_fHeight;
 	
 	shared_ptr<Camera> m_camera;
+	vector<shared_ptr<ImageFilter>> m_filters;
 
 	float m_angleY = 70.0f;
 	float m_nearZ = 0.01f;
@@ -54,7 +56,14 @@ public:
 	float GetNearZ() { return m_nearZ; }
 	float GetFarZ() { return m_farZ; }
 
-// Direct3D
+// D3D11Member
+
+// Getter, Setter
+public:
+	UINT m_iNumOfMultiSamplingLevel;
+	ComPtr<ID3D11DepthStencilView>& GetDepthStencilView() { return m_depthStencilView; }
+	ComPtr<ID3D11RenderTargetView>& GetRenderTargetView() { return m_renderTargetView; }
+
 private:
 	bool InitDirect3D();
 	bool CreateRenderTargetView();
@@ -63,8 +72,9 @@ private:
 	void SetViewPort();
 	bool CreateDepthStencilView();
 	bool CreateDepthStencilState();
+	void CreateFilters();
 protected:
-	UINT m_iNumOfMultiSamplingLevel;
+	ComPtr<ID3D11ShaderResourceView> m_shaderResourceView;
 	ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	ComPtr<ID3D11RasterizerState> m_solidRasterizerState;
 	ComPtr<ID3D11RasterizerState> m_wireRasterizerState;
@@ -73,7 +83,6 @@ protected:
 	ComPtr<ID3D11Texture2D> m_depthBuffer;
 	ComPtr<ID3D11DepthStencilView> m_depthStencilView;
 	ComPtr<ID3D11DepthStencilState> m_depthStencilState;
-
 // SingleTon
 	SINGLE(Core)
 };

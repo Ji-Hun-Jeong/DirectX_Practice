@@ -4,6 +4,11 @@
 #include "Core.h"
 #include "Camera.h"
 
+Mesh::Mesh()
+	: Mesh(Vector3(0.0f), Vector3(0.0f), Vector3(0.0f), Vector3(1.0f), D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+{
+}
+
 Mesh::Mesh(const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale, D3D11_PRIMITIVE_TOPOLOGY topology)
 	: m_indexCount(0)
 	, m_translation(translation)
@@ -11,9 +16,8 @@ Mesh::Mesh(const Vector3& translation, const Vector3& rotation1, const Vector3& 
 	, m_rotation2(rotation2)
 	, m_scale(scale)
 	, m_topology(topology)
-	, m_normalTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_POINTLIST)
+	, m_normalTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST)
 {
-	
 }
 void Mesh::Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
 {
@@ -28,7 +32,7 @@ void Mesh::Init(const string& name, const MeshData& meshData, const wstring& ver
 	if (!meshData.textureName.empty())
 	{
 		// ShaderResourceView
-		CreateShaderResourceView(meshData.textureName);
+		ReadImage(meshData.textureName);
 	}
 
 	CreateVertexShaderAndInputLayout(vertexShaderPrefix, m_vertexShader);
@@ -115,8 +119,10 @@ void Mesh::Render(ID3D11DeviceContext* context, bool drawNormal)
 
 void Mesh::ReadyToRender(ID3D11DeviceContext* context)
 {
+	Core& core = Core::GetInst();
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
+	context->OMSetRenderTargets(1, core.GetRenderTargetView().GetAddressOf(), core.GetDepthStencilView().Get());
 	context->IASetPrimitiveTopology(m_topology);
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	context->IASetInputLayout(m_inputLayout.Get());
@@ -170,11 +176,11 @@ void Mesh::CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11Geometry
 	D3DUtils::GetInst().CreateGeometryShader(hlslPrefix, geometryShader);
 }
 
-void Mesh::CreateShaderResourceView(const string& textureName)
+void Mesh::ReadImage(const string& textureName)
 {
 	ComPtr<ID3D11Texture2D> texture;
 	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
-	D3DUtils::GetInst().CreateShaderResourceView(textureName, texture, shaderResourceView);
+	D3DUtils::GetInst().ReadImage(textureName, texture, shaderResourceView);
 	m_vecShaderResourceViews.push_back(shaderResourceView);
 }
 

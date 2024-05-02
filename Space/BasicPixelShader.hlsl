@@ -7,6 +7,10 @@ cbuffer PixelConstant : register(b0)
     int isSun;
     Light light;
     Material mat;
+    float threshold;
+    float dx;
+    float dy;
+    float bloomLightStrength;
 };
 float3 BlinnPhong(float3 normal, float3 toLightVec,float3 toEyeVec,float3 lightStrength)
 {

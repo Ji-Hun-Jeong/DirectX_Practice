@@ -7,3 +7,5 @@
 
 #define KEYCHECK(type,state) KeyMgr::GetInst().KeyCheck(KEY_TYPE::type, KEY_STATE::state) 
 #define MOUSEPOS() KeyMgr::GetInst().GetMousePos();
+
+#define CHECKRESULT(result) if(FAILED(result)) assert(0);

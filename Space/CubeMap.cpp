@@ -26,7 +26,7 @@ void CubeMap::ReadyToRender(ID3D11DeviceContext* context)
 	context->PSSetShaderResources(0, 1, m_cubeMapResource.GetAddressOf());
 }
 
-void CubeMap::CreateShaderResourceView(const string& textureName)
+void CubeMap::ReadImage(const string& textureName)
 {
 	wstring fileName = wstring().assign(textureName.begin(), textureName.end());
 	ComPtr<ID3D11Texture2D> texture;

@@ -2,10 +2,11 @@
 class Mesh
 {
 public:
+	Mesh();
 	Mesh(const Vector3& translation, const Vector3& rotation1,const Vector3& rotation2,const Vector3& scale,D3D11_PRIMITIVE_TOPOLOGY topology= D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	void Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix);
-	void Update(float dt);
-	void Render(ID3D11DeviceContext* context, bool drawNormal);
+	virtual void Update(float dt);
+	virtual void Render(ID3D11DeviceContext* context, bool drawNormal);
 protected:
 	virtual void UpdateVertexConstantData(float dt);
 	virtual void UpdateNormalConstantData();
@@ -15,7 +16,7 @@ protected:
 	void CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vertexShader);
 	void CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& pixelShader);
 	void CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11GeometryShader>& geometryShader);
-	virtual void CreateShaderResourceView(const string& textureName);
+	virtual void ReadImage(const string& textureName);
 
 // D3D11 Member
 protected:
@@ -56,6 +57,18 @@ public:
 	Vector3 m_scale;
 
 public:
+	const D3D11_PRIMITIVE_TOPOLOGY& GetPrimitiveTopology() { return m_topology; }
+	const ComPtr<ID3D11Buffer>& GetVertexBuffer() { return m_vertexBuffer; }
+	const ComPtr<ID3D11Buffer>& GetIndexBuffer() { return m_indexBuffer; }
+	const ComPtr<ID3D11InputLayout>& GetInputLayout() { return m_inputLayout; }
+
+	const ComPtr<ID3D11VertexShader>& GetVertexShader() { return m_vertexShader; }
+	const UINT& GetIndexCount() { return m_indexCount; }
+
+	const ComPtr<ID3D11PixelShader>& GetPixelShader() { return m_pixelShader; }
+	const ComPtr<ID3D11Buffer>& GetPixelConstantBuffer() { return m_pixelConstantBuffer; }
+	const ComPtr<ID3D11SamplerState>& GetSamplerState() { return m_samplerState; }
+
 	const string& GetName() { return m_strName; }
 	const VertexConstantData& GetVertexConstantData() { return m_vertexConstantData; }
 	PixelConstantData& GetPixelConstantData() { return m_pixelConstantData; }

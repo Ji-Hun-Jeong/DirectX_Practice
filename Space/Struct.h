@@ -40,6 +40,10 @@ struct PixelConstantData	// 96
 	int isSun = 0;
 	Light light;
 	Material mat;
+	float threshold = 0.1f;
+	float dx = 0.0f;
+	float dy = 0.0f;
+	float bloomLightStrength = 0.0f;
 };
 struct NormalConstantData : public VertexConstantData	// 48
 {

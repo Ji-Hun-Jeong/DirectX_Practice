@@ -7,6 +7,10 @@ cbuffer PixelConstant : register(b0)
     int isSun;
     Light light;
     Material mat;
+    float threshold;
+    float dx;
+    float dy;
+    float bloomLightStrength;
 };
 float4 main(PSInput input) : SV_TARGET
 {

@@ -7,7 +7,7 @@ public:
 	CubeMap();
 	virtual void UpdateVertexConstantData(float dt) override;
 	virtual void ReadyToRender(ID3D11DeviceContext* context) override;
-	virtual void CreateShaderResourceView(const string& textureName) override;
+	virtual void ReadImage(const string& textureName) override;
 private:
 	ComPtr<ID3D11ShaderResourceView> m_cubeMapResource;
 };
