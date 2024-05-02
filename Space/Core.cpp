@@ -164,7 +164,7 @@ void Core::Render()
 			meshGroup->Render(context.Get(), m_drawNormal);
 	}
 	if (m_cubeMap)
-		m_cubeMap->Render(context.Get());
+		m_cubeMap->Render(context.Get(), m_drawNormal);
 }
 
 int Core::Progress()

@@ -13,7 +13,7 @@ Mesh::Mesh(const Vector3& translation, const Vector3& rotation1, const Vector3& 
 	, m_topology(topology)
 	, m_normalTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_POINTLIST)
 {
-	// test
+	
 }
 void Mesh::Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
 {
@@ -105,12 +105,12 @@ void Mesh::UpdatePixelConstantData()
 	//m_pixelConstantData.eyePos = Core::GetInst().GetCamera()->GetPos();
 }
 
-void Mesh::Render(ID3D11DeviceContext* context)
+void Mesh::Render(ID3D11DeviceContext* context, bool drawNormal)
 {
 	ReadyToRender(context);
 	context->DrawIndexed(m_indexCount, 0, 0);
-
-	DrawNormal(context);
+	if (drawNormal)
+		DrawNormal(context);
 }
 
 void Mesh::ReadyToRender(ID3D11DeviceContext* context)

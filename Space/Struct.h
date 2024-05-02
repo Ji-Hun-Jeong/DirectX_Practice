@@ -23,17 +23,17 @@ struct Light	// 32
 	Vector3 lightPos = Vector3(0.0f);
 	float fallOfStart = 1.0f;
 	Vector3 lightStrength = Vector3(1.0f);
-	float fallOfEnd = 1000.0f;
+	float fallOfEnd = 300.0f;
 };
 struct Material	// 48
 {
-	Vector3 ambient = Vector3(0.5f);
-	float dummy1;
-	Vector3 diffuse = Vector3(0.5f);
-	float dummy2;
-	Vector3 specular = Vector3(0.3f);
-	float	shiness = 2.0f;
-};	
+	Vector3 ambient = Vector3(0.1f);
+	float dummy1 = 0.0f;
+	Vector3 diffuse = Vector3(0.03f);
+	float dummy2 = 0.0f;
+	Vector3 specular = Vector3(0.1f);
+	float	shiness = 10.0f;
+};
 struct PixelConstantData	// 96
 {
 	Vector3 eyePos;
@@ -44,8 +44,8 @@ struct PixelConstantData	// 96
 struct NormalConstantData : public VertexConstantData	// 48
 {
 	float normalSize = 1.0f;
-	float dummy[3];
+	float dummy[3] = { 0.0f };
 };
-static_assert(sizeof(VertexConstantData) % 16 == 0,"VertexConstantData Size Check");
+static_assert(sizeof(VertexConstantData) % 16 == 0, "VertexConstantData Size Check");
 static_assert(sizeof(PixelConstantData) % 16 == 0, "PixelConstantData Size Check");
 static_assert(sizeof(NormalConstantData) % 16 == 0, "GeometryConstantData Size Check");

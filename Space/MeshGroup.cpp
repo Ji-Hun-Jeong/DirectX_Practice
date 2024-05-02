@@ -33,7 +33,7 @@ void MeshGroup::Render(ID3D11DeviceContext* context, bool drawNormal)
 	for (auto& mesh : m_vecMeshes)
 	{
 		if (mesh)
-			mesh->Render(context);
+			mesh->Render(context, drawNormal);
 	}
 }
 

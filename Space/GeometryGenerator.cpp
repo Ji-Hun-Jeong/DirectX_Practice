@@ -43,40 +43,13 @@ MeshData GeometryGenerator::MakeSphere(float radius, UINT numOfStack, UINT numOf
 	return meshData;
 }
 
-MeshData GeometryGenerator::MakeNormal(const MeshData& meshData)
-{
-	MeshData result;
-	vector<Vertex>& vertices = result.vertices;
-	for (int i = 0; i < meshData.vertices.size(); ++i)
-	{
-		Vertex v1, v2;
-		v1.position = meshData.vertices[i].position;
-		v1.normal = meshData.vertices[i].normal;
-		v1.uv.x = 0.0f;
-		vertices.push_back(v1);
-
-		v2.position = meshData.vertices[i].position;
-		v2.normal = meshData.vertices[i].normal;
-		v2.uv.x = 1.0f;
-		vertices.push_back(v2);
-	}
-
-	vector<uint32_t>& indices = result.indices;
-	for (int i = 0; i < meshData.vertices.size(); ++i)
-	{
-		indices.push_back(2 * i);
-		indices.push_back(2 * i + 1);
-	}
-	return result;
-}
-
 MeshData GeometryGenerator::MakeDisc(float insideRadius, float outsideRadius, UINT numOfDevide, const string& textureName)
 {
 	MeshData result;
 	vector<Vertex>& vertices = result.vertices;
 	const float theta = XM_2PI / numOfDevide;
 	Vector3 startPos = Vector3{ 0.0f,0.0f,-insideRadius };
-	for (int i = 0; i <= numOfDevide; ++i)
+	for (UINT i = 0; i <= numOfDevide; ++i)
 	{
 		Vertex v;
 		v.position = Vector3::Transform(startPos, Matrix::CreateRotationY(i * theta));
@@ -85,7 +58,7 @@ MeshData GeometryGenerator::MakeDisc(float insideRadius, float outsideRadius, UI
 		vertices.push_back(v);
 	}
 	startPos = Vector3{ 0.0f,0.0f,-outsideRadius };
-	for (int i = 0; i <= numOfDevide; ++i)
+	for (UINT i = 0; i <= numOfDevide; ++i)
 	{
 		Vertex v;
 		v.position = Vector3::Transform(startPos, Matrix::CreateRotationY(i * theta));
@@ -95,7 +68,7 @@ MeshData GeometryGenerator::MakeDisc(float insideRadius, float outsideRadius, UI
 	}
 	vector<uint32_t>& indices = result.indices;
 	int offset = numOfDevide + 1;
-	for (int i = 0; i < numOfDevide; ++i)
+	for (UINT i = 0; i < numOfDevide; ++i)
 	{
 		indices.push_back(i);
 		indices.push_back(i + offset);
