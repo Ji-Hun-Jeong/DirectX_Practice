@@ -19,7 +19,7 @@ MeshData GeometryGenerator::MakeSphere(float radius, UINT numOfStack, UINT numOf
 				Vector3::Transform(startOfRotation, Matrix::CreateRotationY(xTheta * j));
 			v.normal = v.position;
 			v.normal.Normalize();
-			v.uv = Vector2{ float(j) / numOfSlice,1.0f - float(i) / numOfStack };
+			v.uv = Vector2{ float(j) / numOfSlice, 1.0f - float(i) / numOfStack };
 			vertices.push_back(v);
 		}
 	}
@@ -88,22 +88,22 @@ MeshData GeometryGenerator::MakeSquare()
 	result.textureName = "";
 	vector<Vertex>& v = result.vertices;
 	Vertex vertex;
-	vertex.position = Vector3{ -1.0f,-1.0f,1.0f };
+	vertex.position = Vector3{ -1.0f,-1.0f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2{ 0.0f,1.0f };
 	v.push_back(vertex);
 
-	vertex.position = Vector3{ -1.0f,1.0f,1.0f };
+	vertex.position = Vector3{ -1.0f,1.0f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2{ 0.0f,0.0f };
 	v.push_back(vertex);
 
-	vertex.position = Vector3{ 1.0f,1.0f,1.0f };
+	vertex.position = Vector3{ 1.0f,1.0f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2{ 1.0f,0.0f };
 	v.push_back(vertex);
 
-	vertex.position = Vector3{ 1.0f,-1.0f,1.0f };
+	vertex.position = Vector3{ 1.0f,-1.0f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2{ 1.0f,1.0f };
 	v.push_back(vertex);

@@ -81,6 +81,12 @@ void Core::InitMesh()
 	neptune->AddMesh("Neptune", neptuneData, L"Basic", L"Basic");
 	m_vecMeshGroups.push_back(neptune);
 
+	MeshData groundData = GeometryGenerator::MakeSquare();
+	groundData.textureName = "image/Earth.jpg";
+	auto ground = make_shared<MeshGroup>(Vector3{ 0.0f,-200.0f,0.0f }, Vector3{ 90.0f,0.0f,0.0f }, Vector3(0.0f), Vector3(200.0f));
+	ground->AddMesh("Ground", groundData, L"Basic", L"Basic");
+	m_vecMeshGroups.push_back(ground);
+
 	m_focusMeshGroup = solar;
 }
 

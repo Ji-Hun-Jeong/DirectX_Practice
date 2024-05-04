@@ -22,8 +22,8 @@ void Camera::Update(float dt)
 Matrix Camera::GetViewRow()
 {
 	Matrix result = Matrix::CreateTranslation(-m_pos) *
-		Matrix::CreateRotationX(m_fPitch) *
-		Matrix::CreateRotationY(-m_fYaw);
+		Matrix::CreateRotationY(-m_fYaw) *
+		Matrix::CreateRotationX(m_fPitch);
 	return result;
 }
 
@@ -60,17 +60,19 @@ void Camera::MoveUpDir(float dt)
 
 void Camera::CalDirection()
 {
-	Vector2 cursorDiff = KeyMgr::GetInst().GetMousePos();
-	m_fYaw = cursorDiff.x * XM_PI;
-	m_fPitch = cursorDiff.y * XM_PIDIV2;
+	Vector2 cursorPos = KeyMgr::GetInst().GetMousePos();
+	m_fYaw = cursorPos.x * XM_PI;
+	m_fPitch = cursorPos.y * XM_PIDIV2;
 
 	m_viewDir = Vector3::Transform(Vector3{ 0.0f,0.0f,1.0f },
-		Matrix::CreateRotationY(m_fYaw)
-		* Matrix::CreateRotationX(-m_fPitch));
+		Matrix::CreateRotationX(-m_fPitch) *
+		Matrix::CreateRotationY(m_fYaw));
 
+	// 짐벌락 현상때문에 이게 맞아
+	// 아.. 드디어 이해했습니다 짐벌락
 	m_upDir = Vector3::Transform(Vector3{ 0.0f, 1.0f, 0.0f },
-		Matrix::CreateRotationY(m_fYaw)
-		* Matrix::CreateRotationX(-m_fPitch));
+		Matrix::CreateRotationX(-m_fPitch) *
+		Matrix::CreateRotationY(m_fYaw));
 
 	m_rightDir = m_upDir.Cross(m_viewDir);
 }

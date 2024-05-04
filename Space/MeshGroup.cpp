@@ -10,6 +10,8 @@ MeshGroup::MeshGroup(const Vector3& translation, const Vector3& rotation1, const
 	, m_rotation2(rotation2)
 	, m_scale(scale)
 {
+	m_rotation1 = m_rotation1 * XM_PI / 180.0f;
+	m_rotation2 = m_rotation2 * XM_PI / 180.0f;
 }
 
 void MeshGroup::AddMesh(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)

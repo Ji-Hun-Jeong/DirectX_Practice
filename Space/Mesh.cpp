@@ -57,11 +57,10 @@ void Mesh::UpdateVertexConstantData(float dt)
 {
 	static float time = 0.0f;
 	time += dt;
-	time = 0.0f;
 	Core& core = Core::GetInst();
 	if (time < 0)
 		time = 0;
-
+	
 	m_vertexConstantData.model =
 		Matrix::CreateScale(m_scale)
 		* Matrix::CreateRotationX(m_rotation1.x)
