@@ -7,10 +7,8 @@ cbuffer PixelConstant : register(b0)
     int isSun;
     Light light;
     Material mat;
-    float threshold;
-    float dx;
-    float dy;
-    float bloomLightStrength;
+    Bloom bloom;
+    Rim rim;
 };
 float3 BlinnPhong(float3 normal, float3 toLightVec,float3 toEyeVec,float3 lightStrength)
 {
@@ -44,8 +42,21 @@ float3 ComputePointLight(PSInput input)
 }
 float4 main(PSInput input) : SV_TARGET
 {
-    float3 toEye = eyePos - input.posWorld.xyz;
+    float3 toEye = normalize(eyePos - input.posWorld.xyz);
     float3 color = g_texture0.Sample(g_sampler, input.uv);
     color = isSun ? color * float3(1.5f, 1.5f, 1.5f) : color * ComputePointLight(input);
+    if (rim.useRim && !isSun)
+    {
+        float3 lightVec = normalize(light.lightPos - input.posWorld.xyz);
+        float degreeOfLightAndNormal = dot(lightVec, input.normal);
+        if (degreeOfLightAndNormal <= 0.0f)
+        {
+            color = g_texture0.Sample(g_sampler, input.uv).xyz;
+            float degreeOfEyeAndLight = -dot(toEye, lightVec);
+            float degreeOfEyeAndNormal = max(dot(toEye, input.normal), 0.0f);
+            color *= pow(1.0f - degreeOfEyeAndNormal, rim.rimPower);
+            color *= rim.rimStrength * degreeOfEyeAndLight;
+        } 
+    }
     return float4(color, 1.0f);
 }

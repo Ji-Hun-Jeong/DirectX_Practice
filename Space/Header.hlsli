@@ -35,3 +35,19 @@ struct Material	// 48
     float3 specular;
     float shiness;
 };
+
+struct Bloom
+{
+    float threshold;
+    float dx;
+    float dy;
+    float bloomStrength;
+};
+
+struct Rim
+{
+    float rimStrength;
+    float rimPower;
+    float dummy;
+    int useRim;
+};

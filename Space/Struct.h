@@ -34,16 +34,28 @@ struct Material	// 48
 	Vector3 specular = Vector3(0.1f);
 	float	shiness = 10.0f;
 };
+struct Bloom
+{
+	float threshold = 0.1f;
+	float dx = 0.0f;
+	float dy = 0.0f;
+	float bloomStrength = 0.0f;
+};
+struct Rim
+{
+	float rimStrength = 1.8f;
+	float rimPower = 2.3f;
+	float dummy = 0.0f;
+	bool useRim = false;
+};
 struct PixelConstantData	// 96
 {
 	Vector3 eyePos;
 	int isSun = 0;
 	Light light;
 	Material mat;
-	float threshold = 0.1f;
-	float dx = 0.0f;
-	float dy = 0.0f;
-	float bloomLightStrength = 0.0f;
+	Bloom bloom;
+	Rim rim;
 };
 struct NormalConstantData : public VertexConstantData	// 48
 {

@@ -150,9 +150,12 @@ void Core::UpdateGUI()
 {
 	ImGui::Checkbox("DrawWireFrame", &m_drawWireFrame);
 	ImGui::Checkbox("DrawNormal", &m_drawNormal);
+	ImGui::Checkbox("Use Rim", &m_pixelConstantData.rim.useRim);
 	ImGui::SliderFloat("NormalSize", &m_normalSize, 0.0f, 100.0f);
-	ImGui::SliderFloat("Threshold", &m_pixelConstantData.threshold, 0.0f, 1.0f);
-	ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloomLightStrength, 0.0f, 1.0f);
+	ImGui::SliderFloat("Rim Strength", &m_pixelConstantData.rim.rimStrength, 0.0f, 2.0f);
+	ImGui::SliderFloat("Rim Power", &m_pixelConstantData.rim.rimPower, 0.0f, 100.0f);
+	ImGui::SliderFloat("Threshold", &m_pixelConstantData.bloom.threshold, 0.0f, 1.0f);
+	ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloom.bloomStrength, 0.0f, 1.0f);
 	ImGui::SliderFloat3("Rotation", &m_focusMeshGroup->GetMesh("Solar")->m_rotation1.x, 0.0f, 3.14f);
 	ImGui::SliderFloat("LightStrength", &m_pixelConstantData.light.lightStrength.x, 0.0f, 1.0f);
 	ImGui::SliderFloat3("LightPos", &m_pixelConstantData.light.lightPos.x, -1000.0f, 1000.0f);
@@ -382,8 +385,8 @@ bool Core::CreateDepthStencilState()
 
 void Core::CreateFilters()
 {
-	m_pixelConstantData.dx = 1.0f / m_fWidth;
-	m_pixelConstantData.dy = 1.0f / m_fHeight;
+	m_pixelConstantData.bloom.dx = 1.0f / m_fWidth;
+	m_pixelConstantData.bloom.dy = 1.0f / m_fHeight;
 
 	auto copyFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Copy");
 	copyFilter->SetShaderResourceViews({ m_shaderResourceView.Get() });

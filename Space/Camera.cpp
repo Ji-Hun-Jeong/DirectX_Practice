@@ -21,6 +21,7 @@ void Camera::Update(float dt)
 
 Matrix Camera::GetViewRow()
 {
+	// 여기서도 y축으로 시점이 가는순간 짐벌락 발생
 	Matrix result = Matrix::CreateTranslation(-m_pos) *
 		Matrix::CreateRotationY(-m_fYaw) *
 		Matrix::CreateRotationX(m_fPitch);
@@ -37,9 +38,9 @@ void Camera::UpdatePos(float dt)
 		MoveRightDir(-dt);
 	if (KEYCHECK(D, HOLD))
 		MoveRightDir(dt);
-	if (KEYCHECK(Q, HOLD))
-		MoveUpDir(dt);
 	if (KEYCHECK(E, HOLD))
+		MoveUpDir(dt);
+	if (KEYCHECK(Q, HOLD))
 		MoveUpDir(-dt);
 }
 

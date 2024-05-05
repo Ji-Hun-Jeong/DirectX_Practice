@@ -8,14 +8,12 @@ cbuffer PixelConstant : register(b0)
     int isSun;
     Light light;
     Material mat;
-    float threshold;
-    float dx;
-    float dy;
-    float bloomLightStrength;
+    Bloom bloom;
+    Rim rim;
 };
 float4 main(PSInput input) : SV_TARGET
 {
     float3 color;
-    color = g_originalTexture.Sample(g_sampler, input.uv) + g_blurTexture.Sample(g_sampler, input.uv) * bloomLightStrength;
+    color = g_originalTexture.Sample(g_sampler, input.uv) + g_blurTexture.Sample(g_sampler, input.uv) * bloom.bloomStrength;
     return float4(color, 1.0f);
 }
