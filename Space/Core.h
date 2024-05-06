@@ -49,12 +49,12 @@ protected:
 	float m_farZ = 10000.0f;
 public:
 	shared_ptr<Camera>& GetCamera() { return m_camera; }
-	float GetScreenWidth() { return m_fWidth; }
-	float GetScreenHeight() { return m_fHeight; }
-	float GetAspect() { return m_fWidth / m_fHeight; }
-	float GetAngleY() { return XMConvertToRadians(m_angleY); }
-	float GetNearZ() { return m_nearZ; }
-	float GetFarZ() { return m_farZ; }
+	float GetScreenWidth() const { return m_fWidth; }
+	float GetScreenHeight() const { return m_fHeight; }
+	float GetAspect() const { return m_fWidth / m_fHeight; }
+	float GetAngleY() const { return XMConvertToRadians(m_angleY); }
+	float GetNearZ() const { return m_nearZ; }
+	float GetFarZ() const { return m_farZ; } 
 
 // D3D11Member
 

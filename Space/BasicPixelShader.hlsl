@@ -49,9 +49,9 @@ float4 main(PSInput input) : SV_TARGET
     {
         float3 lightVec = normalize(light.lightPos - input.posWorld.xyz);
         float degreeOfLightAndNormal = dot(lightVec, input.normal);
+        float degreeOfEyeAndLight = dot(toEye, lightVec);
         if (degreeOfLightAndNormal <= 0.0f)
         {
-            color = g_texture0.Sample(g_sampler, input.uv).xyz;
             float degreeOfEyeAndLight = -dot(toEye, lightVec);
             float degreeOfEyeAndNormal = max(dot(toEye, input.normal), 0.0f);
             color *= pow(1.0f - degreeOfEyeAndNormal, rim.rimPower);

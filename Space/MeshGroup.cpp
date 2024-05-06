@@ -14,10 +14,8 @@ MeshGroup::MeshGroup(const Vector3& translation, const Vector3& rotation1, const
 	m_rotation2 = m_rotation2 * XM_PI / 180.0f;
 }
 
-void MeshGroup::AddMesh(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
+void MeshGroup::AddMesh(shared_ptr<Mesh> mesh)
 {
-	auto mesh = make_shared<Mesh>(m_translation, m_rotation1, m_rotation2, m_scale);
-	mesh->Init(name, meshData, vertexShaderPrefix, pixelShaderPrefix);
 	m_vecMeshes.push_back(mesh);
 }
 

@@ -6,8 +6,12 @@ public:
 	Camera();
 public:
 	void Update(float dt);
-	const Vector3& GetPos() { return m_pos; }
+	const Vector3& GetPos() const { return m_pos; }
+	const Vector3& GetViewDir() const { return m_viewDir; }
+	const Vector3& GetRightDir() const { return m_rightDir; }
+	const Vector3& GetUpDir() const { return m_upDir; }
 	Matrix GetViewRow();
+	Matrix GetArrowViewRow();
 private:
 	void UpdatePos(float dt);
 	void MoveViewDir(float dt);

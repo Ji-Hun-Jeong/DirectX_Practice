@@ -118,3 +118,34 @@ MeshData GeometryGenerator::MakeSquare()
 	i.push_back(3);
 	return result;
 }
+
+MeshData GeometryGenerator::MakeTriangle()
+{
+	MeshData result;
+	result.textureName = "";
+
+	vector<Vertex>& v = result.vertices;
+	Vertex vertex;
+
+	vertex.position = Vector3{ -0.5f,-0.5f,0.0f };
+	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
+	vertex.uv = Vector2(0.0f);
+	v.push_back(vertex);
+
+	vertex.position = Vector3{ 0.0f,0.5f,0.0f };
+	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
+	vertex.uv = Vector2(0.0f);
+	v.push_back(vertex);
+
+	vertex.position = Vector3{ 0.5f,-0.5f,0.0f };
+	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
+	vertex.uv = Vector2(0.0f);
+	v.push_back(vertex);
+
+	vector<uint32_t>& i = result.indices;
+	i.push_back(0);
+	i.push_back(1);
+	i.push_back(2);
+
+	return result;
+}

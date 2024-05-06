@@ -56,6 +56,12 @@
     <Filter Include="Engine\Mesh\ImageFilter">
       <UniqueIdentifier>{f3c25483-e812-42b0-94ce-c2bdec7d6eb1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Mesh\DirArrow">
+      <UniqueIdentifier>{f9abf766-0987-4af0-9864-af081b6db451}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Shader\DirArrowShader">
+      <UniqueIdentifier>{f97fc8da-0d22-4b7e-9d8c-41b61e58650e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -109,6 +115,9 @@
     <ClInclude Include="ImageFilter.h">
       <Filter>Engine\Mesh\ImageFilter</Filter>
     </ClInclude>
+    <ClInclude Include="DirArrow.h">
+      <Filter>Engine\Mesh\DirArrow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -154,6 +163,9 @@
     <ClCompile Include="ImageFilter.cpp">
       <Filter>Engine\Mesh\ImageFilter</Filter>
     </ClCompile>
+    <ClCompile Include="DirArrow.cpp">
+      <Filter>Engine\Mesh\DirArrow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicVertexShader.hlsl">
@@ -197,6 +209,15 @@
     </FxCompile>
     <FxCompile Include="BlurYPixelShader.hlsl">
       <Filter>Engine\Shader\FilterShader</Filter>
+    </FxCompile>
+    <FxCompile Include="DirArrowVertexShader.hlsl">
+      <Filter>Engine\Shader\DirArrowShader</Filter>
+    </FxCompile>
+    <FxCompile Include="DirArrowGeometryShader.hlsl">
+      <Filter>Engine\Shader\DirArrowShader</Filter>
+    </FxCompile>
+    <FxCompile Include="DirArrowPixelShader.hlsl">
+      <Filter>Engine\Shader\DirArrowShader</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

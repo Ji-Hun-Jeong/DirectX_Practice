@@ -28,6 +28,13 @@ Matrix Camera::GetViewRow()
 	return result;
 }
 
+Matrix Camera::GetArrowViewRow()
+{
+	Matrix result =	Matrix::CreateRotationY(m_fYaw) *
+		Matrix::CreateRotationX(-m_fPitch);
+	return result;
+}
+
 void Camera::UpdatePos(float dt)
 {
 	if (KEYCHECK(W, HOLD))

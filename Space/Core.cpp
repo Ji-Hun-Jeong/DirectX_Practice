@@ -8,6 +8,7 @@
 #include "MeshGroup.h"
 #include "Camera.h"
 #include "ImageFilter.h"
+#include "DirArrow.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd,
 	UINT msg,
 	WPARAM wParam,
@@ -35,11 +36,13 @@ void Core::InitMesh()
 {
 	MeshData solarData = GeometryGenerator::MakeSphere(109, 30, 30, "image/Solar.jpg");
 	auto solar = make_shared<MeshGroup>(Vector3(0.0f), Vector3{ 0.0f,0.01f,0.0f }, Vector3{ 0.0f,0.0f,0.0f }, Vector3(1.0f));
-	solar->AddMesh("Solar", solarData, L"Basic", L"Basic");
+	auto solarMesh = make_shared<Mesh>(Vector3(0.0f), Vector3{ 0.0f,0.01f,0.0f }, Vector3{ 0.0f,0.0f,0.0f }, Vector3(1.0f));
+	solarMesh->Init("Solar", solarData, L"Basic", L"Basic");
+	solar->AddMesh(solarMesh);
 	solar->GetMesh("Solar")->GetPixelConstantData().isSun = 1;
 	m_vecMeshGroups.push_back(solar);
 
-	MeshData mercuryData = GeometryGenerator::MakeSphere(0.38f, 30, 30, "image/Mercury.jpg");
+	/*MeshData mercuryData = GeometryGenerator::MakeSphere(0.38f, 30, 30, "image/Mercury.jpg");
 	auto mercury = make_shared<MeshGroup>(Vector3(111.0f, 0.0f, 0.0f), Vector3{ 0.0f,0.000015f,0.000614f }, Vector3{ 0.0f,0.1f,0.0f }, Vector3(1.0f));
 	mercury->AddMesh("Mercury", mercuryData, L"Basic", L"Basic");
 	m_vecMeshGroups.push_back(mercury);
@@ -85,7 +88,14 @@ void Core::InitMesh()
 	groundData.textureName = "image/Earth.jpg";
 	auto ground = make_shared<MeshGroup>(Vector3{ 0.0f,-200.0f,0.0f }, Vector3{ 90.0f,0.0f,0.0f }, Vector3(0.0f), Vector3(200.0f));
 	ground->AddMesh("Ground", groundData, L"Basic", L"Basic");
-	m_vecMeshGroups.push_back(ground);
+	m_vecMeshGroups.push_back(ground);*/
+
+	MeshData arrowData = GeometryGenerator::MakeTriangle();
+	auto dirArrow = make_shared<MeshGroup>(Vector3{ 0.5f,-0.3f,1.0f }, Vector3(0.0f), Vector3(0.0f), Vector3(1.0f));
+	auto dirArrowMesh = make_shared<DirArrow>(Vector3{ 0.7f,-0.5f,1.0f }, Vector3(0.0f), Vector3(0.0f), Vector3(1.0f));
+	dirArrowMesh->Init("DirArrow", arrowData, L"DirArrow", L"DirArrow");
+	dirArrow->AddMesh(dirArrowMesh);
+	m_vecMeshGroups.push_back(dirArrow);
 
 	m_focusMeshGroup = solar;
 }
@@ -152,8 +162,8 @@ void Core::UpdateGUI()
 	ImGui::Checkbox("DrawNormal", &m_drawNormal);
 	ImGui::Checkbox("Use Rim", &m_pixelConstantData.rim.useRim);
 	ImGui::SliderFloat("NormalSize", &m_normalSize, 0.0f, 100.0f);
-	ImGui::SliderFloat("Rim Strength", &m_pixelConstantData.rim.rimStrength, 0.0f, 2.0f);
-	ImGui::SliderFloat("Rim Power", &m_pixelConstantData.rim.rimPower, 0.0f, 100.0f);
+	ImGui::SliderFloat("Rim Strength", &m_pixelConstantData.rim.rimStrength, 0.0f, 15.0f);
+	ImGui::SliderFloat("Rim Power", &m_pixelConstantData.rim.rimPower, 0.0f, 5.0f);
 	ImGui::SliderFloat("Threshold", &m_pixelConstantData.bloom.threshold, 0.0f, 1.0f);
 	ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloom.bloomStrength, 0.0f, 1.0f);
 	ImGui::SliderFloat3("Rotation", &m_focusMeshGroup->GetMesh("Solar")->m_rotation1.x, 0.0f, 3.14f);

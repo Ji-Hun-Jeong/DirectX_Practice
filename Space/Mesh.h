@@ -3,8 +3,8 @@ class Mesh
 {
 public:
 	Mesh();
-	Mesh(const Vector3& translation, const Vector3& rotation1,const Vector3& rotation2,const Vector3& scale,D3D11_PRIMITIVE_TOPOLOGY topology= D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	void Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix);
+	explicit Mesh(const Vector3& translation, const Vector3& rotation1,const Vector3& rotation2,const Vector3& scale,D3D11_PRIMITIVE_TOPOLOGY topology= D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	virtual void Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix);
 	virtual void Update(float dt);
 	virtual void Render(ID3D11DeviceContext* context, bool drawNormal);
 protected:

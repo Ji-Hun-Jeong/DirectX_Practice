@@ -11,13 +11,6 @@ struct MeshData
 	vector<uint32_t> indices;
 	string textureName;
 };
-struct VertexConstantData
-{
-	Matrix model;
-	Matrix view;
-	Matrix projection;
-	Matrix invTranspose;
-};
 struct Light	// 32
 {
 	Vector3 lightPos = Vector3(0.0f);
@@ -43,11 +36,20 @@ struct Bloom
 };
 struct Rim
 {
-	float rimStrength = 1.8f;
-	float rimPower = 2.3f;
+	float rimStrength = 13.0f;
+	float rimPower = 1.8f;
 	float dummy = 0.0f;
-	bool useRim = false;
+	bool useRim = true;
 };
+
+struct VertexConstantData
+{
+	Matrix model;
+	Matrix view;
+	Matrix projection;
+	Matrix invTranspose;
+};
+
 struct PixelConstantData	// 96
 {
 	Vector3 eyePos;
@@ -62,6 +64,17 @@ struct NormalConstantData : public VertexConstantData	// 48
 	float normalSize = 1.0f;
 	float dummy[3] = { 0.0f };
 };
+
+struct DirArrowConstantData : public VertexConstantData
+{
+	Vector3 viewDir;
+	float arrowSize = 0.2f;
+	Vector3 upDir;
+	float dummy1 = 0.0f;
+	Vector3 rightDir;
+	float dummy2 = 0.0f;
+};
 static_assert(sizeof(VertexConstantData) % 16 == 0, "VertexConstantData Size Check");
 static_assert(sizeof(PixelConstantData) % 16 == 0, "PixelConstantData Size Check");
-static_assert(sizeof(NormalConstantData) % 16 == 0, "GeometryConstantData Size Check");
+static_assert(sizeof(NormalConstantData) % 16 == 0, "NormalConstantData Size Check");
+static_assert(sizeof(DirArrowConstantData) % 16 == 0, "DirArrowConstantData Size Check");
