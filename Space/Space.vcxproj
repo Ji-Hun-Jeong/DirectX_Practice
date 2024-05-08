@@ -147,7 +147,6 @@
     <ClInclude Include="ImageFilter.h" />
     <ClInclude Include="KeyMgr.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshGroup.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Space.h" />
@@ -165,7 +164,6 @@
     <ClCompile Include="KeyMgr.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshGroup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc" />

@@ -12,11 +12,12 @@ Mesh::Mesh()
 Mesh::Mesh(const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale, D3D11_PRIMITIVE_TOPOLOGY topology)
 	: m_indexCount(0)
 	, m_translation(translation)
-	, m_rotation1(rotation1)
-	, m_rotation2(rotation2)
+	, m_rotation1(rotation1* XM_PI / 180.0f)
+	, m_rotation2(rotation2* XM_PI / 180.0f)
 	, m_scale(scale)
 	, m_topology(topology)
 	, m_normalTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST)
+	, m_ownerMesh(nullptr)
 {
 }
 void Mesh::Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
@@ -51,6 +52,11 @@ void Mesh::Update(float dt)
 	D3DUtils::GetInst().UpdateBuffer<VertexConstantData>(m_vertexConstantBuffer, m_vertexConstantData);
 	D3DUtils::GetInst().UpdateBuffer<NormalConstantData>(m_normalConstantBuffer, m_normalConstantData);
 	D3DUtils::GetInst().UpdateBuffer<PixelConstantData>(m_pixelConstantBuffer, m_pixelConstantData);
+
+	for (shared_ptr<Mesh>& childMesh : m_vecChildMeshes)
+	{
+		childMesh->Update(dt);
+	}
 }
 
 void Mesh::UpdateVertexConstantData(float dt)
@@ -60,16 +66,24 @@ void Mesh::UpdateVertexConstantData(float dt)
 	Core& core = Core::GetInst();
 	if (time < 0)
 		time = 0;
-	
+	// ¿©±â »¡¸® ÄõÅÍ´Ï¾ð Àû¿ë ÇÊ¿ä
+	// Áü¹ú¶ô ¹ß»ý
 	m_vertexConstantData.model =
 		Matrix::CreateScale(m_scale)
-		* Matrix::CreateRotationX(m_rotation1.x)
 		* Matrix::CreateRotationY(m_rotation1.y * time)
+		* Matrix::CreateRotationX(m_rotation1.x)	
 		* Matrix::CreateRotationZ(m_rotation1.z)
 		* Matrix::CreateTranslation(m_translation)
 		* Matrix::CreateRotationX(m_rotation2.x * time)
 		* Matrix::CreateRotationY(m_rotation2.y * time)
 		* Matrix::CreateRotationZ(m_rotation2.z * time);
+
+	m_prevTransformModel = m_vertexConstantData.model;
+	if (m_ownerMesh)
+	{
+		m_vertexConstantData.model *= m_ownerMesh->m_prevTransformModel;
+	}
+
 
 	m_vertexConstantData.invTranspose = m_vertexConstantData.model;
 	m_vertexConstantData.invTranspose.Translation(Vector3(0.0f));
@@ -114,6 +128,10 @@ void Mesh::Render(ID3D11DeviceContext* context, bool drawNormal)
 	context->DrawIndexed(m_indexCount, 0, 0);
 	if (drawNormal)
 		DrawNormal(context);
+	for (shared_ptr<Mesh>& childMesh : m_vecChildMeshes)
+	{
+		childMesh->Render(context, drawNormal);
+	}
 }
 
 void Mesh::ReadyToRender(ID3D11DeviceContext* context)
@@ -142,7 +160,7 @@ void Mesh::ReadyToRender(ID3D11DeviceContext* context)
 void Mesh::DrawNormal(ID3D11DeviceContext* context)
 {
 	context->IASetPrimitiveTopology(m_normalTopology);
-	
+
 	context->VSSetShader(m_normalVertexShader.Get(), nullptr, 0);
 	context->VSSetConstantBuffers(0, 1, m_normalConstantBuffer.GetAddressOf());
 
@@ -152,6 +170,12 @@ void Mesh::DrawNormal(ID3D11DeviceContext* context)
 	context->PSSetShader(m_normalPixelShader.Get(), nullptr, 0);
 
 	context->DrawIndexed(m_indexCount, 0, 0);
+}
+
+void Mesh::AttachMesh(shared_ptr<Mesh> childMesh)
+{
+	m_vecChildMeshes.push_back(childMesh);
+	childMesh->m_ownerMesh = this;
 }
 
 void Mesh::CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vertexShader)

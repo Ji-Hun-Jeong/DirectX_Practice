@@ -7,6 +7,8 @@ public:
 	virtual void Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix);
 	virtual void Update(float dt);
 	virtual void Render(ID3D11DeviceContext* context, bool drawNormal);
+	void AttachMesh(shared_ptr<Mesh> childMesh);
+
 protected:
 	virtual void UpdateVertexConstantData(float dt);
 	virtual void UpdateNormalConstantData();
@@ -18,6 +20,22 @@ protected:
 	void CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11GeometryShader>& geometryShader);
 	virtual void ReadImage(const string& textureName);
 
+public:
+	const D3D11_PRIMITIVE_TOPOLOGY& GetPrimitiveTopology() { return m_topology; }
+	const ComPtr<ID3D11Buffer>& GetVertexBuffer() { return m_vertexBuffer; }
+	const ComPtr<ID3D11Buffer>& GetIndexBuffer() { return m_indexBuffer; }
+	const ComPtr<ID3D11InputLayout>& GetInputLayout() { return m_inputLayout; }
+
+	const ComPtr<ID3D11VertexShader>& GetVertexShader() { return m_vertexShader; }
+	const UINT& GetIndexCount() { return m_indexCount; }
+
+	const ComPtr<ID3D11PixelShader>& GetPixelShader() { return m_pixelShader; }
+	const ComPtr<ID3D11Buffer>& GetPixelConstantBuffer() { return m_pixelConstantBuffer; }
+	const ComPtr<ID3D11SamplerState>& GetSamplerState() { return m_samplerState; }
+
+	const string& GetName() { return m_strName; }
+	const VertexConstantData& GetVertexConstantData() { return m_vertexConstantData; }
+	PixelConstantData& GetPixelConstantData() { return m_pixelConstantData; }
 // D3D11 Member
 protected:
 	string				 m_strName;
@@ -50,27 +68,15 @@ protected:
 	VertexConstantData	 m_vertexConstantData;
 	PixelConstantData	 m_pixelConstantData;
 	NormalConstantData   m_normalConstantData;
+
+	Matrix m_prevTransformModel;
+
+	vector<shared_ptr<Mesh>> m_vecChildMeshes;
+	Mesh* m_ownerMesh;
 public:
 	Vector3 m_translation;
 	Vector3 m_rotation1;
 	Vector3 m_rotation2;
 	Vector3 m_scale;
-
-public:
-	const D3D11_PRIMITIVE_TOPOLOGY& GetPrimitiveTopology() { return m_topology; }
-	const ComPtr<ID3D11Buffer>& GetVertexBuffer() { return m_vertexBuffer; }
-	const ComPtr<ID3D11Buffer>& GetIndexBuffer() { return m_indexBuffer; }
-	const ComPtr<ID3D11InputLayout>& GetInputLayout() { return m_inputLayout; }
-
-	const ComPtr<ID3D11VertexShader>& GetVertexShader() { return m_vertexShader; }
-	const UINT& GetIndexCount() { return m_indexCount; }
-
-	const ComPtr<ID3D11PixelShader>& GetPixelShader() { return m_pixelShader; }
-	const ComPtr<ID3D11Buffer>& GetPixelConstantBuffer() { return m_pixelConstantBuffer; }
-	const ComPtr<ID3D11SamplerState>& GetSamplerState() { return m_samplerState; }
-
-	const string& GetName() { return m_strName; }
-	const VertexConstantData& GetVertexConstantData() { return m_vertexConstantData; }
-	PixelConstantData& GetPixelConstantData() { return m_pixelConstantData; }
 };
 

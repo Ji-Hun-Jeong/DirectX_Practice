@@ -1,6 +1,6 @@
 #pragma once
 class CubeMap;
-class MeshGroup;
+class Mesh;
 class Camera;
 class ImageFilter;
 class Core
@@ -18,8 +18,8 @@ public:
 
 // Object
 private:
-	vector<shared_ptr<MeshGroup>> m_vecMeshGroups;
-	shared_ptr<MeshGroup> m_focusMeshGroup;
+	vector<shared_ptr<Mesh>> m_vecMeshes;
+	shared_ptr<Mesh> m_focusMesh;
 	shared_ptr<CubeMap> m_cubeMap;
 
 public:
