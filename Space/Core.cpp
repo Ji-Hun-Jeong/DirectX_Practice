@@ -92,7 +92,7 @@ void Core::InitMesh()
 
 	MeshData arrowData = GeometryGenerator::MakeTriangle();
 	auto dirArrow = make_shared<MeshGroup>(Vector3{ 0.5f,-0.3f,1.0f }, Vector3(0.0f), Vector3(0.0f), Vector3(1.0f));
-	auto dirArrowMesh = make_shared<DirArrow>(Vector3{ 0.7f,-0.5f,1.0f }, Vector3(0.0f), Vector3(0.0f), Vector3(1.0f));
+	auto dirArrowMesh = make_shared<DirArrow>(Vector3{ 0.9f,-0.7f,1.0f }, Vector3(0.0f), Vector3(0.0f), Vector3(1.0f));
 	dirArrowMesh->Init("DirArrow", arrowData, L"DirArrow", L"DirArrow");
 	dirArrow->AddMesh(dirArrowMesh);
 	m_vecMeshGroups.push_back(dirArrow);

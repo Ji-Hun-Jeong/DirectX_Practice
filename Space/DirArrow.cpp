@@ -32,11 +32,13 @@ void DirArrow::UpdateVertexConstantData(float dt)
 
 	m_dirArrowConstantData.view = Matrix();
 
+	float width = core.GetScreenWidth();
+	float height =core.GetScreenHeight();
 	float angleY = core.GetAngleY();
 	float aspect = core.GetAspect();
 	float nearZ = core.GetNearZ();
 	float farZ = core.GetFarZ();
-	m_dirArrowConstantData.projection = XMMatrixPerspectiveFovLH(angleY, aspect, nearZ, farZ);
+	m_dirArrowConstantData.projection = XMMatrixOrthographicLH(2 * aspect, 2, nearZ, farZ);
 
 	m_dirArrowConstantData.model = m_dirArrowConstantData.model.Transpose();
 	m_dirArrowConstantData.view = m_dirArrowConstantData.view.Transpose();

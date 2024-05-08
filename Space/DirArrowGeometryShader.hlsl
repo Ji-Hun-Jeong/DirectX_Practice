@@ -24,7 +24,7 @@ void main(
     originPos = mul(originPos, view);
     originPos = mul(originPos, projection);
     output.posProj = originPos;
-    output.uv.xy = float2(0.0f, 0.0f);
+    output.uv = float2(0.0f, float(primID) / 2.0f);
     output.normal = input[0].normal;
     output.posWorld = originPos;
     outputStream.Append(output);
@@ -36,6 +36,6 @@ void main(
     arrowPos = mul(arrowPos, view);
     arrowPos = mul(arrowPos, projection);
     output.posProj = arrowPos;
-    output.uv.xy = float2(1.0f, 0.0f);
+    output.uv = float2(1.0f, float(primID) / 2.0f);
     outputStream.Append(output);
 }
