@@ -66,24 +66,25 @@ void Mesh::UpdateVertexConstantData(float dt)
 	Core& core = Core::GetInst();
 	if (time < 0)
 		time = 0;
-	// ¿©±â »¡¸® ÄõÅÍ´Ï¾ð Àû¿ë ÇÊ¿ä
-	// Áü¹ú¶ô ¹ß»ý
+
+	Quaternion rotateX = Quaternion::CreateFromAxisAngle(Vector3{ 1.0f,0.0f,0.0f }, m_rotation1.x);
+	Quaternion rotateY = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, m_rotation1.y * time);
+	Quaternion rotateZ = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,0.0f,1.0f }, m_rotation1.z);
 	m_vertexConstantData.model =
 		Matrix::CreateScale(m_scale)
-		* Matrix::CreateRotationY(m_rotation1.y * time)
-		* Matrix::CreateRotationX(m_rotation1.x)	
-		* Matrix::CreateRotationZ(m_rotation1.z)
+		* Matrix::CreateFromQuaternion(rotateY)
+		* Matrix::CreateFromQuaternion(rotateX)	
+		* Matrix::CreateFromQuaternion(rotateZ)
 		* Matrix::CreateTranslation(m_translation)
 		* Matrix::CreateRotationX(m_rotation2.x * time)
 		* Matrix::CreateRotationY(m_rotation2.y * time)
 		* Matrix::CreateRotationZ(m_rotation2.z * time);
 
-	m_prevTransformModel = m_vertexConstantData.model;
 	if (m_ownerMesh)
 	{
 		m_vertexConstantData.model *= m_ownerMesh->m_prevTransformModel;
 	}
-
+	m_prevTransformModel = m_vertexConstantData.model;
 
 	m_vertexConstantData.invTranspose = m_vertexConstantData.model;
 	m_vertexConstantData.invTranspose.Translation(Vector3(0.0f));
@@ -129,9 +130,7 @@ void Mesh::Render(ID3D11DeviceContext* context, bool drawNormal)
 	if (drawNormal)
 		DrawNormal(context);
 	for (shared_ptr<Mesh>& childMesh : m_vecChildMeshes)
-	{
 		childMesh->Render(context, drawNormal);
-	}
 }
 
 void Mesh::ReadyToRender(ID3D11DeviceContext* context)
@@ -172,10 +171,25 @@ void Mesh::DrawNormal(ID3D11DeviceContext* context)
 	context->DrawIndexed(m_indexCount, 0, 0);
 }
 
-void Mesh::AttachMesh(shared_ptr<Mesh> childMesh)
+bool Mesh::AttachMesh(const string& meshName, shared_ptr<Mesh>& childMesh)
 {
-	m_vecChildMeshes.push_back(childMesh);
-	childMesh->m_ownerMesh = this;
+	if (m_strName == meshName)
+	{
+		m_vecChildMeshes.push_back(childMesh);
+		childMesh->m_ownerMesh = this;
+		return true;
+	}
+	else
+	{
+		bool findChild = false;
+		for (auto& mesh : m_vecChildMeshes)
+		{
+			findChild = mesh->AttachMesh(meshName, childMesh);
+			if (findChild)
+				break;
+		}
+		return findChild;
+	}
 }
 
 void Mesh::CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vertexShader)

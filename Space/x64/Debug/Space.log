@@ -1,26 +1,4 @@
-﻿  Core.cpp
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\xutility(254,82): warning C4244: '인수': 'float'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\memory(2104,18): message : 컴파일되는 함수 템플릿 인스턴스화 'void std::_Construct_in_place<_Ty,float&,float&,const wchar_t(&)[5],const wchar_t(&)[5]>(_Ty &,float &,float &,const wchar_t (&)[5],const wchar_t (&)[5]) noexcept(false)'에 대한 참조를 확인하세요.
-          with
-          [
-              _Ty=ImageFilter
-          ]
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\memory(2779,46): message : 컴파일되는 함수 템플릿 인스턴스화 'std::_Ref_count_obj2<ImageFilter>::_Ref_count_obj2<float&,float&,const wchar_t(&)[5],const wchar_t(&)[5]>(float &,float &,const wchar_t (&)[5],const wchar_t (&)[5])'에 대한 참조를 확인하세요.
-C:\Users\Jeong\source\repos\DX_Space\Space\Core.cpp(399,20): message : 컴파일되는 함수 템플릿 인스턴스화 'std::shared_ptr<ImageFilter> std::make_shared<ImageFilter,float&,float&,const wchar_t(&)[5],const wchar_t(&)[5]>(float &,float &,const wchar_t (&)[5],const wchar_t (&)[5])'에 대한 참조를 확인하세요.
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\xutility(254,82): warning C4244: '인수': '_Ty'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-          with
-          [
-              _Ty=float
-          ]
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\memory(2104,18): message : 컴파일되는 함수 템플릿 인스턴스화 'void std::_Construct_in_place<_Ty,float,float,const wchar_t(&)[5],const wchar_t(&)[5]>(_Ty &,float &&,float &&,const wchar_t (&)[5],const wchar_t (&)[5]) noexcept(false)'에 대한 참조를 확인하세요.
-          with
-          [
-              _Ty=ImageFilter
-          ]
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\memory(2779,46): message : 컴파일되는 함수 템플릿 인스턴스화 'std::_Ref_count_obj2<ImageFilter>::_Ref_count_obj2<_Ty,_Ty,const wchar_t(&)[5],const wchar_t(&)[5]>(_Ty &&,_Ty &&,const wchar_t (&)[5],const wchar_t (&)[5])'에 대한 참조를 확인하세요.
-          with
-          [
-              _Ty=float
-          ]
-C:\Users\Jeong\source\repos\DX_Space\Space\Core.cpp(408,21): message : 컴파일되는 함수 템플릿 인스턴스화 'std::shared_ptr<ImageFilter> std::make_shared<ImageFilter,float,float,const wchar_t(&)[5],const wchar_t(&)[5]>(float &&,float &&,const wchar_t (&)[5],const wchar_t (&)[5])'에 대한 참조를 확인하세요.
-  Space.vcxproj -> C:\Users\Jeong\source\repos\DX_Space\x64\Debug\Space.exe
+﻿  Camera.cpp
+  Space.vcxproj -> C:\Users\hansung\source\repos\DX_Space\x64\Debug\Space.exe
+  'pwsh.exe'은(는) 내부 또는 외부 명령, 실행할 수 있는 프로그램, 또는
+  배치 파일이 아닙니다.

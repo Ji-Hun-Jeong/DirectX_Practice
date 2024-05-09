@@ -71,7 +71,7 @@ void Core::InitMesh()
 	MeshData saturnRingData = GeometryGenerator::MakeDisc(10.0f, 20.0f, 50, "image/SaturnRing.jpg");
 	auto saturnRing = make_shared<Mesh>(Vector3(0.0f),Vector3{-45.0f,0.5f,0.0f},Vector3(0.0f),Vector3(1.0f));
 	saturnRing->Init("SaturnRing", saturnRingData, L"Basic", L"Basic");
-	saturn->AttachMesh(saturnRing);
+	saturn->AttachMesh("Saturn", saturnRing);
 	m_vecMeshes.push_back(saturn);
 
 	MeshData uranusData = GeometryGenerator::MakeSphere(3.98f, 30, 30, "image/Uranus.jpg");
@@ -160,7 +160,7 @@ void Core::UpdateGUI()
 	ImGui::Checkbox("DrawNormal", &m_drawNormal);
 	ImGui::Checkbox("Use Rim", &m_pixelConstantData.rim.useRim);
 	ImGui::SliderFloat("NormalSize", &m_normalSize, 0.0f, 100.0f);
-	ImGui::SliderFloat("Rim Strength", &m_pixelConstantData.rim.rimStrength, 0.0f, 15.0f);
+	ImGui::SliderFloat("Rim Strength", &m_pixelConstantData.rim.rimStrength, 0.0f, 20.0f);
 	ImGui::SliderFloat("Rim Power", &m_pixelConstantData.rim.rimPower, 0.0f, 5.0f);
 	ImGui::SliderFloat("Threshold", &m_pixelConstantData.bloom.threshold, 0.0f, 1.0f);
 	ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloom.bloomStrength, 0.0f, 1.0f);
@@ -475,7 +475,7 @@ LRESULT Core::MsgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 Core::Core()
 	: m_fWidth(1280.0f)
-	, m_fHeight(960.0f)
+	, m_fHeight(760.0f)
 	, m_iNumOfMultiSamplingLevel(0)
 	, m_mainWindow(nullptr)
 	, m_viewPort({})

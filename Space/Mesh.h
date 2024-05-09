@@ -7,7 +7,7 @@ public:
 	virtual void Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix);
 	virtual void Update(float dt);
 	virtual void Render(ID3D11DeviceContext* context, bool drawNormal);
-	void AttachMesh(shared_ptr<Mesh> childMesh);
+	bool AttachMesh(const string& meshName, shared_ptr<Mesh>& childMesh);
 
 protected:
 	virtual void UpdateVertexConstantData(float dt);

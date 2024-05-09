@@ -76,11 +76,12 @@ void Camera::CalDirection()
 		Matrix::CreateRotationX(-m_fPitch) *
 		Matrix::CreateRotationY(m_fYaw));
 
-	// 짐벌락 현상때문에 이게 맞아
-	// 아.. 드디어 이해했습니다 짐벌락
+	// Gimbal Lock
+	Quaternion rotateX = Quaternion::CreateFromAxisAngle(Vector3{ 1.0f,0.0f,0.0f }, -m_fPitch);
+	Quaternion rotateY = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, m_fYaw);
 	m_upDir = Vector3::Transform(Vector3{ 0.0f, 1.0f, 0.0f },
-		Matrix::CreateRotationX(-m_fPitch) *
-		Matrix::CreateRotationY(m_fYaw));
-
+		Matrix::CreateFromQuaternion(rotateX) *
+		Matrix::CreateFromQuaternion(rotateY));
+	
 	m_rightDir = m_upDir.Cross(m_viewDir);
 }

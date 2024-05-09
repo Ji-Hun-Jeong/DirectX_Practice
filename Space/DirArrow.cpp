@@ -32,8 +32,6 @@ void DirArrow::UpdateVertexConstantData(float dt)
 
 	m_dirArrowConstantData.view = Matrix();
 
-	float width = core.GetScreenWidth();
-	float height =core.GetScreenHeight();
 	float angleY = core.GetAngleY();
 	float aspect = core.GetAspect();
 	float nearZ = core.GetNearZ();
