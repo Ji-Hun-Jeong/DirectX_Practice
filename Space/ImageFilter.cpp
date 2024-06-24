@@ -6,10 +6,10 @@
 
 ImageFilter::ImageFilter(UINT width, UINT height,
 	const wstring& vsPrefix, const wstring& psPrefix)
-	: Mesh()
+	: NonObject()
 {
 	MeshData meshData = GeometryGenerator::MakeSquare();
-	Mesh::Init("", meshData, vsPrefix, psPrefix);
+	Mesh::Init(meshData, vsPrefix, psPrefix);
 
 	ComPtr<ID3D11Device> device = D3DUtils::GetInst().GetDevice();
 	D3D11_TEXTURE2D_DESC textureDesc;
@@ -53,7 +53,7 @@ void ImageFilter::UpdatePixelConstantData()
 	m_pixelConstantData = Core::GetInst().m_pixelConstantData;
 }
 
-void ImageFilter::Render(ID3D11DeviceContext* context, bool drawNormal)
+void ImageFilter::Render(ID3D11DeviceContext* context)
 {
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;

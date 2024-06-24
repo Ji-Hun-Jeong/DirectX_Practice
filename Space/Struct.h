@@ -11,6 +11,11 @@ struct MeshData
 	vector<uint32_t> indices;
 	string textureName;
 };
+struct MyRay
+{
+	Vector3 startPos;
+	Vector3 rayDir;
+};
 struct Light	// 32
 {
 	Vector3 lightPos = Vector3(0.0f);

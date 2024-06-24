@@ -29,9 +29,6 @@
     <Filter Include="Engine\Shader">
       <UniqueIdentifier>{4a86f6c7-0991-439b-abf1-9b4bc464475c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Mesh\CubeMap">
-      <UniqueIdentifier>{dc8acba1-a0ea-47c2-bafb-8b9ce09857a1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\KeyMgr">
       <UniqueIdentifier>{73356f60-5b3e-49e1-b829-927a36976fc7}</UniqueIdentifier>
     </Filter>
@@ -50,14 +47,26 @@
     <Filter Include="Engine\Shader\FilterShader">
       <UniqueIdentifier>{5cb0d3db-5a75-4614-9170-a68336fc0f2d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Mesh\ImageFilter">
-      <UniqueIdentifier>{f3c25483-e812-42b0-94ce-c2bdec7d6eb1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Mesh\DirArrow">
-      <UniqueIdentifier>{f9abf766-0987-4af0-9864-af081b6db451}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Shader\DirArrowShader">
       <UniqueIdentifier>{f97fc8da-0d22-4b7e-9d8c-41b61e58650e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh\Object">
+      <UniqueIdentifier>{60530a53-45ae-49e0-8401-9dd392114d25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh\Non Object">
+      <UniqueIdentifier>{0319dd9f-8d5d-40cc-ad31-b92854b32311}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh\Non Object\ImageFilter">
+      <UniqueIdentifier>{f3c25483-e812-42b0-94ce-c2bdec7d6eb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh\Non Object\CubeMap">
+      <UniqueIdentifier>{dc8acba1-a0ea-47c2-bafb-8b9ce09857a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh\Non Object\DirArrow">
+      <UniqueIdentifier>{f9abf766-0987-4af0-9864-af081b6db451}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Mesh\Object\Sphere">
+      <UniqueIdentifier>{95f693e5-f9a8-412e-aa74-a9345d576f5b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -95,7 +104,7 @@
       <Filter>Engine\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="CubeMap.h">
-      <Filter>Engine\Mesh\CubeMap</Filter>
+      <Filter>Engine\Mesh\Non Object\CubeMap</Filter>
     </ClInclude>
     <ClInclude Include="Enum.h">
       <Filter>Default</Filter>
@@ -107,10 +116,19 @@
       <Filter>Engine\Camera</Filter>
     </ClInclude>
     <ClInclude Include="ImageFilter.h">
-      <Filter>Engine\Mesh\ImageFilter</Filter>
+      <Filter>Engine\Mesh\Non Object\ImageFilter</Filter>
     </ClInclude>
     <ClInclude Include="DirArrow.h">
-      <Filter>Engine\Mesh\DirArrow</Filter>
+      <Filter>Engine\Mesh\Non Object\DirArrow</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Engine\Mesh\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="NonObject.h">
+      <Filter>Engine\Mesh\Non Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Engine\Mesh\Object\Sphere</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -143,7 +161,7 @@
       <Filter>Engine\Mesh</Filter>
     </ClCompile>
     <ClCompile Include="CubeMap.cpp">
-      <Filter>Engine\Mesh\CubeMap</Filter>
+      <Filter>Engine\Mesh\Non Object\CubeMap</Filter>
     </ClCompile>
     <ClCompile Include="KeyMgr.cpp">
       <Filter>Engine\KeyMgr</Filter>
@@ -152,10 +170,19 @@
       <Filter>Engine\Camera</Filter>
     </ClCompile>
     <ClCompile Include="ImageFilter.cpp">
-      <Filter>Engine\Mesh\ImageFilter</Filter>
+      <Filter>Engine\Mesh\Non Object\ImageFilter</Filter>
     </ClCompile>
     <ClCompile Include="DirArrow.cpp">
-      <Filter>Engine\Mesh\DirArrow</Filter>
+      <Filter>Engine\Mesh\Non Object\DirArrow</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Engine\Mesh\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="NonObject.cpp">
+      <Filter>Engine\Mesh\Non Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Engine\Mesh\Object\Sphere</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

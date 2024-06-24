@@ -1,6 +1,6 @@
 #pragma once
-#include "Mesh.h"
-class ImageFilter : public Mesh
+#include "NonObject.h"
+class ImageFilter : public NonObject
 {
 public:
 	ImageFilter(UINT width, UINT height,
@@ -10,7 +10,7 @@ public:
 	virtual void Update(float dt) override;
 	virtual void UpdatePixelConstantData() override;
 
-	virtual void Render(ID3D11DeviceContext* context, bool drawNormal) override;
+	virtual void Render(ID3D11DeviceContext* context) override;
 
 // Getter, Setter
 public:

@@ -5,14 +5,14 @@
 #include "Core.h"
 
 DirArrow::DirArrow(const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale, D3D11_PRIMITIVE_TOPOLOGY topology)
-	: Mesh(translation, rotation1, rotation2, scale, topology)
+	: NonObject(translation, rotation1, rotation2, scale, topology)
 {
 	
 }
 
-void DirArrow::Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
+void DirArrow::Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
 {
-	Mesh::Init(name,meshData,vertexShaderPrefix,pixelShaderPrefix);
+	Mesh::Init(meshData,vertexShaderPrefix,pixelShaderPrefix);
 	CreateGeometryShader(L"DirArrow", m_geometryShader);
 	D3DUtils::GetInst().CreateConstantBuffer<DirArrowConstantData>(m_dirArrowConstantData, m_vertexConstantBuffer);
 }

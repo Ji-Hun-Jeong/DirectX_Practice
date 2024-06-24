@@ -8,6 +8,8 @@
 #include "Camera.h"
 #include "ImageFilter.h"
 #include "DirArrow.h"
+#include "Object.h"
+#include "Sphere.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd,
 	UINT msg,
 	WPARAM wParam,
@@ -34,68 +36,71 @@ bool Core::Init()
 void Core::InitMesh()
 {
 	MeshData solarData = GeometryGenerator::MakeSphere(109, 30, 30, "image/Solar.jpg");
-	auto solar = make_shared<Mesh>(Vector3(0.0f), Vector3{ 0.0f,0.01f,0.0f }, Vector3{ 0.0f,0.0f,0.0f }, Vector3(1.0f));
-	solar->Init("Solar", solarData, L"Basic", L"Basic");
+	auto solar = make_shared<Sphere>("Solar", Vector3(0.0f), Vector3{ 0.0f,0.01f,0.0f }, Vector3{ 0.0f,0.0f,0.0f }, Vector3(1.0f));
+	solar->Init(solarData, L"Basic", L"Basic");
 	solar->GetPixelConstantData().isSun=1;
-	m_vecMeshes.push_back(solar);
+	m_vecObj.push_back(solar);
 
 	MeshData mercuryData = GeometryGenerator::MakeSphere(0.38f, 30, 30, "image/Mercury.jpg");
-	auto mercury = make_shared<Mesh>(Vector3(111.0f, 0.0f, 0.0f), Vector3{ 0.0f,0.000015f,0.000614f }, Vector3{ 0.0f,0.1f,0.0f }, Vector3(1.0f));
-	mercury->Init("Mercury", mercuryData, L"Basic", L"Basic");
-	m_vecMeshes.push_back(mercury);
+	auto mercury = make_shared<Sphere>("Mercury", Vector3(111.0f, 0.0f, 0.0f), Vector3{ 0.0f,0.000015f,0.000614f }, Vector3{ 0.0f,0.1f,0.0f }, Vector3(1.0f));
+	mercury->Init(mercuryData, L"Basic", L"Basic");
+	m_vecObj.push_back(mercury);
 
 	MeshData venusData = GeometryGenerator::MakeSphere(0.94f, 30, 30, "image/Venus.jpg");
-	auto venus = make_shared<Mesh>(Vector3(112.6f, 0.0f, 0.0f), Vector3{ 0.0f,0.000001f,3.096f }, Vector3{ 0.0f,0.073f,0.0f }, Vector3(1.0f));
-	venus->Init("Venus", venusData, L"Basic", L"Basic");
-	m_vecMeshes.push_back(venus);
+	auto venus = make_shared<Sphere>("Venus", Vector3(112.6f, 0.0f, 0.0f), Vector3{ 0.0f,0.000001f,3.096f }, Vector3{ 0.0f,0.073f,0.0f }, Vector3(1.0f));
+	venus->Init(venusData, L"Basic", L"Basic");
+	m_vecObj.push_back(venus);
 
 	MeshData earthData = GeometryGenerator::MakeSphere(1.0f, 30, 30, "image/earth.jpg");
-	auto earth = make_shared<Mesh>(Vector3(114.16f, 0.0f, 0.0f), Vector3{ 0.0f,0.0023f,0.4091f }, Vector3{ 0.0f,0.062f,0.0f }, Vector3(1.0f));
-	earth->Init("Earth", earthData, L"Basic", L"Basic");
-	m_vecMeshes.push_back(earth);
+	auto earth = make_shared<Sphere>("Earth", Vector3(114.16f, 0.0f, 0.0f), Vector3{ 0.0f,0.0023f,0.4091f }, Vector3{ 0.0f,0.062f,0.0f }, Vector3(1.0f));
+	earth->Init(earthData, L"Basic", L"Basic");
+	m_vecObj.push_back(earth);
 
 	MeshData marsData = GeometryGenerator::MakeSphere(0.53f, 30, 30, "image/Mars.jpg");
-	auto mars = make_shared<Mesh>(Vector3(116.84f, 0.0f, 0.0f), Vector3{ 0.0f,0.0012f,0.4396f }, Vector3{ 0.0f,0.05f,0.0f }, Vector3(1.0f));
-	mars->Init("Mars", marsData, L"Basic", L"Basic");
-	m_vecMeshes.push_back(mars);
+	auto mars = make_shared<Sphere>("Mars", Vector3(116.84f, 0.0f, 0.0f), Vector3{ 0.0f,0.0012f,0.4396f }, Vector3{ 0.0f,0.05f,0.0f }, Vector3(1.0f));
+	mars->Init(marsData, L"Basic", L"Basic");
+	m_vecObj.push_back(mars);
 
 	MeshData jupiterData = GeometryGenerator::MakeSphere(10.97f, 30, 30, "image/Jupiter.jpg");
-	auto jupiter = make_shared<Mesh>(Vector3(135.86f, 0.0f, 0.0f), Vector3{ 0.0f,0.063f,0.0546f }, Vector3{ 0.0f,0.027f,0.0f }, Vector3(1.0f));
-	jupiter->Init("Jupiter", jupiterData, L"Basic", L"Basic");
-	m_vecMeshes.push_back(jupiter);
+	auto jupiter = make_shared<Sphere>("Jupiter", Vector3(135.86f, 0.0f, 0.0f), Vector3{ 0.0f,0.063f,0.0546f }, Vector3{ 0.0f,0.027f,0.0f }, Vector3(1.0f));
+	jupiter->Init(jupiterData, L"Basic", L"Basic");
+	m_vecObj.push_back(jupiter);
 
 	MeshData saturnData = GeometryGenerator::MakeSphere(9.14f, 100, 100, "image/Saturn.jpg");
-	auto saturn = make_shared<Mesh>(Vector3(158.4f, 0.0f, 0.0f), Vector3{ 0.0f,0.05f,0.4665f }, Vector3{ 0.0f,0.02f,0.0f }, Vector3(1.0f));
-	saturn->Init("Saturn", saturnData, L"Basic", L"Basic");
+	auto saturn = make_shared<Sphere>("Saturn", Vector3(158.4f, 0.0f, 0.0f), Vector3{ 0.0f,0.05f,0.4665f }, Vector3{ 0.0f,0.02f,0.0f }, Vector3(1.0f));
+	saturn->Init(saturnData, L"Basic", L"Basic");
 
 	MeshData saturnRingData = GeometryGenerator::MakeDisc(10.0f, 20.0f, 50, "image/SaturnRing.jpg");
-	auto saturnRing = make_shared<Mesh>(Vector3(0.0f),Vector3{-45.0f,0.5f,0.0f},Vector3(0.0f),Vector3(1.0f));
-	saturnRing->Init("SaturnRing", saturnRingData, L"Basic", L"Basic");
-	saturn->AttachMesh("Saturn", saturnRing);
-	m_vecMeshes.push_back(saturn);
+	auto saturnRing1 = make_shared<Sphere>("SaturnRing1", Vector3(0.0f),Vector3{-45.0f,0.5f,0.0f},Vector3(0.0f),Vector3(1.0f));
+	saturnRing1->Init(saturnRingData, L"Basic", L"Basic");
+	saturn->AttachObject("Saturn", saturnRing1);
+	auto saturnRing2 = make_shared<Sphere>("SaturnRing2", Vector3{0.0f,-0.01f,0.0f}, Vector3{135.0f,0.5f,0.0f}, Vector3(0.0f), Vector3(1.0f));
+	saturnRing2->Init(saturnRingData, L"Basic", L"Basic");
+	saturn->AttachObject("Saturn", saturnRing2);
+	m_vecObj.push_back(saturn);
 
 	MeshData uranusData = GeometryGenerator::MakeSphere(3.98f, 30, 30, "image/Uranus.jpg");
-	auto uranus = make_shared<Mesh>(Vector3(208.1f, 0.0f, 0.0f), Vector3{ 0.0f,0.0129f,1.7064f }, Vector3{ 0.0f,0.014f,0.0f }, Vector3(1.0f));
-	uranus->Init("Uranus", uranusData, L"Basic", L"Basic");
-	m_vecMeshes.push_back(uranus);
+	auto uranus = make_shared<Sphere>("Uranus", Vector3(208.1f, 0.0f, 0.0f), Vector3{ 0.0f,0.0129f,1.7064f }, Vector3{ 0.0f,0.014f,0.0f }, Vector3(1.0f));
+	uranus->Init(uranusData, L"Basic", L"Basic");
+	m_vecObj.push_back(uranus);
 
 	MeshData neptuneData = GeometryGenerator::MakeSphere(3.86f, 30, 30, "image/Neptune.jpg");
-	auto neptune = make_shared<Mesh>(Vector3(264.68f, 0.0f, 0.0f), Vector3{ 0.0f,0.0134f,0.4943f }, Vector3{ 0.0f,0.011f,0.0f }, Vector3(1.0f));
-	neptune->Init("Neptune", neptuneData, L"Basic", L"Basic");
-	m_vecMeshes.push_back(neptune);
+	auto neptune = make_shared<Sphere>("Neptune", Vector3(264.68f, 0.0f, 0.0f), Vector3{ 0.0f,0.0134f,0.4943f }, Vector3{ 0.0f,0.011f,0.0f }, Vector3(1.0f));
+	neptune->Init(neptuneData, L"Basic", L"Basic");
+	m_vecObj.push_back(neptune);
 
 	MeshData groundData = GeometryGenerator::MakeSquare();
 	groundData.textureName = "image/Earth.jpg";
-	auto ground = make_shared<Mesh>(Vector3{ 0.0f,-200.0f,0.0f }, Vector3{ 90.0f,0.0f,0.0f }, Vector3(0.0f), Vector3(200.0f));
-	ground->Init("Ground", groundData, L"Basic", L"Basic");
-	m_vecMeshes.push_back(ground);
+	auto ground = make_shared<Object>("Ground", Vector3{ 0.0f,-200.0f,0.0f }, Vector3{ 90.0f,0.0f,0.0f }, Vector3(0.0f), Vector3(200.0f));
+	ground->Init(groundData, L"Basic", L"Basic");
+	m_vecObj.push_back(ground);
 
 	MeshData arrowData = GeometryGenerator::MakeTriangle();
 	auto dirArrowMesh = make_shared<DirArrow>(Vector3{ 0.9f,-0.7f,1.0f }, Vector3(0.0f), Vector3(0.0f), Vector3(1.0f));
-	dirArrowMesh->Init("DirArrow", arrowData, L"DirArrow", L"DirArrow");
-	m_vecMeshes.push_back(dirArrowMesh);
+	dirArrowMesh->Init(arrowData, L"DirArrow", L"DirArrow");
+	m_vecNonObj.push_back(dirArrowMesh);
 
-	m_focusMesh = solar;
+	m_focusObj = solar;
 }
 
 void Core::InitCubeMap()
@@ -103,8 +108,8 @@ void Core::InitCubeMap()
 	MeshData cubeMapData = GeometryGenerator::MakeSphere(1000.0f, 30, 30, "image/space.dds");
 	std::reverse(cubeMapData.indices.begin(), cubeMapData.indices.end());
 	auto cubeMap = make_shared<CubeMap>();
-	cubeMap->Init("CubeMap", cubeMapData, L"CubeMap", L"CubeMap");
-	m_cubeMap = cubeMap;
+	cubeMap->Init(cubeMapData, L"CubeMap", L"CubeMap");
+	m_vecNonObj.push_back(cubeMap);
 }
 
 bool Core::InitGUI()
@@ -138,14 +143,17 @@ void Core::Update(float dt)
 	m_camera->Update(dt);
 	m_pixelConstantData.eyePos = m_camera->GetPos();
 
-	for (auto& meshGroup : m_vecMeshes)
+	for (auto& obj : m_vecObj)
 	{
-		if (meshGroup)
-			meshGroup->Update(dt);
+		if (obj)
+			obj->Update(dt);
 	}
 
-	if (m_cubeMap)
-		m_cubeMap->Update(dt);
+	for (auto& nonObj : m_vecNonObj)
+	{
+		if (nonObj)
+			nonObj->Update(dt);
+	}
 
 	for (auto& filter : m_filters)
 	{
@@ -164,7 +172,7 @@ void Core::UpdateGUI()
 	ImGui::SliderFloat("Rim Power", &m_pixelConstantData.rim.rimPower, 0.0f, 5.0f);
 	ImGui::SliderFloat("Threshold", &m_pixelConstantData.bloom.threshold, 0.0f, 1.0f);
 	ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloom.bloomStrength, 0.0f, 1.0f);
-	ImGui::SliderFloat3("Rotation", &m_focusMesh->m_rotation1.x, 0.0f, 3.14f);
+	ImGui::SliderFloat3("Rotation", &m_focusObj->m_rotation1.x, 0.0f, 3.14f);
 	ImGui::SliderFloat("LightStrength", &m_pixelConstantData.light.lightStrength.x, 0.0f, 1.0f);
 	ImGui::SliderFloat3("LightPos", &m_pixelConstantData.light.lightPos.x, -1000.0f, 1000.0f);
 	ImGui::SliderFloat("fallOfStart", &m_pixelConstantData.light.fallOfStart, 0.0f, 1000.0f);
@@ -191,19 +199,22 @@ void Core::Render()
 	context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
 	context->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
 
-	for (auto& mesh : m_vecMeshes)
+	for (auto& obj : m_vecObj)
 	{
-		if (mesh)
-			mesh->Render(context.Get(), m_drawNormal);
+		if (obj)
+			obj->Render(context.Get());
 	}
 
-	if (m_cubeMap)
-		m_cubeMap->Render(context.Get(), m_drawNormal);
+	for (auto& nonObj : m_vecNonObj)
+	{
+		if (nonObj)
+			nonObj->Render(context.Get());
+	}
 
 	for (auto& filter : m_filters)
 	{
 		if (filter)
-			filter->Render(context.Get(), m_drawNormal);
+			filter->Render(context.Get());
 	}
 }
 
@@ -475,7 +486,7 @@ LRESULT Core::MsgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 Core::Core()
 	: m_fWidth(1280.0f)
-	, m_fHeight(760.0f)
+	, m_fHeight(960.0f)
 	, m_iNumOfMultiSamplingLevel(0)
 	, m_mainWindow(nullptr)
 	, m_viewPort({})

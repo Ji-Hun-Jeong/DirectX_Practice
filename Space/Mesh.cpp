@@ -16,19 +16,15 @@ Mesh::Mesh(const Vector3& translation, const Vector3& rotation1, const Vector3& 
 	, m_rotation2(rotation2* XM_PI / 180.0f)
 	, m_scale(scale)
 	, m_topology(topology)
-	, m_normalTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST)
-	, m_ownerMesh(nullptr)
 {
 }
-void Mesh::Init(const string& name, const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
+void Mesh::Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
 {
-	m_strName = name;
 	D3DUtils::GetInst().CreateVertexBuffer<Vertex>(meshData.vertices, m_vertexBuffer);
 	m_indexCount = UINT(meshData.indices.size());
 	D3DUtils::GetInst().CreateIndexBuffer<uint32_t>(meshData.indices, m_indexBuffer);
 	D3DUtils::GetInst().CreateConstantBuffer<VertexConstantData>(m_vertexConstantData, m_vertexConstantBuffer);
 	D3DUtils::GetInst().CreateConstantBuffer<PixelConstantData>(m_pixelConstantData, m_pixelConstantBuffer);
-	D3DUtils::GetInst().CreateConstantBuffer<NormalConstantData>(m_normalConstantData, m_normalConstantBuffer);
 	D3DUtils::GetInst().CreateSamplerState(m_samplerState);
 	if (!meshData.textureName.empty())
 	{
@@ -39,33 +35,19 @@ void Mesh::Init(const string& name, const MeshData& meshData, const wstring& ver
 	CreateVertexShaderAndInputLayout(vertexShaderPrefix, m_vertexShader);
 	CreatePixelShader(pixelShaderPrefix, m_pixelShader);
 	// CreateGeometryShader(L"Basic", m_geometryShader);
-
-	CreateVertexShaderAndInputLayout(L"Normal", m_normalVertexShader);
-	CreatePixelShader(L"Normal", m_normalPixelShader);
-	CreateGeometryShader(L"Normal", m_normalGeometryShader);
 }
 void Mesh::Update(float dt)
 {
 	this->UpdateVertexConstantData(dt);
-	this->UpdateNormalConstantData();
 	this->UpdatePixelConstantData();
 	D3DUtils::GetInst().UpdateBuffer<VertexConstantData>(m_vertexConstantBuffer, m_vertexConstantData);
-	D3DUtils::GetInst().UpdateBuffer<NormalConstantData>(m_normalConstantBuffer, m_normalConstantData);
 	D3DUtils::GetInst().UpdateBuffer<PixelConstantData>(m_pixelConstantBuffer, m_pixelConstantData);
-
-	for (shared_ptr<Mesh>& childMesh : m_vecChildMeshes)
-	{
-		childMesh->Update(dt);
-	}
 }
 
 void Mesh::UpdateVertexConstantData(float dt)
 {
-	static float time = 0.0f;
-	time += dt;
+	float time = GetTic(dt);
 	Core& core = Core::GetInst();
-	if (time < 0)
-		time = 0;
 
 	Quaternion rotateX = Quaternion::CreateFromAxisAngle(Vector3{ 1.0f,0.0f,0.0f }, m_rotation1.x);
 	Quaternion rotateY = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, m_rotation1.y * time);
@@ -79,12 +61,6 @@ void Mesh::UpdateVertexConstantData(float dt)
 		* Matrix::CreateRotationX(m_rotation2.x * time)
 		* Matrix::CreateRotationY(m_rotation2.y * time)
 		* Matrix::CreateRotationZ(m_rotation2.z * time);
-
-	if (m_ownerMesh)
-	{
-		m_vertexConstantData.model *= m_ownerMesh->m_prevTransformModel;
-	}
-	m_prevTransformModel = m_vertexConstantData.model;
 
 	m_vertexConstantData.invTranspose = m_vertexConstantData.model;
 	m_vertexConstantData.invTranspose.Translation(Vector3(0.0f));
@@ -104,33 +80,17 @@ void Mesh::UpdateVertexConstantData(float dt)
 	m_vertexConstantData.projection = m_vertexConstantData.projection.Transpose();
 }
 
-void Mesh::UpdateNormalConstantData()
-{
-	m_normalConstantData.model = m_vertexConstantData.model;
-	m_normalConstantData.invTranspose = m_vertexConstantData.invTranspose;
-	m_normalConstantData.view = m_vertexConstantData.view;
-	m_normalConstantData.projection = m_vertexConstantData.projection;
-
-	m_normalConstantData.normalSize = Core::GetInst().m_normalSize;
-}
-
 void Mesh::UpdatePixelConstantData()
 {
 	m_pixelConstantData = Core::GetInst().m_pixelConstantData;
-	if (m_strName == "Solar")
-		m_pixelConstantData.isSun = 1;
 	//m_pixelConstantData.mat = Core::GetInst().m_allMat;
 	//m_pixelConstantData.eyePos = Core::GetInst().GetCamera()->GetPos();
 }
 
-void Mesh::Render(ID3D11DeviceContext* context, bool drawNormal)
+void Mesh::Render(ID3D11DeviceContext* context)
 {
 	ReadyToRender(context);
 	context->DrawIndexed(m_indexCount, 0, 0);
-	if (drawNormal)
-		DrawNormal(context);
-	for (shared_ptr<Mesh>& childMesh : m_vecChildMeshes)
-		childMesh->Render(context, drawNormal);
 }
 
 void Mesh::ReadyToRender(ID3D11DeviceContext* context)
@@ -156,41 +116,7 @@ void Mesh::ReadyToRender(ID3D11DeviceContext* context)
 	context->PSSetShaderResources(0, (UINT)m_vecShaderResourceViews.size(), m_vecShaderResourceViews.data()->GetAddressOf());
 }
 
-void Mesh::DrawNormal(ID3D11DeviceContext* context)
-{
-	context->IASetPrimitiveTopology(m_normalTopology);
 
-	context->VSSetShader(m_normalVertexShader.Get(), nullptr, 0);
-	context->VSSetConstantBuffers(0, 1, m_normalConstantBuffer.GetAddressOf());
-
-	context->GSSetShader(m_normalGeometryShader.Get(), nullptr, 0);
-	context->GSSetConstantBuffers(0, 1, m_normalConstantBuffer.GetAddressOf());
-
-	context->PSSetShader(m_normalPixelShader.Get(), nullptr, 0);
-
-	context->DrawIndexed(m_indexCount, 0, 0);
-}
-
-bool Mesh::AttachMesh(const string& meshName, shared_ptr<Mesh>& childMesh)
-{
-	if (m_strName == meshName)
-	{
-		m_vecChildMeshes.push_back(childMesh);
-		childMesh->m_ownerMesh = this;
-		return true;
-	}
-	else
-	{
-		bool findChild = false;
-		for (auto& mesh : m_vecChildMeshes)
-		{
-			findChild = mesh->AttachMesh(meshName, childMesh);
-			if (findChild)
-				break;
-		}
-		return findChild;
-	}
-}
 
 void Mesh::CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vertexShader)
 {
@@ -219,5 +145,14 @@ void Mesh::ReadImage(const string& textureName)
 	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
 	D3DUtils::GetInst().ReadImage(textureName, texture, shaderResourceView);
 	m_vecShaderResourceViews.push_back(shaderResourceView);
+}
+
+float Mesh::GetTic(float dt)
+{
+	static float time = 0.0f;
+	time += dt;
+	if (time < 0)
+		time = 0;
+	return time;
 }
 

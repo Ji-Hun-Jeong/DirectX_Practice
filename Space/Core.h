@@ -1,8 +1,9 @@
 #pragma once
 class CubeMap;
-class Mesh;
 class Camera;
 class ImageFilter;
+class Object;
+class NonObject;
 class Core
 {
 // Start
@@ -18,8 +19,9 @@ public:
 
 // Object
 private:
-	vector<shared_ptr<Mesh>> m_vecMeshes;
-	shared_ptr<Mesh> m_focusMesh;
+	vector<shared_ptr<Object>> m_vecObj;
+	vector<shared_ptr<NonObject>> m_vecNonObj;
+	shared_ptr<Object> m_focusObj;
 	shared_ptr<CubeMap> m_cubeMap;
 
 public:

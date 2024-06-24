@@ -3,14 +3,15 @@
 #include "D3DUtils.h"
 
 CubeMap::CubeMap(const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale)
-	: Mesh(translation, rotation1, rotation2, scale, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+	: NonObject(translation, rotation1, rotation2, scale, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 {
 	
 }
 
 CubeMap::CubeMap()
-	: Mesh(Vector3(0.0f),Vector3(0.0f),Vector3(0.0f), Vector3(0.0f), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+	: NonObject(Vector3(0.0f),Vector3(0.0f),Vector3(0.0f), Vector3(0.0f), D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 {
+	
 }
 
 void CubeMap::UpdateVertexConstantData(float dt)
