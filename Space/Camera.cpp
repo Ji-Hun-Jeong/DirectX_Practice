@@ -22,27 +22,16 @@ void Camera::Update(float dt)
 	CalcProjectionRow();
 }
 
-void Camera::CalcViewRow()
-{
-	// 여기서도 y축으로 시점이 가는순간 짐벌락 발생
-	m_view = Matrix::CreateTranslation(-m_pos) *
-		Matrix::CreateRotationY(-m_fYaw) *
-		Matrix::CreateRotationX(m_fPitch);
-}
-
 void Camera::CalcProjectionRow()
 {
-	Core& core = Core::GetInst();
-	float angleY = core.GetAngleY();
-	float aspect = core.GetAspect();
-	float nearZ = core.GetNearZ();
-	float farZ = core.GetFarZ();
-	m_projection = XMMatrixPerspectiveFovLH(angleY, aspect, nearZ, farZ);
+	float angleY = GetAngleY();
+	float aspect = Core::GetInst().GetAspect();
+	m_projection = XMMatrixPerspectiveFovLH(angleY, aspect, m_nearZ, m_farZ);
 }
 
 Matrix Camera::GetArrowViewRow()
 {
-	Matrix result =	Matrix::CreateRotationY(m_fYaw) *
+	Matrix result = Matrix::CreateRotationY(m_fYaw) *
 		Matrix::CreateRotationX(-m_fPitch);
 	return result;
 }
@@ -78,6 +67,13 @@ void Camera::MoveUpDir(float dt)
 	m_pos += m_upDir * m_fSpeed * dt;
 }
 
+void Camera::CalcViewRow()
+{
+	m_view = Matrix::CreateTranslation(-m_pos) *
+		Matrix::CreateRotationX(m_fPitch) *
+		Matrix::CreateRotationY(-m_fYaw);
+}
+
 void Camera::CalDirection()
 {
 	Vector2 cursorPos = KeyMgr::GetInst().GetMouseNDCPos();
@@ -88,12 +84,9 @@ void Camera::CalDirection()
 		Matrix::CreateRotationX(-m_fPitch) *
 		Matrix::CreateRotationY(m_fYaw));
 
-	// Gimbal Lock
-	Quaternion rotateX = Quaternion::CreateFromAxisAngle(Vector3{ 1.0f,0.0f,0.0f }, -m_fPitch);
-	Quaternion rotateY = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, m_fYaw);
 	m_upDir = Vector3::Transform(Vector3{ 0.0f, 1.0f, 0.0f },
-		Matrix::CreateFromQuaternion(rotateX) *
-		Matrix::CreateFromQuaternion(rotateY));
-	
+		Matrix::CreateRotationX(-m_fPitch)*
+		Matrix::CreateRotationY(m_fYaw));
+
 	m_rightDir = m_upDir.Cross(m_viewDir);
 }

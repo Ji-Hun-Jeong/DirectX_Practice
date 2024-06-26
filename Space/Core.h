@@ -13,6 +13,7 @@ public:
 	void InitMesh();
 	void InitCubeMap();
 	void Update(float dt);
+	void CalcPickingObject();
 	void UpdateGUI();
 	void Render();
 	int Progress();
@@ -46,17 +47,12 @@ protected:
 	shared_ptr<Camera> m_camera;
 	vector<shared_ptr<ImageFilter>> m_filters;
 
-	float m_angleY = 70.0f;
-	float m_nearZ = 0.01f;
-	float m_farZ = 10000.0f;
+
 public:
 	shared_ptr<Camera>& GetCamera() { return m_camera; }
 	float GetScreenWidth() const { return m_fWidth; }
 	float GetScreenHeight() const { return m_fHeight; }
-	float GetAspect() const { return m_fWidth / m_fHeight; }
-	float GetAngleY() const { return XMConvertToRadians(m_angleY); }
-	float GetNearZ() const { return m_nearZ; }
-	float GetFarZ() const { return m_farZ; } 
+	float GetAspect() const { return m_fWidth / m_fHeight; } 
 
 // D3D11Member
 

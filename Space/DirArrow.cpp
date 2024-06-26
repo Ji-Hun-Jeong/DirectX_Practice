@@ -29,17 +29,16 @@ void DirArrow::UpdateVertexConstantData(float dt)
 	Core& core = Core::GetInst();
 	auto& camera = core.GetCamera();
 	m_dirArrowConstantData.model = Matrix::CreateTranslation(m_translation);
+	m_dirArrowConstantData.model = m_dirArrowConstantData.model.Transpose();
 
 	m_dirArrowConstantData.view = Matrix();
-
-	float angleY = core.GetAngleY();
-	float aspect = core.GetAspect();
-	float nearZ = core.GetNearZ();
-	float farZ = core.GetFarZ();
-	m_dirArrowConstantData.projection = XMMatrixOrthographicLH(2 * aspect, 2, nearZ, farZ);
-
-	m_dirArrowConstantData.model = m_dirArrowConstantData.model.Transpose();
 	m_dirArrowConstantData.view = m_dirArrowConstantData.view.Transpose();
+
+	float angleY = camera->GetAngleY();
+	float aspect = core.GetAspect();
+	float nearZ = camera->GetNearZ();
+	float farZ = camera->GetFarZ();
+	m_dirArrowConstantData.projection = XMMatrixOrthographicLH(2 * aspect, 2, nearZ, farZ);
 	m_dirArrowConstantData.projection = m_dirArrowConstantData.projection.Transpose();
 
 	m_dirArrowConstantData.viewDir = camera->GetViewDir();

@@ -143,34 +143,15 @@ void Core::Update(float dt)
 	m_camera->Update(dt);
 	m_pixelConstantData.eyePos = m_camera->GetPos();
 
+	if (KEYCHECK(LBUTTON, TAP))
+	{
+		CalcPickingObject();
+	}
+
 	for (auto& obj : m_vecObj)
 	{
 		if (obj)
 			obj->Update(dt);
-	}
-	if (KEYCHECK(LBUTTON, TAP))
-	{
-		Vector2 mouseNDCPos = KeyMgr::GetInst().GetMouseNDCPos();
-		Vector3 nearPlane = Vector3(mouseNDCPos.x, mouseNDCPos.y, 0.0f);
-		Vector3 farPlane = Vector3(mouseNDCPos.x, mouseNDCPos.y, 1.0f);
-		Matrix inverseProjView = (m_camera->m_view * m_camera->m_projection).Invert();
-		Vector3 rayStartPos = Vector3::Transform(nearPlane
-			, inverseProjView);
-		Vector3 rayFinishPos = Vector3::Transform(farPlane
-			, inverseProjView);
-		Vector3 rayDir = rayFinishPos - rayStartPos;
-		rayDir.Normalize();
-		MyRay ray{ rayStartPos,rayDir };
-		for (auto& obj : m_vecObj)
-		{
-			if (!obj) continue;
-			bool isCollision = false;
-			isCollision = obj->IsCollision(ray);
-			if (isCollision)
-				obj->GetPixelConstantData().mat.selected = true;
-			else
-				obj->GetPixelConstantData().mat.selected = false;
-		}
 	}
 
 	for (auto& nonObj : m_vecNonObj)
@@ -183,6 +164,33 @@ void Core::Update(float dt)
 	{
 		if (filter)
 			filter->Update(dt);
+	}
+}
+
+void Core::CalcPickingObject()
+{
+	Vector2 mouseNDCPos = KeyMgr::GetInst().GetMouseNDCPos();
+	Vector3 nearPlane = Vector3(mouseNDCPos.x, mouseNDCPos.y, 0.0f);
+	Vector3 farPlane = Vector3(mouseNDCPos.x, mouseNDCPos.y, 1.0f);
+	Matrix inverseProjView = (m_camera->m_view * m_camera->m_projection).Invert();
+	Vector3 rayStartPos = Vector3::Transform(nearPlane
+		, inverseProjView);
+	Vector3 rayFinishPos = Vector3::Transform(farPlane
+		, inverseProjView);
+	Vector3 rayDir = rayFinishPos - rayStartPos;
+	rayDir.Normalize();
+	MyRay ray{ rayStartPos,rayDir };
+	for (auto& obj : m_vecObj)
+	{
+		if (!obj) continue;
+		bool isCollision = false;
+		isCollision = obj->IsCollision(ray);
+		if (isCollision)
+		{
+			m_focusObj->GetPixelConstantData().mat.selected = false;
+			obj->GetPixelConstantData().mat.selected = true;
+			m_focusObj = obj;
+		}
 	}
 }
 
@@ -201,10 +209,10 @@ void Core::UpdateGUI()
 	ImGui::SliderFloat3("LightPos", &m_pixelConstantData.light.lightPos.x, -1000.0f, 1000.0f);
 	ImGui::SliderFloat("fallOfStart", &m_pixelConstantData.light.fallOfStart, 0.0f, 1000.0f);
 	ImGui::SliderFloat("fallOfEnd", &m_pixelConstantData.light.fallOfEnd, 0.0f, 1000.0f);
-	ImGui::SliderFloat3("Ambient", &m_pixelConstantData.mat.ambient.x, 0.0f, 1.0f);
-	ImGui::SliderFloat3("Diffuse", &m_pixelConstantData.mat.diffuse.x, 0.0f, 1.0f);
-	ImGui::SliderFloat3("Specular", &m_pixelConstantData.mat.specular.x, 0.0f, 1.0f);
-	ImGui::SliderFloat("Shiness", &m_pixelConstantData.mat.shiness, 0.0f, 10.0f);
+	ImGui::SliderFloat3("Ambient", &m_focusObj->GetPixelConstantData().mat.ambient.x, 0.0f, 1.0f);
+	ImGui::SliderFloat3("Diffuse", &m_focusObj->GetPixelConstantData().mat.diffuse.x, 0.0f, 1.0f);
+	ImGui::SliderFloat3("Specular", &m_focusObj->GetPixelConstantData().mat.specular.x, 0.0f, 1.0f);
+	ImGui::SliderFloat("Shiness", &m_focusObj->GetPixelConstantData().mat.shiness, 0.0f, 10.0f);
 }
 
 
@@ -264,14 +272,14 @@ int Core::Progress()
 			ImGui::Text("Average %.3f ms/frame (%.1f FPS)",
 				1000.0f / ImGui::GetIO().Framerate,
 				ImGui::GetIO().Framerate);
-			UpdateGUI();
+			this->UpdateGUI();
 
 			ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
 			ImGui::End();
 			ImGui::Render(); // 렌더링할 것들 기록 끝
 
-			Update(ImGui::GetIO().DeltaTime);
-			Render();
+			this->Update(ImGui::GetIO().DeltaTime);
+			this->Render();
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // GUI 렌더링
 			D3DUtils::GetInst().GetSwapChain()->Present(1, 0);
 		}
@@ -468,8 +476,8 @@ void Core::CreateFilters()
 	// 원본영상에 합침
 	auto combineFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Combine");
 	combineFilter->SetShaderResourceViews(
-		{
-			copyFilter->GetShaderResourceView().Get(),
+	{
+		copyFilter->GetShaderResourceView().Get(),
 		m_filters.back()->GetShaderResourceView().Get() }
 	);
 	combineFilter->SetRenderTargetViews({ m_renderTargetView.Get() });
