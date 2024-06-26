@@ -69,22 +69,20 @@ void Mesh::UpdateVertexConstantData(float dt)
 	m_vertexConstantData.model = m_vertexConstantData.model.Transpose();
 	m_vertexConstantData.invTranspose = m_vertexConstantData.invTranspose.Transpose();
 
-	m_vertexConstantData.view = Core::GetInst().GetCamera()->GetViewRow();
+	m_vertexConstantData.view = core.GetCamera()->m_view;
 	m_vertexConstantData.view = m_vertexConstantData.view.Transpose();
 
-	float angleY = core.GetAngleY();
-	float aspect = core.GetAspect();
-	float nearZ = core.GetNearZ();
-	float farZ = core.GetFarZ();
-	m_vertexConstantData.projection = XMMatrixPerspectiveFovLH(angleY, aspect, nearZ, farZ);
+	m_vertexConstantData.projection = core.GetCamera()->m_projection;
 	m_vertexConstantData.projection = m_vertexConstantData.projection.Transpose();
 }
 
 void Mesh::UpdatePixelConstantData()
 {
-	m_pixelConstantData = Core::GetInst().m_pixelConstantData;
-	//m_pixelConstantData.mat = Core::GetInst().m_allMat;
-	//m_pixelConstantData.eyePos = Core::GetInst().GetCamera()->GetPos();
+	Core& core = Core::GetInst();
+	m_pixelConstantData.bloom = core.m_pixelConstantData.bloom;
+	m_pixelConstantData.eyePos = core.m_pixelConstantData.eyePos;
+	m_pixelConstantData.light = core.m_pixelConstantData.light;
+	m_pixelConstantData.rim = core.m_pixelConstantData.rim;
 }
 
 void Mesh::Render(ID3D11DeviceContext* context)

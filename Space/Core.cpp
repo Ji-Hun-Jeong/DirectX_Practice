@@ -148,6 +148,30 @@ void Core::Update(float dt)
 		if (obj)
 			obj->Update(dt);
 	}
+	if (KEYCHECK(LBUTTON, TAP))
+	{
+		Vector2 mouseNDCPos = KeyMgr::GetInst().GetMouseNDCPos();
+		Vector3 nearPlane = Vector3(mouseNDCPos.x, mouseNDCPos.y, 0.0f);
+		Vector3 farPlane = Vector3(mouseNDCPos.x, mouseNDCPos.y, 1.0f);
+		Matrix inverseProjView = (m_camera->m_view * m_camera->m_projection).Invert();
+		Vector3 rayStartPos = Vector3::Transform(nearPlane
+			, inverseProjView);
+		Vector3 rayFinishPos = Vector3::Transform(farPlane
+			, inverseProjView);
+		Vector3 rayDir = rayFinishPos - rayStartPos;
+		rayDir.Normalize();
+		MyRay ray{ rayStartPos,rayDir };
+		for (auto& obj : m_vecObj)
+		{
+			if (!obj) continue;
+			bool isCollision = false;
+			isCollision = obj->IsCollision(ray);
+			if (isCollision)
+				obj->GetPixelConstantData().mat.selected = true;
+			else
+				obj->GetPixelConstantData().mat.selected = false;
+		}
+	}
 
 	for (auto& nonObj : m_vecNonObj)
 	{

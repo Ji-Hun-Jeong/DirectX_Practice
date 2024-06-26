@@ -6,16 +6,20 @@ class Object :
 public:
     Object();
     explicit Object(const string& strName, const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    virtual bool IsCollision(const MyRay& ray);
+public:
     virtual void Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix) override;
     virtual void Update(float dt) override;
     virtual void Render(ID3D11DeviceContext* context) override;
+
     virtual void DrawNormal(ID3D11DeviceContext* context);
     virtual void UpdateVertexConstantData(float dt) override;
     virtual void UpdatePixelConstantData() override;
     virtual void UpdateNormalConstantData();
-    bool AttachObject(const string& meshName, shared_ptr<Object> childObj);
 
+    virtual bool IsCollision(const MyRay& ray);
+
+    bool AttachObject(const string& meshName, shared_ptr<Object> childObj);
+public:
     const string& GetName() { return m_strName; }
 protected:
     string				 m_strName;

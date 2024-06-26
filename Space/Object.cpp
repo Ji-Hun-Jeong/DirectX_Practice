@@ -6,13 +6,15 @@
 
 Object::Object()
 	: Mesh()
+	, m_normalTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+	, m_ownerObj(nullptr)
 {
 }
 
 Object::Object(const string& strName, const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale, D3D11_PRIMITIVE_TOPOLOGY topology)
 	: Mesh(translation, rotation1, rotation2, scale, topology)
 	, m_strName(strName)
-	, m_normalTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST)
+	, m_normalTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 	, m_ownerObj(nullptr)
 {
 }
@@ -28,7 +30,6 @@ void Object::Init(const MeshData& meshData, const wstring& vertexShaderPrefix, c
 
 bool Object::IsCollision(const MyRay& ray)
 {
-
 	return false;
 }
 
@@ -99,14 +100,10 @@ void Object::UpdateVertexConstantData(float dt)
 	m_vertexConstantData.model = m_vertexConstantData.model.Transpose();
 	m_vertexConstantData.invTranspose = m_vertexConstantData.invTranspose.Transpose();
 
-	m_vertexConstantData.view = core.GetCamera()->GetViewRow();
+	m_vertexConstantData.view = core.GetCamera()->m_view;
 	m_vertexConstantData.view = m_vertexConstantData.view.Transpose();
 
-	float angleY = core.GetAngleY();
-	float aspect = core.GetAspect();
-	float nearZ = core.GetNearZ();
-	float farZ = core.GetFarZ();
-	m_vertexConstantData.projection = XMMatrixPerspectiveFovLH(angleY, aspect, nearZ, farZ);
+	m_vertexConstantData.projection = core.GetCamera()->m_projection;
 	m_vertexConstantData.projection = m_vertexConstantData.projection.Transpose();
 }
 

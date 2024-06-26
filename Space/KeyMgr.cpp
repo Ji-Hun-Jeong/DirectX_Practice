@@ -18,7 +18,7 @@ void KeyMgr::Update()
 	MouseUpdate();
 }
 
-Vector2 KeyMgr::GetMousePos()
+Vector2 KeyMgr::GetMouseNDCPos()
 {
 	const float aspect = Core::GetInst().GetAspect();
 	const float screenWidth = Core::GetInst().GetScreenWidth();
@@ -27,6 +27,7 @@ Vector2 KeyMgr::GetMousePos()
 	float y = (float)m_cursorPos.y;
 	x = (x * 2 * aspect) / screenWidth - aspect;
 	y = -(y * 2.0f) / screenHeight + 1.0f;
+	x /= aspect;
 	return Vector2(x, y);
 }
 
@@ -59,19 +60,4 @@ void KeyMgr::MouseUpdate()
 	ScreenToClient(Core::GetInst().GetMainWindow(), &m_cursorPos);
 	if (KEYCHECK(LBUTTON, NONE))
 		return;
-	if (KEYCHECK(LBUTTON, TAP))
-	{
-		m_prevCursorPos = GetMousePos();
-		m_curCursorPos = m_prevCursorPos;
-	}
-	else if (KEYCHECK(LBUTTON, HOLD))
-	{
-		m_curCursorPos = GetMousePos();
-	}
-	else if (KEYCHECK(LBUTTON, AWAY))
-	{
-		m_curCursorPos = GetMousePos();
-		m_prevCursorPos = m_curCursorPos;
-	}
-	m_curDiffCursorPos = m_curCursorPos - m_prevCursorPos;
 }

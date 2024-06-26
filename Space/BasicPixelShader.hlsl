@@ -10,7 +10,7 @@ cbuffer PixelConstant : register(b0)
     Bloom bloom;
     Rim rim;
 };
-float3 BlinnPhong(float3 normal, float3 toLightVec,float3 toEyeVec,float3 lightStrength)
+float3 BlinnPhong(float3 normal, float3 toLightVec, float3 toEyeVec, float3 lightStrength)
 {
     float3 h = normalize(toLightVec + toEyeVec);
     float hdotn = max(dot(h, normal), 0.0f);
@@ -56,7 +56,15 @@ float4 main(PSInput input) : SV_TARGET
             float degreeOfEyeAndNormal = max(dot(toEye, input.normal), 0.0f);
             color *= pow(1.0f - degreeOfEyeAndNormal, rim.rimPower);
             color *= rim.rimStrength * degreeOfEyeAndLight;
-        } 
+        }
+        if (mat.selected)
+        {
+            float degreeOfEyeAndNormal = max(dot(toEye, input.normal), 0.0f);
+            if (degreeOfEyeAndNormal < 0.4f)
+            {
+                color *= float3(1.0f, 0.0f, 0.0f);
+            }
+        }
     }
     return float4(color, 1.0f);
 }

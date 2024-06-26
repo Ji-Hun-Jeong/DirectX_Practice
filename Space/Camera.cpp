@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Camera.h"
 #include "KeyMgr.h"
+#include "Core.h"
 
 Camera::Camera()
 	: m_fSpeed(100.0f)
@@ -17,15 +18,26 @@ void Camera::Update(float dt)
 	if (m_bMoveDir)
 		CalDirection();
 	UpdatePos(dt);
+	CalcViewRow();
+	CalcProjectionRow();
 }
 
-Matrix Camera::GetViewRow()
+void Camera::CalcViewRow()
 {
 	// 여기서도 y축으로 시점이 가는순간 짐벌락 발생
-	Matrix result = Matrix::CreateTranslation(-m_pos) *
+	m_view = Matrix::CreateTranslation(-m_pos) *
 		Matrix::CreateRotationY(-m_fYaw) *
 		Matrix::CreateRotationX(m_fPitch);
-	return result;
+}
+
+void Camera::CalcProjectionRow()
+{
+	Core& core = Core::GetInst();
+	float angleY = core.GetAngleY();
+	float aspect = core.GetAspect();
+	float nearZ = core.GetNearZ();
+	float farZ = core.GetFarZ();
+	m_projection = XMMatrixPerspectiveFovLH(angleY, aspect, nearZ, farZ);
 }
 
 Matrix Camera::GetArrowViewRow()
@@ -68,7 +80,7 @@ void Camera::MoveUpDir(float dt)
 
 void Camera::CalDirection()
 {
-	Vector2 cursorPos = KeyMgr::GetInst().GetMousePos();
+	Vector2 cursorPos = KeyMgr::GetInst().GetMouseNDCPos();
 	m_fYaw = cursorPos.x * XM_PI;
 	m_fPitch = cursorPos.y * XM_PIDIV2;
 

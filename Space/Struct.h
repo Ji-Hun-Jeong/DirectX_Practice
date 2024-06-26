@@ -28,7 +28,7 @@ struct Material	// 48
 	Vector3 ambient = Vector3(0.1f);
 	float dummy1 = 0.0f;
 	Vector3 diffuse = Vector3(0.03f);
-	float dummy2 = 0.0f;
+	int selected = false;
 	Vector3 specular = Vector3(0.1f);
 	float	shiness = 10.0f;
 };

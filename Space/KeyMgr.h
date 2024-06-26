@@ -29,7 +29,7 @@ private:
 	Vector2 m_curDiffCursorPos;
 	Vector2 m_prevDiffCursorPos;
 public:
-	Vector2 GetMousePos();
+	Vector2 GetMouseNDCPos();
 	Vector2 GetCursorDiff() { return m_curDiffCursorPos - m_prevDiffCursorPos; }
 
 SINGLE(KeyMgr)

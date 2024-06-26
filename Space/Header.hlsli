@@ -31,7 +31,7 @@ struct Material	// 48
     float3 ambient;
     float dummy1;
     float3 diffuse;
-    float dummy2;
+    int selected;
     float3 specular;
     float shiness;
 };
