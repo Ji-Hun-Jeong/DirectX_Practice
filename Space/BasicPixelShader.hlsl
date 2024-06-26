@@ -43,7 +43,11 @@ float3 ComputePointLight(PSInput input)
 float4 main(PSInput input) : SV_TARGET
 {
     float3 toEye = normalize(eyePos - input.posWorld.xyz);
-    float3 color = g_texture0.Sample(g_sampler, input.uv);
+    float toEyeDist = length(eyePos - input.posWorld.xyz);
+    float minMipDist = 100.0f;
+    float maxMipDist = 3000.0f;
+    float lod = max((toEyeDist - minMipDist), 0.0f) * 10.0f / (maxMipDist - minMipDist);
+    float3 color = g_texture0.SampleLevel(g_sampler, input.uv, lod);
     color = isSun ? color * float3(1.5f, 1.5f, 1.5f) : color * ComputePointLight(input);
     if (rim.useRim && !isSun)
     {

@@ -20,7 +20,7 @@ public:
 	void CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& ps);
 	void CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState);
 	void ReadImage(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
-
+	void ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
 // CreateBuffer
 public:
 	template <typename T_Vertex>
