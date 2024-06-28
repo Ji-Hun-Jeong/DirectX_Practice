@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "Mesh.h"
 #include "D3DUtils.h"
-#include "Core.h"
 #include "Camera.h"
+#include "SceneMgr.h"
+#include "Scene.h"
 
 Mesh::Mesh()
 	: Mesh(Vector3(0.0f), Vector3(0.0f), Vector3(0.0f), Vector3(1.0f), D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
@@ -47,7 +48,7 @@ void Mesh::Update(float dt)
 void Mesh::UpdateVertexConstantData(float dt)
 {
 	float time = GetTic(dt);
-	Core& core = Core::GetInst();
+	shared_ptr<Camera>& camera = SceneMgr::GetInst().GetCurScene()->GetCamera();
 
 	Quaternion rotateX = Quaternion::CreateFromAxisAngle(Vector3{ 1.0f,0.0f,0.0f }, m_rotation1.x);
 	Quaternion rotateY = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, m_rotation1.y * time);
@@ -69,20 +70,20 @@ void Mesh::UpdateVertexConstantData(float dt)
 	m_vertexConstantData.model = m_vertexConstantData.model.Transpose();
 	m_vertexConstantData.invTranspose = m_vertexConstantData.invTranspose.Transpose();
 
-	m_vertexConstantData.view = core.GetCamera()->m_view;
+	m_vertexConstantData.view = camera->m_view;
 	m_vertexConstantData.view = m_vertexConstantData.view.Transpose();
 
-	m_vertexConstantData.projection = core.GetCamera()->m_projection;
+	m_vertexConstantData.projection = camera->m_projection;
 	m_vertexConstantData.projection = m_vertexConstantData.projection.Transpose();
 }
 
 void Mesh::UpdatePixelConstantData()
 {
-	Core& core = Core::GetInst();
-	m_pixelConstantData.bloom = core.m_pixelConstantData.bloom;
-	m_pixelConstantData.eyePos = core.m_pixelConstantData.eyePos;
-	m_pixelConstantData.light = core.m_pixelConstantData.light;
-	m_pixelConstantData.rim = core.m_pixelConstantData.rim;
+	PixelConstantData& pcd = GETCURSCENE()->m_pixelConstantData;
+	m_pixelConstantData.bloom = pcd.bloom;
+	m_pixelConstantData.eyePos = pcd.eyePos;
+	m_pixelConstantData.light = pcd.light;
+	m_pixelConstantData.rim = pcd.rim;
 }
 
 void Mesh::Render(ID3D11DeviceContext* context)
@@ -93,10 +94,10 @@ void Mesh::Render(ID3D11DeviceContext* context)
 
 void Mesh::ReadyToRender(ID3D11DeviceContext* context)
 {
-	Core& core = Core::GetInst();
+	SceneMgr& sMgr = SceneMgr::GetInst();
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	context->OMSetRenderTargets(1, core.GetRenderTargetView().GetAddressOf(), core.GetDepthStencilView().Get());
+	context->OMSetRenderTargets(1, sMgr.GetRenderTargetView().GetAddressOf(), sMgr.GetDepthStencilView().Get());
 	context->IASetPrimitiveTopology(m_topology);
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	context->IASetInputLayout(m_inputLayout.Get());

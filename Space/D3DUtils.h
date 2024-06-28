@@ -1,7 +1,7 @@
 #pragma once
 class D3DUtils
 {
-// InitDirect3D
+	// InitDirect3D
 public:
 	bool CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel);
 	bool CreateRenderTargetView(ID3D11Resource* resource
@@ -11,8 +11,8 @@ public:
 	bool CreateDepthStencilView(D3D11_TEXTURE2D_DESC* depthBufferDesc, ComPtr<ID3D11Texture2D>& depthBuffer, const D3D11_DEPTH_STENCIL_VIEW_DESC* depthStencilViewdesc
 		, ComPtr<ID3D11DepthStencilView>& depthStencilView);
 	bool CreateDepthStencilState(const D3D11_DEPTH_STENCIL_DESC* desc, ComPtr<ID3D11DepthStencilState>& depthStencilState);
-	
-// CreateShader
+
+	// CreateShader
 public:
 	void CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vs
 		, const vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc, ComPtr<ID3D11InputLayout>& inputLayout);
@@ -20,8 +20,9 @@ public:
 	void CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& ps);
 	void CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState);
 	void ReadImage(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
+	ComPtr<ID3D11Texture2D> CreateStagingTexture(const vector<uint8_t>& image, int width, int height);
 	void ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
-// CreateBuffer
+	// CreateBuffer
 public:
 	template <typename T_Vertex>
 	void CreateVertexBuffer(const vector<T_Vertex>& vertices, ComPtr<ID3D11Buffer>& vertexBuffer)
@@ -78,7 +79,7 @@ public:
 		m_device->CreateBuffer(&bufferDesc, &dataDesc, constantBuffer.GetAddressOf());
 	}
 
-// UpdateDirect3D
+	// UpdateDirect3D
 public:
 	template <typename T>
 	void UpdateBuffer(ComPtr<ID3D11Buffer>& buffer, const T& bufferData)
@@ -90,19 +91,19 @@ public:
 		m_context->Unmap(buffer.Get(), NULL);
 	}
 
-// DirectX Default Member
+	// DirectX Default Member
 private:
 	ComPtr<ID3D11Device> m_device;
 	ComPtr<ID3D11DeviceContext> m_context;
 	ComPtr<IDXGISwapChain> m_swapChain;
 
-// Getter(), Setter()
+	// Getter(), Setter()
 public:
 	ComPtr<ID3D11Device>& GetDevice() { return m_device; }
 	ComPtr<ID3D11DeviceContext>& GetContext() { return m_context; }
 	ComPtr<IDXGISwapChain>& GetSwapChain() { return m_swapChain; }
 
-// SingleTon
+	// SingleTon
 	SINGLE(D3DUtils)
 };
 

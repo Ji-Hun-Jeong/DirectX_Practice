@@ -29,12 +29,13 @@ protected:
     ComPtr<ID3D11VertexShader> m_normalVertexShader;
     ComPtr<ID3D11PixelShader> m_normalPixelShader;
     ComPtr<ID3D11GeometryShader> m_normalGeometryShader;
-    D3D11_PRIMITIVE_TOPOLOGY m_normalTopology;
+    
     ComPtr<ID3D11Buffer> m_normalConstantBuffer;
     NormalConstantData   m_normalConstantData;
 
+    D3D11_PRIMITIVE_TOPOLOGY m_normalTopology;
+ 
+protected:
     Matrix m_prevTransformModel;
-private:
-
 };
 

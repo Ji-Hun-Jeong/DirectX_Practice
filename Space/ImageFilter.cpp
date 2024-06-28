@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "ImageFilter.h"
 #include "D3DUtils.h"
-#include "Core.h"
 #include "GeometryGenerator.h"
+#include "SceneMgr.h"
+#include "Scene.h"
 
 ImageFilter::ImageFilter(UINT width, UINT height,
 	const wstring& vsPrefix, const wstring& psPrefix)
@@ -11,7 +12,7 @@ ImageFilter::ImageFilter(UINT width, UINT height,
 	MeshData meshData = GeometryGenerator::MakeSquare();
 	Mesh::Init(meshData, vsPrefix, psPrefix);
 
-	ComPtr<ID3D11Device> device = D3DUtils::GetInst().GetDevice();
+	ComPtr<ID3D11Device>& device = D3DUtils::GetInst().GetDevice();
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
 	textureDesc.Width = width;
@@ -50,7 +51,7 @@ void ImageFilter::Update(float dt)
 
 void ImageFilter::UpdatePixelConstantData()
 {
-	m_pixelConstantData = Core::GetInst().m_pixelConstantData;
+	m_pixelConstantData = GETCURSCENE()->m_pixelConstantData;
 }
 
 void ImageFilter::Render(ID3D11DeviceContext* context)

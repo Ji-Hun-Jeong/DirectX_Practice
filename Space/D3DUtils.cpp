@@ -6,7 +6,7 @@
 D3DUtils D3DUtils::m_inst;
 D3DUtils::D3DUtils()
 {
-	
+
 }
 
 bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
@@ -28,8 +28,8 @@ bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-	swapChainDesc.BufferDesc.Width = UINT(Core::GetInst().GetScreenWidth());
-	swapChainDesc.BufferDesc.Height = UINT(Core::GetInst().GetScreenHeight());
+	swapChainDesc.BufferDesc.Width = UINT(Core::GetInst().m_fWidth);
+	swapChainDesc.BufferDesc.Height = UINT(Core::GetInst().m_fHeight);
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
@@ -41,10 +41,10 @@ bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
 	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	if (numOfMultiSamplingLevel > 0)
 	{
-		swapChainDesc.SampleDesc.Count = 4; 
+		swapChainDesc.SampleDesc.Count = 4;
 		swapChainDesc.SampleDesc.Quality = numOfMultiSamplingLevel - 1;
 	}
-	else 
+	else
 	{
 		swapChainDesc.SampleDesc.Count = 1;
 		swapChainDesc.SampleDesc.Quality = 0;
@@ -189,15 +189,40 @@ void D3DUtils::ReadImage(const string& fileName, ComPtr<ID3D11Texture2D>& textur
 
 	std::vector<uint8_t> image;
 	image.resize(width * height * 4);
-	for (size_t i = 0; i < width * height; i++) 
+	for (size_t i = 0; i < width * height; i++)
 	{
-		for (size_t c = 0; c < 3; c++) 
+		for (size_t c = 0; c < 3; c++)
 		{
 			image[4 * i + c] = img[i * alphaChannel + c];
 		}
 		image[4 * i + 3] = 255;
 	}
 
+	ComPtr<ID3D11Texture2D> stagingTexture = CreateStagingTexture(image, width, height);
+	D3D11_TEXTURE2D_DESC textureDesc;
+	ZeroMemory(&textureDesc, sizeof(textureDesc));
+	textureDesc.Width = width;
+	textureDesc.Height = height;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE; 
+	textureDesc.MipLevels = 0;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+	// 빈 텍스쳐를 만들고
+	m_device->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf());
+
+	// 스테이징 텍스쳐에 있던 것을 원본 텍스쳐로 복사
+	m_context->CopySubresourceRegion(texture.Get(), 0, 0, 0, 0, stagingTexture.Get(), 0, nullptr);
+	m_device->CreateShaderResourceView(texture.Get(), nullptr, shaderResourceView.GetAddressOf());
+	m_context->GenerateMips(shaderResourceView.Get());
+}
+
+ComPtr<ID3D11Texture2D> D3DUtils::CreateStagingTexture(const vector<uint8_t>& image, int width, int height)
+{
 	ComPtr<ID3D11Texture2D> stagingTexture;
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
@@ -210,33 +235,19 @@ void D3DUtils::ReadImage(const string& fileName, ComPtr<ID3D11Texture2D>& textur
 	textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
 	// BindFlags를 SRV로 하면 안됨
 
-	D3D11_SUBRESOURCE_DATA dataDesc;
-	dataDesc.pSysMem = image.data();
-	dataDesc.SysMemPitch = textureDesc.Width * 4 * sizeof(uint8_t);
-	//dataDesc.SysMemSlicePitch = 0;
-
 	// 스테이징 텍스쳐를 사용할 때는 저절로 텍스쳐가 만들어지지 않고 복사를 하나하나 해야함
 	m_device->CreateTexture2D(&textureDesc, nullptr, stagingTexture.GetAddressOf());
 	D3D11_MAPPED_SUBRESOURCE ms;
+	ms.RowPitch = width * 4;
 	m_context->Map(stagingTexture.Get(), NULL, D3D11_MAP_WRITE, NULL, &ms);
 	uint8_t* pData = (uint8_t*)ms.pData;
-	for (UINT h = 0; h < UINT(height); h++) 
-	{ 
+	for (UINT h = 0; h < UINT(height); h++)
+	{
 		memcpy(&pData[h * ms.RowPitch], &image[h * width * 4],
 			width * sizeof(uint8_t) * 4);
 	}
 	m_context->Unmap(stagingTexture.Get(), NULL);
-	
-	textureDesc.MipLevels = 0;
-	textureDesc.Usage = D3D11_USAGE_DEFAULT; 
-	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
-	m_device->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf());
-
-	m_context->CopySubresourceRegion(texture.Get(), 0, 0, 0, 0, stagingTexture.Get(), 0, nullptr);
-	m_device->CreateShaderResourceView(texture.Get(), nullptr, shaderResourceView.GetAddressOf());
-	m_context->GenerateMips(shaderResourceView.Get());
+	return stagingTexture;
 }
 
 void D3DUtils::ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView)

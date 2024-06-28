@@ -68,6 +68,18 @@
     <Filter Include="Engine\Mesh\Object\Sphere">
       <UniqueIdentifier>{95f693e5-f9a8-412e-aa74-a9345d576f5b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Scene">
+      <UniqueIdentifier>{ee4b50cc-2a54-4f49-9982-bda5812d3e0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Scene\SpaceScene">
+      <UniqueIdentifier>{3a5a3369-19a5-499e-9168-561ce6ffad7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\SceneMgr">
+      <UniqueIdentifier>{7f8acd94-f4f1-41b8-929a-97a3e6686cdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Scene\TestScene">
+      <UniqueIdentifier>{d4c441be-6080-452b-83f9-48fa1cd3409e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -130,6 +142,18 @@
     <ClInclude Include="Sphere.h">
       <Filter>Engine\Mesh\Object\Sphere</Filter>
     </ClInclude>
+    <ClInclude Include="SceneMgr.h">
+      <Filter>Engine\SceneMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Engine\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="SpaceScene.h">
+      <Filter>Engine\Scene\SpaceScene</Filter>
+    </ClInclude>
+    <ClInclude Include="TestScene.h">
+      <Filter>Engine\Scene\TestScene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -183,6 +207,18 @@
     </ClCompile>
     <ClCompile Include="Sphere.cpp">
       <Filter>Engine\Mesh\Object\Sphere</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneMgr.cpp">
+      <Filter>Engine\SceneMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Engine\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceScene.cpp">
+      <Filter>Engine\Scene\SpaceScene</Filter>
+    </ClCompile>
+    <ClCompile Include="TestScene.cpp">
+      <Filter>Engine\Scene\TestScene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

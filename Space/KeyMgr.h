@@ -32,6 +32,6 @@ public:
 	Vector2 GetMouseNDCPos();
 	Vector2 GetCursorDiff() { return m_curDiffCursorPos - m_prevDiffCursorPos; }
 
-SINGLE(KeyMgr)
+	SINGLE(KeyMgr)
 };
 

@@ -12,10 +12,10 @@ protected:
 	virtual void UpdateVertexConstantData(float dt);
 	virtual void UpdatePixelConstantData();
 	virtual void ReadyToRender(ID3D11DeviceContext* context);
+	virtual void ReadImage(const string& textureName);
 	void CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vertexShader);
 	void CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& pixelShader);
 	void CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11GeometryShader>& geometryShader);
-	virtual void ReadImage(const string& textureName);
 	float GetTic(float dt);
 
 public:
@@ -33,6 +33,7 @@ public:
 
 	const VertexConstantData& GetVertexConstantData() { return m_vertexConstantData; }
 	PixelConstantData& GetPixelConstantData() { return m_pixelConstantData; }
+
 // D3D11 Member
 protected:
 	ComPtr<ID3D11Buffer> m_vertexBuffer;
@@ -44,8 +45,6 @@ protected:
 	ComPtr<ID3D11VertexShader> m_vertexShader;
 	ComPtr<ID3D11PixelShader> m_pixelShader;
 	ComPtr<ID3D11GeometryShader> m_geometryShader;
-
-
 
 	vector<ComPtr<ID3D11ShaderResourceView>> m_vecShaderResourceViews;
 	ComPtr<ID3D11SamplerState> m_samplerState;
