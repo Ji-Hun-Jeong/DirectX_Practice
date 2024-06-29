@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "ImageFilter.h"
 #include "D3DUtils.h"
-#include "Core.h"
 #include "GeometryGenerator.h"
+#include "Scene.h"
+#include "SceneMgr.h"
 
 ImageFilter::ImageFilter(UINT width, UINT height,
 	const wstring& vsPrefix, const wstring& psPrefix)
@@ -50,7 +51,7 @@ void ImageFilter::Update(float dt)
 
 void ImageFilter::UpdatePixelConstantData()
 {
-	m_pixelConstantData = Core::GetInst().m_pixelConstantData;
+	m_pixelConstantData = GETCURSCENE()->m_pixelConstantData;
 }
 
 void ImageFilter::Render(ID3D11DeviceContext* context)

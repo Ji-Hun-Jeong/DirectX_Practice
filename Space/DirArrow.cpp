@@ -3,6 +3,8 @@
 #include "D3DUtils.h"
 #include "Camera.h"
 #include "Core.h"
+#include "Scene.h"
+#include "SceneMgr.h"
 
 DirArrow::DirArrow(const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale, D3D11_PRIMITIVE_TOPOLOGY topology)
 	: NonObject(translation, rotation1, rotation2, scale, topology)
@@ -27,7 +29,7 @@ void DirArrow::UpdateVertexConstantData(float dt)
 {
 	//Mesh::UpdateVertexConstantData(dt);
 	Core& core = Core::GetInst();
-	auto& camera = core.GetCamera();
+	auto& camera = GETCAMERA();
 	m_dirArrowConstantData.model = Matrix::CreateTranslation(m_translation);
 	m_dirArrowConstantData.model = m_dirArrowConstantData.model.Transpose();
 

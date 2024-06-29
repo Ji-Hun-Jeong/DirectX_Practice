@@ -10,8 +10,8 @@ public:
     virtual void Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix) override;
     virtual void Update(float dt) override;
     virtual void Render(ID3D11DeviceContext* context) override;
-
     virtual void DrawNormal(ID3D11DeviceContext* context);
+
     virtual void UpdateVertexConstantData(float dt) override;
     virtual void UpdatePixelConstantData() override;
     virtual void UpdateNormalConstantData();
@@ -29,12 +29,12 @@ protected:
     ComPtr<ID3D11VertexShader> m_normalVertexShader;
     ComPtr<ID3D11PixelShader> m_normalPixelShader;
     ComPtr<ID3D11GeometryShader> m_normalGeometryShader;
-    D3D11_PRIMITIVE_TOPOLOGY m_normalTopology;
+
     ComPtr<ID3D11Buffer> m_normalConstantBuffer;
     NormalConstantData   m_normalConstantData;
 
-    Matrix m_prevTransformModel;
-private:
+    D3D11_PRIMITIVE_TOPOLOGY m_normalTopology;
 
+    Matrix m_prevTransformModel;
 };
 

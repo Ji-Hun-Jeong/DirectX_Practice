@@ -9,3 +9,7 @@
 #define MOUSEPOS() KeyMgr::GetInst().GetMousePos();
 
 #define CHECKRESULT(result) if(FAILED(result)) assert(0);
+
+#define GETCURSCENE() SceneMgr::GetInst().GetCurScene()
+
+#define GETCAMERA() GETCURSCENE()->GetCamera()

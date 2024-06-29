@@ -5,7 +5,9 @@ KeyMgr KeyMgr::m_inst;
 
 UINT g_keyValue[(UINT)KEY_TYPE::END] =
 {
-	0x51, 0x57, 0x45, 0x41, 0x53, 0x44,0x46, MK_LBUTTON, MK_RBUTTON, VK_ESCAPE
+	0x51, 0x57, 0x45, 0x41, 0x53, 0x44,0x46,
+	MK_LBUTTON, MK_RBUTTON, VK_ESCAPE,
+	0x31, 0x32
 };
 KeyMgr::KeyMgr()
 	: m_arrKey{}
@@ -16,13 +18,15 @@ void KeyMgr::Update()
 {
 	KeyUpdate();
 	MouseUpdate();
+	if (KEYCHECK(ESC, TAP))
+		exit(0);
 }
 
 Vector2 KeyMgr::GetMouseNDCPos()
 {
 	const float aspect = Core::GetInst().GetAspect();
-	const float screenWidth = Core::GetInst().GetScreenWidth();
-	const float screenHeight = Core::GetInst().GetScreenHeight();
+	const float screenWidth = Core::GetInst().m_fWidth;
+	const float screenHeight = Core::GetInst().m_fHeight;
 	float x = (float)m_cursorPos.x;
 	float y = (float)m_cursorPos.y;
 	x = (x * 2 * aspect) / screenWidth - aspect;

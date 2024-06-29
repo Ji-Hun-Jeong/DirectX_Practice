@@ -70,8 +70,8 @@ void Camera::MoveUpDir(float dt)
 void Camera::CalcViewRow()
 {
 	m_view = Matrix::CreateTranslation(-m_pos) *
-		Matrix::CreateRotationX(m_fPitch) *
-		Matrix::CreateRotationY(-m_fYaw);
+		Matrix::CreateRotationY(-m_fYaw) *
+		Matrix::CreateRotationX(m_fPitch);
 }
 
 void Camera::CalDirection()

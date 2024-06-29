@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "Object.h"
 #include "D3DUtils.h"
-#include "Core.h"
 #include "Camera.h"
+#include "SceneMgr.h"
+#include "Scene.h"
 
 Object::Object()
 	: Mesh()
@@ -47,7 +48,7 @@ void Object::Update(float dt)
 void Object::Render(ID3D11DeviceContext* context)
 {
 	Mesh::Render(context);
-	if (Core::GetInst().m_drawNormal)
+	if (GETCURSCENE()->m_drawNormal)
 		DrawNormal(context);
 	for (shared_ptr<Object>& childObj : m_vecObj)
 		childObj->Render(context);
@@ -72,7 +73,6 @@ void Object::DrawNormal(ID3D11DeviceContext* context)
 void Object::UpdateVertexConstantData(float dt)
 {
 	float time = GetTic(dt);
-	Core& core = Core::GetInst();
 
 	Quaternion rotateX = Quaternion::CreateFromAxisAngle(Vector3{ 1.0f,0.0f,0.0f }, m_rotation1.x);
 	Quaternion rotateY = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, m_rotation1.y * time);
@@ -100,10 +100,10 @@ void Object::UpdateVertexConstantData(float dt)
 	m_vertexConstantData.model = m_vertexConstantData.model.Transpose();
 	m_vertexConstantData.invTranspose = m_vertexConstantData.invTranspose.Transpose();
 
-	m_vertexConstantData.view = core.GetCamera()->m_view;
+	m_vertexConstantData.view = GETCAMERA()->m_view;
 	m_vertexConstantData.view = m_vertexConstantData.view.Transpose();
 
-	m_vertexConstantData.projection = core.GetCamera()->m_projection;
+	m_vertexConstantData.projection = GETCAMERA()->m_projection;
 	m_vertexConstantData.projection = m_vertexConstantData.projection.Transpose();
 }
 
@@ -121,7 +121,7 @@ void Object::UpdateNormalConstantData()
 	m_normalConstantData.view = m_vertexConstantData.view;
 	m_normalConstantData.projection = m_vertexConstantData.projection;
 
-	m_normalConstantData.normalSize = Core::GetInst().m_normalSize;
+	m_normalConstantData.normalSize = GETCURSCENE()->m_normalSize;
 }
 
 bool Object::AttachObject(const string& meshName, shared_ptr<Object> childObj)

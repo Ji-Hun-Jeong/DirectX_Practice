@@ -28,8 +28,8 @@ bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-	swapChainDesc.BufferDesc.Width = UINT(Core::GetInst().GetScreenWidth());
-	swapChainDesc.BufferDesc.Height = UINT(Core::GetInst().GetScreenHeight());
+	swapChainDesc.BufferDesc.Width = UINT(Core::GetInst().m_fWidth);
+	swapChainDesc.BufferDesc.Height = UINT(Core::GetInst().m_fHeight);
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;

@@ -4,6 +4,7 @@ class Mesh
 public:
 	Mesh();
 	explicit Mesh(const Vector3& translation, const Vector3& rotation1,const Vector3& rotation2,const Vector3& scale, D3D11_PRIMITIVE_TOPOLOGY topology= D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+public:
 	virtual void Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix);
 	virtual void Update(float dt);
 	virtual void Render(ID3D11DeviceContext* context);
@@ -12,10 +13,11 @@ protected:
 	virtual void UpdateVertexConstantData(float dt);
 	virtual void UpdatePixelConstantData();
 	virtual void ReadyToRender(ID3D11DeviceContext* context);
+	virtual void ReadImage(const string& textureName);
+
 	void CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vertexShader);
 	void CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& pixelShader);
 	void CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11GeometryShader>& geometryShader);
-	virtual void ReadImage(const string& textureName);
 	float GetTic(float dt);
 
 public:
@@ -44,8 +46,6 @@ protected:
 	ComPtr<ID3D11VertexShader> m_vertexShader;
 	ComPtr<ID3D11PixelShader> m_pixelShader;
 	ComPtr<ID3D11GeometryShader> m_geometryShader;
-
-
 
 	vector<ComPtr<ID3D11ShaderResourceView>> m_vecShaderResourceViews;
 	ComPtr<ID3D11SamplerState> m_samplerState;
