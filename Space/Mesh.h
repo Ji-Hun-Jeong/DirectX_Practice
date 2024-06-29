@@ -8,12 +8,12 @@ public:
 	virtual void Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix);
 	virtual void Update(float dt);
 	virtual void Render(ID3D11DeviceContext* context);
+	virtual void ReadImage(const string& textureName);
 
 protected:
 	virtual void UpdateVertexConstantData(float dt);
 	virtual void UpdatePixelConstantData();
 	virtual void ReadyToRender(ID3D11DeviceContext* context);
-	virtual void ReadImage(const string& textureName);
 
 	void CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vertexShader);
 	void CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& pixelShader);
@@ -35,6 +35,7 @@ public:
 
 	const VertexConstantData& GetVertexConstantData() { return m_vertexConstantData; }
 	PixelConstantData& GetPixelConstantData() { return m_pixelConstantData; }
+
 // D3D11 Member
 protected:
 	ComPtr<ID3D11Buffer> m_vertexBuffer;
