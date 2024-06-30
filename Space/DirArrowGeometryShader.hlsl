@@ -27,6 +27,7 @@ void main(
     output.uv = float2(0.0f, float(primID) / 2.0f);
     output.normal = input[0].normal;
     output.posWorld = originPos;
+    output.tangent = input[0].tangent;
     outputStream.Append(output);
     
     float4 arrowPos = float4(input[0].position, 1.0f);

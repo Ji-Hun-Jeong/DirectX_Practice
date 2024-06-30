@@ -6,5 +6,6 @@ PSInput main(VSInput input)
     output.posProj = output.posWorld;
     output.normal = input.normal;
     output.uv = input.uv;
+    output.tangent = input.tangent;
     return output;
 }

@@ -22,6 +22,8 @@ public:
 	float GetNearZ() const { return m_nearZ; }
 	float GetFarZ() const { return m_farZ; }
 
+	void SetPos(const Vector3& pos) { m_pos = pos; }
+
 private:
 	void UpdatePos(float dt);
 	void MoveViewDir(float dt);

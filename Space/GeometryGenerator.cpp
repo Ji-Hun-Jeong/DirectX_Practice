@@ -91,21 +91,25 @@ MeshData GeometryGenerator::MakeSquare()
 	vertex.position = Vector3{ -1.0f,-1.0f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2{ 0.0f,1.0f };
+	vertex.tangent = Vector3{ 1.0f,0.0f,0.0f };
 	v.push_back(vertex);
 
 	vertex.position = Vector3{ -1.0f,1.0f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2{ 0.0f,0.0f };
+	vertex.tangent = Vector3{ 1.0f,0.0f,0.0f };
 	v.push_back(vertex);
 
 	vertex.position = Vector3{ 1.0f,1.0f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2{ 1.0f,0.0f };
+	vertex.tangent = Vector3{ 1.0f,0.0f,0.0f };
 	v.push_back(vertex);
 
 	vertex.position = Vector3{ 1.0f,-1.0f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2{ 1.0f,1.0f };
+	vertex.tangent = Vector3{ 1.0f,0.0f,0.0f };
 	v.push_back(vertex);
 
 	vector<uint32_t>& i = result.indices;
@@ -130,16 +134,19 @@ MeshData GeometryGenerator::MakeTriangle()
 	vertex.position = Vector3{ -0.5f,-0.5f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2(0.0f);
+	vertex.tangent = Vector3{ 1.0f,0.0f,0.0f };
 	v.push_back(vertex);
 
 	vertex.position = Vector3{ 0.0f,0.5f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2(0.0f);
+	vertex.tangent = Vector3{ 1.0f,0.0f,0.0f };
 	v.push_back(vertex);
 
 	vertex.position = Vector3{ 0.5f,-0.5f,0.0f };
 	vertex.normal = Vector3{ 0.0f,0.0f,-1.0f };
 	vertex.uv = Vector2(0.0f);
+	vertex.tangent = Vector3{ 1.0f,0.0f,0.0f };
 	v.push_back(vertex);
 
 	vector<uint32_t>& i = result.indices;

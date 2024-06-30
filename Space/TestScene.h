@@ -4,10 +4,13 @@ class TestScene :
     public Scene
 {
 public:
+	TestScene();
+public:
 	void Init() override;
 	void Enter() override;
 	void Exit() override;
 	void InitMesh() override;
+	void UpdateGUI() override;
 private:
 
 };

@@ -1,5 +1,7 @@
 #include "Header.hlsli"
-Texture2D g_texture0 : register(t0);
+Texture2D g_albedoTexture : register(t0);
+Texture2D g_normalTexture : register(t1);
+Texture2D g_aoTexture : register(t2);
 SamplerState g_sampler : register(s0);
 cbuffer PixelConstant : register(b0)
 {
@@ -35,35 +37,51 @@ float3 ComputePointLight(PSInput input)
         float3 toEyeVec = normalize(eyePos - input.posWorld.xyz);
         float att = CalcAttenuation(toLightDistance);
         float ndotl = max(dot(toLightVec, input.normal), 0.0f);
-        float3 finalLightStrength = light.lightStrength * ndotl * att;
+        float3 finalLightStrength = light.lightStrength * ndotl;
         float3 normToLightVec = toLightVec / toLightDistance;
         return BlinnPhong(input.normal, normToLightVec, toEyeVec, finalLightStrength);
     }
 }
-float4 main(PSInput input) : SV_TARGET
+
+float GetLOD(PSInput input)
 {
-    float3 toEye = normalize(eyePos - input.posWorld.xyz);
     float toEyeDist = length(eyePos - input.posWorld.xyz);
     float minMipDist = 100.0f;
     float maxMipDist = 3000.0f;
     float lod = max((toEyeDist - minMipDist), 0.0f) * 10.0f / (maxMipDist - minMipDist);
-    float3 color = g_texture0.SampleLevel(g_sampler, input.uv, lod);
-    color = isSun ? color * float3(1.5f, 1.5f, 1.5f) : color * ComputePointLight(input);
+    return lod;
+}
+
+float4 main(PSInput input) : SV_TARGET
+{    
+    float3 toEye = normalize(eyePos - input.posWorld.xyz);
+    float3 normal = g_normalTexture.SampleLevel(g_sampler, input.uv, 0);
+    normal = 2.0f * normal - 1.0f;
+    float3 N = input.normal;
+    float3 T = input.tangent;
+    float3 B = normalize(cross(N, T));  
+    float3x3 TBN = float3x3(T,B,N);
+    normal = normalize(mul(normal, TBN));
+    PSInput Input = input;
+    Input.normal = normal;
+    
+    float3 color = g_albedoTexture.SampleLevel(g_sampler, Input.uv, 0).xyz;
+    color = isSun ? color * float3(1.5f, 1.5f, 1.5f) : color * ComputePointLight(Input);
     if (rim.useRim && !isSun)
     {
-        float3 lightVec = normalize(light.lightPos - input.posWorld.xyz);
-        float degreeOfLightAndNormal = dot(lightVec, input.normal);
+        float3 lightVec = normalize(light.lightPos - Input.posWorld.xyz);
+        float degreeOfLightAndNormal = dot(lightVec, normal);
         float degreeOfEyeAndLight = dot(toEye, lightVec);
         if (degreeOfLightAndNormal <= 0.0f)
         {
             float degreeOfEyeAndLight = -dot(toEye, lightVec);
-            float degreeOfEyeAndNormal = max(dot(toEye, input.normal), 0.0f);
+            float degreeOfEyeAndNormal = max(dot(toEye, normal), 0.0f);
             color *= pow(1.0f - degreeOfEyeAndNormal, rim.rimPower);
             color *= rim.rimStrength * degreeOfEyeAndLight;
         }
         if (mat.selected)
         {
-            float degreeOfEyeAndNormal = max(dot(toEye, input.normal), 0.0f);
+            float degreeOfEyeAndNormal = max(dot(toEye, normal), 0.0f);
             if (degreeOfEyeAndNormal < 0.4f)
             {
                 color *= float3(1.0f, 0.0f, 0.0f);

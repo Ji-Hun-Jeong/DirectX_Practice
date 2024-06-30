@@ -15,7 +15,7 @@ SceneMgr::SceneMgr()
 	m_arrScene[(UINT)SCENE_TYPE::SPACE] = make_shared<SpaceScene>();
 	m_arrScene[(UINT)SCENE_TYPE::TEST] = make_shared<TestScene>();
 
-	m_curScene = m_arrScene[(UINT)SCENE_TYPE::SPACE];
+	m_curScene = m_arrScene[(UINT)SCENE_TYPE::TEST];
 }
 
 bool SceneMgr::Init(float width, float height)
@@ -84,14 +84,14 @@ void SceneMgr::Render()
 	context->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
 	context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
+	context->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
+
 	if (m_drawWireFrame)
 		context->RSSetState(m_wireRasterizerState.Get());
 	else
 		context->RSSetState(m_solidRasterizerState.Get());
 	context->RSSetViewports(1, &m_viewPort);
-
-	context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
-	context->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
 
 	if (m_curScene)
 		m_curScene->Render();

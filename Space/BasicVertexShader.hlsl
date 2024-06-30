@@ -23,6 +23,7 @@ PSInput main(VSInput input)
     output.normal = normal.xyz;
     
     output.uv = input.uv;
+    output.tangent = mul(float4(input.tangent, 0.0), model).xyz;
     
     return output;
 }

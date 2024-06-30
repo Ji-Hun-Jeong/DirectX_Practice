@@ -15,7 +15,7 @@ Object::Object()
 Object::Object(const string& strName, const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale, D3D11_PRIMITIVE_TOPOLOGY topology)
 	: Mesh(translation, rotation1, rotation2, scale, topology)
 	, m_strName(strName)
-	, m_normalTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+	, m_normalTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST)
 	, m_ownerObj(nullptr)
 {
 }
@@ -110,8 +110,6 @@ void Object::UpdateVertexConstantData(float dt)
 void Object::UpdatePixelConstantData()
 {
 	Mesh::UpdatePixelConstantData();
-	if (m_strName == "Solar")
-		m_pixelConstantData.isSun = 1;
 }
 
 void Object::UpdateNormalConstantData()

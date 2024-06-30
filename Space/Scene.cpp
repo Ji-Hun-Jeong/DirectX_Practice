@@ -47,7 +47,9 @@ void Scene::UpdateGUI()
 {
 	ImGui::Checkbox("DrawWireFrame", &SceneMgr::GetInst().m_drawWireFrame);
 	ImGui::Checkbox("DrawNormal", &m_drawNormal);
-	ImGui::Checkbox("Use Rim", &m_pixelConstantData.rim.useRim);
+	static bool useRim = m_pixelConstantData.rim.useRim;
+	ImGui::Checkbox("Use Rim", &useRim);
+	m_pixelConstantData.rim.useRim = useRim;
 	ImGui::SliderFloat("NormalSize", &m_normalSize, 0.0f, 100.0f);
 	ImGui::SliderFloat("Rim Strength", &m_pixelConstantData.rim.rimStrength, 0.0f, 20.0f);
 	ImGui::SliderFloat("Rim Power", &m_pixelConstantData.rim.rimPower, 0.0f, 5.0f);

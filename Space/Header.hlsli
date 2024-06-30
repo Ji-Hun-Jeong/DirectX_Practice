@@ -3,12 +3,14 @@ struct VSInput
     float3 position : POSITION;
     float3 normal : NORMAL;
     float2 uv : TEXCOORD;
+    float3 tangent : TANGENT;
 };
 struct GSInput
 {
     float3 position : POSITION;
     float3 normal : NORMAL;
     float2 uv : TEXCOORD;
+    float3 tangent : TANGENT;
 };
 struct PSInput
 {
@@ -16,6 +18,7 @@ struct PSInput
     float4 posWorld : POSITION;
     float3 normal : NORMAL;
     float2 uv : TEXCOORD;
+    float3 tangent : TANGENT;
 };
 
 struct Light	// 32

@@ -28,6 +28,7 @@ void main(
         output.normal = normal;
         output.uv = input[0].uv;
         output.uv.x = i;
+        output.tangent = input[0].tangent;
         outputStream.Append(output);
     }
 }

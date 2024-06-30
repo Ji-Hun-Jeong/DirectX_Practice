@@ -4,6 +4,7 @@ struct Vertex
 	Vector3 position;
 	Vector3 normal;
 	Vector2 uv;
+	Vector3 tangent;
 };
 struct MeshData
 {
@@ -44,7 +45,7 @@ struct Rim
 	float rimStrength = 13.0f;
 	float rimPower = 1.8f;
 	float dummy = 0.0f;
-	bool useRim = true;
+	int useRim = true;
 };
 
 struct VertexConstantData
