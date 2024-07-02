@@ -23,6 +23,7 @@ public:
 	float GetFarZ() const { return m_farZ; }
 
 	void SetPos(const Vector3& pos) { m_pos = pos; }
+	void SetSpeed(float speed) { m_fSpeed = speed; }
 
 private:
 	void UpdatePos(float dt);

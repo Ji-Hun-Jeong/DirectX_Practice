@@ -30,7 +30,7 @@ void Mesh::Init(const MeshData& meshData, const wstring& vertexShaderPrefix, con
 	if (!meshData.textureName.empty())
 	{
 		// ShaderResourceView
-		ReadImage(meshData.textureName);
+		// ReadImage(meshData.textureName);
 	}
 
 	CreateVertexShaderAndInputLayout(vertexShaderPrefix, m_vertexShader);
@@ -74,14 +74,21 @@ void Mesh::UpdateVertexConstantData(float dt)
 
 	m_vertexConstantData.projection = GETCAMERA()->m_projection;
 	m_vertexConstantData.projection = m_vertexConstantData.projection.Transpose();
+
+	m_vertexConstantData.heightScale = GETCURSCENE()->m_heightScale;
+	m_vertexConstantData.useHeight = GETCURSCENE()->m_useHeight;
 }
 
 void Mesh::UpdatePixelConstantData()
 {
-	m_pixelConstantData.bloom = GETCURSCENE()->m_pixelConstantData.bloom;
-	m_pixelConstantData.eyePos = GETCURSCENE()->m_pixelConstantData.eyePos;
-	m_pixelConstantData.light = GETCURSCENE()->m_pixelConstantData.light;
-	m_pixelConstantData.rim = GETCURSCENE()->m_pixelConstantData.rim;
+	shared_ptr<Scene>& curScene = GETCURSCENE();
+	m_pixelConstantData.bloom = curScene->m_pixelConstantData.bloom;
+	m_pixelConstantData.eyePos = curScene->m_pixelConstantData.eyePos;
+	m_pixelConstantData.light = curScene->m_pixelConstantData.light;
+	m_pixelConstantData.rim = curScene->m_pixelConstantData.rim;
+	m_pixelConstantData.useAlbedo = curScene->m_pixelConstantData.useAlbedo;
+	m_pixelConstantData.useNormal = curScene->m_pixelConstantData.useNormal;
+	m_pixelConstantData.useAO = curScene->m_pixelConstantData.useAO;
 }
 
 void Mesh::Render(ID3D11DeviceContext* context)
@@ -102,6 +109,8 @@ void Mesh::ReadyToRender(ID3D11DeviceContext* context)
 
 	context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	context->VSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
+	//context->VSSetShaderResources((UINT)TEXTURE_TYPE::HEIGHT, 1, m_arrSRV[0].GetAddressOf());
+	context->VSSetShaderResources(0, 1, m_arrSRV[3].GetAddressOf());
 
 	context->GSSetShader(m_geometryShader.Get(), nullptr, 0);
 	context->GSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
@@ -109,7 +118,7 @@ void Mesh::ReadyToRender(ID3D11DeviceContext* context)
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	context->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
 	context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
-	context->PSSetShaderResources(0, (UINT)m_vecShaderResourceViews.size(), m_vecShaderResourceViews.data()->GetAddressOf());
+	context->PSSetShaderResources(0, (UINT)TEXTURE_TYPE::HEIGHT, m_arrSRV[0].GetAddressOf());
 }
 
 
@@ -136,12 +145,14 @@ void Mesh::CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11Geometry
 	D3DUtils::GetInst().CreateGeometryShader(hlslPrefix, geometryShader);
 }
 
-void Mesh::ReadImage(const string& textureName)
+void Mesh::ReadImage(const string& textureName, TEXTURE_TYPE textureType)
 {
 	ComPtr<ID3D11Texture2D> texture;
 	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
 	D3DUtils::GetInst().ReadImage(textureName, texture, shaderResourceView);
-	m_vecShaderResourceViews.push_back(shaderResourceView);
+
+	m_arrTexture[(UINT)textureType] = texture;
+	m_arrSRV[(UINT)textureType] = shaderResourceView;
 }
 
 float Mesh::GetTic(float dt)

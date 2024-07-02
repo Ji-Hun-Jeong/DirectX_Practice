@@ -105,6 +105,9 @@ void Object::UpdateVertexConstantData(float dt)
 
 	m_vertexConstantData.projection = GETCAMERA()->m_projection;
 	m_vertexConstantData.projection = m_vertexConstantData.projection.Transpose();
+
+	m_vertexConstantData.useHeight = GETCURSCENE()->m_useHeight;
+	m_vertexConstantData.heightScale = GETCURSCENE()->m_heightScale;
 }
 
 void Object::UpdatePixelConstantData()

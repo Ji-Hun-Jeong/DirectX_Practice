@@ -8,7 +8,7 @@ public:
 	virtual void Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix);
 	virtual void Update(float dt);
 	virtual void Render(ID3D11DeviceContext* context);
-	virtual void ReadImage(const string& textureName);
+	virtual void ReadImage(const string& textureName, TEXTURE_TYPE textureType);
 
 protected:
 	virtual void UpdateVertexConstantData(float dt);
@@ -47,8 +47,11 @@ protected:
 	ComPtr<ID3D11VertexShader> m_vertexShader;
 	ComPtr<ID3D11PixelShader> m_pixelShader;
 	ComPtr<ID3D11GeometryShader> m_geometryShader;
+	ComPtr<ID3D11HullShader> m_hullShader;
+	ComPtr<ID3D11DomainShader> m_domainShader;
 
-	vector<ComPtr<ID3D11ShaderResourceView>> m_vecShaderResourceViews;
+	ComPtr<ID3D11Texture2D> m_arrTexture[(UINT)TEXTURE_TYPE::END];
+	ComPtr<ID3D11ShaderResourceView> m_arrSRV[(UINT)TEXTURE_TYPE::END];
 	ComPtr<ID3D11SamplerState> m_samplerState;
 
 	D3D11_PRIMITIVE_TOPOLOGY m_topology;

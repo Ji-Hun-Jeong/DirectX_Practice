@@ -19,3 +19,11 @@ enum class SCENE_TYPE
 	TEST,
 	END,
 };
+enum class TEXTURE_TYPE
+{
+	ALBEDO,
+	NORMAL,
+	AO,
+	HEIGHT,
+	END,
+};

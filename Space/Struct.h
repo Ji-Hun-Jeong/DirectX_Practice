@@ -54,6 +54,9 @@ struct VertexConstantData
 	Matrix view;
 	Matrix projection;
 	Matrix invTranspose;
+	int useHeight = false;
+	float heightScale = 1.0f;
+	float dummy[2];
 };
 
 struct PixelConstantData	// 96
@@ -64,15 +67,27 @@ struct PixelConstantData	// 96
 	Material mat;
 	Bloom bloom;
 	Rim rim;
+	int useAlbedo = false;
+	int useNormal = false;
+	int useAO = false;
+	float dummy;
 };
-struct NormalConstantData : public VertexConstantData	// 48
+struct NormalConstantData	// 48
 {
+	Matrix model;
+	Matrix view;
+	Matrix projection;
+	Matrix invTranspose;
 	float normalSize = 1.0f;
 	float dummy[3] = { 0.0f };
 };
 
-struct DirArrowConstantData : public VertexConstantData
+struct DirArrowConstantData 
 {
+	Matrix model;
+	Matrix view;
+	Matrix projection;
+	Matrix invTranspose;
 	Vector3 viewDir;
 	float arrowSize = 0.2f;
 	Vector3 upDir;

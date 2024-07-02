@@ -25,7 +25,8 @@ protected:
 
 public:
 	PixelConstantData m_pixelConstantData;
-
+	bool m_useHeight = false;
+	float m_heightScale = 1.0f;
 	bool m_drawNormal = false;
 	float m_normalSize = 1.0f;
 		
