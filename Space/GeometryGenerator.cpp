@@ -17,6 +17,8 @@ MeshData GeometryGenerator::MakeSphere(float radius, UINT numOfStack, UINT numOf
 			Vertex v;
 			v.position =
 				Vector3::Transform(startOfRotation, Matrix::CreateRotationY(xTheta * j));
+			v.tangent = 
+				Vector3::Transform(Vector3(1.0f, 0.0f, 0.0f), Matrix::CreateRotationY(xTheta * j));
 			v.normal = v.position;
 			v.normal.Normalize();
 			v.uv = Vector2{ float(j) / numOfSlice, 1.0f - float(i) / numOfStack };

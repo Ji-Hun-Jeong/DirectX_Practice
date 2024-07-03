@@ -1,7 +1,7 @@
 #pragma once
 class D3DUtils
 {
-// InitDirect3D
+	// InitDirect3D
 public:
 	bool CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel);
 	bool CreateRenderTargetView(ID3D11Resource* resource
@@ -11,8 +11,8 @@ public:
 	bool CreateDepthStencilView(D3D11_TEXTURE2D_DESC* depthBufferDesc, ComPtr<ID3D11Texture2D>& depthBuffer, const D3D11_DEPTH_STENCIL_VIEW_DESC* depthStencilViewdesc
 		, ComPtr<ID3D11DepthStencilView>& depthStencilView);
 	bool CreateDepthStencilState(const D3D11_DEPTH_STENCIL_DESC* desc, ComPtr<ID3D11DepthStencilState>& depthStencilState);
-	
-// CreateShader
+
+	// CreateShader
 public:
 	void CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vs
 		, const vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc, ComPtr<ID3D11InputLayout>& inputLayout);
@@ -21,7 +21,52 @@ public:
 	void CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState);
 	void ReadImage(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
 	void ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
-// CreateBuffer
+private:
+	void ReadLDRImage(const string& fileName, DXGI_FORMAT pixelFormat, vector<uint8_t>& image, int& width, int& height);
+	void ReadHDRImage(const string& fileName, DXGI_FORMAT pixelFormat, vector<uint8_t>& image, int& width, int& height);
+	template <typename T>
+	void CreateSRVByStaging(vector<T>& image, int width, int height, DXGI_FORMAT pixelFormat, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& srv)
+	{
+		ComPtr<ID3D11Texture2D> stagingTexture;
+		D3D11_TEXTURE2D_DESC textureDesc;
+		ZeroMemory(&textureDesc, sizeof(textureDesc));
+		textureDesc.Width = width;
+		textureDesc.Height = height;
+		textureDesc.MipLevels = textureDesc.ArraySize = 1;
+		textureDesc.Format = pixelFormat;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.Usage = D3D11_USAGE_STAGING;
+		textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+		// BindFlags를 SRV로 하면 안됨
+
+		// 스테이징 텍스쳐를 사용할 때는 저절로 텍스쳐가 만들어지지 않고 복사를 하나하나 해야함
+		m_device->CreateTexture2D(&textureDesc, nullptr, stagingTexture.GetAddressOf());
+
+		UINT pixelSize = sizeof(uint8_t) * 4;
+		if (pixelFormat == DXGI_FORMAT_R16G16B16A16_FLOAT)
+			pixelSize = sizeof(uint16_t) * 4;
+		D3D11_MAPPED_SUBRESOURCE ms;
+		m_context->Map(stagingTexture.Get(), NULL, D3D11_MAP_WRITE, NULL, &ms);
+		uint8_t* pData = (uint8_t*)ms.pData;
+		for (UINT h = 0; h < UINT(height); h++)
+		{
+			memcpy(&pData[h * ms.RowPitch], &image[h * width * pixelSize],
+				width * pixelSize);
+		}
+		m_context->Unmap(stagingTexture.Get(), NULL);
+
+		textureDesc.MipLevels = 0;
+		textureDesc.Usage = D3D11_USAGE_DEFAULT;
+		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+		m_device->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf());
+
+		m_context->CopySubresourceRegion(texture.Get(), 0, 0, 0, 0, stagingTexture.Get(), 0, nullptr);
+		m_device->CreateShaderResourceView(texture.Get(), nullptr, srv.GetAddressOf());
+		m_context->GenerateMips(srv.Get());
+	}
+	// CreateBuffer
 public:
 	template <typename T_Vertex>
 	void CreateVertexBuffer(const vector<T_Vertex>& vertices, ComPtr<ID3D11Buffer>& vertexBuffer)
@@ -78,7 +123,7 @@ public:
 		m_device->CreateBuffer(&bufferDesc, &dataDesc, constantBuffer.GetAddressOf());
 	}
 
-// UpdateDirect3D
+	// UpdateDirect3D
 public:
 	template <typename T>
 	void UpdateBuffer(ComPtr<ID3D11Buffer>& buffer, const T& bufferData)
@@ -90,19 +135,19 @@ public:
 		m_context->Unmap(buffer.Get(), NULL);
 	}
 
-// DirectX Default Member
+	// DirectX Default Member
 private:
 	ComPtr<ID3D11Device> m_device;
 	ComPtr<ID3D11DeviceContext> m_context;
 	ComPtr<IDXGISwapChain> m_swapChain;
 
-// Getter(), Setter()
+	// Getter(), Setter()
 public:
 	ComPtr<ID3D11Device>& GetDevice() { return m_device; }
 	ComPtr<ID3D11DeviceContext>& GetContext() { return m_context; }
 	ComPtr<IDXGISwapChain>& GetSwapChain() { return m_swapChain; }
 
-// SingleTon
+	// SingleTon
 	SINGLE(D3DUtils)
 };
 

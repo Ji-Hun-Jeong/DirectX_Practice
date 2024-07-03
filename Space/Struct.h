@@ -22,7 +22,7 @@ struct Light	// 32
 	Vector3 lightPos = Vector3(0.0f);
 	float fallOfStart = 1.0f;
 	Vector3 lightStrength = Vector3(1.0f);
-	float fallOfEnd = 300.0f;
+	float fallOfEnd = 10.0f;
 };
 struct Material	// 48
 {
@@ -70,6 +70,11 @@ struct PixelConstantData	// 96
 	int useAlbedo = false;
 	int useNormal = false;
 	int useAO = false;
+	int useRoughness = false;
+
+	int useMetallic = false;
+	float exposure = 1.0f;
+	float gamma = 1.0f;
 	float dummy;
 };
 struct NormalConstantData	// 48

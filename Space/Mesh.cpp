@@ -89,6 +89,8 @@ void Mesh::UpdatePixelConstantData()
 	m_pixelConstantData.useAlbedo = curScene->m_pixelConstantData.useAlbedo;
 	m_pixelConstantData.useNormal = curScene->m_pixelConstantData.useNormal;
 	m_pixelConstantData.useAO = curScene->m_pixelConstantData.useAO;
+	m_pixelConstantData.exposure = curScene->m_pixelConstantData.exposure;
+	m_pixelConstantData.gamma = curScene->m_pixelConstantData.gamma;
 }
 
 void Mesh::Render(ID3D11DeviceContext* context)

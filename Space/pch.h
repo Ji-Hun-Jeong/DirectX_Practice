@@ -17,8 +17,11 @@
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <directxtk/SimpleMath.h>
+#include <DirectXTex.h>
 #include <wrl.h>
 #include <directxtk/DDSTextureLoader.h>
+#include <DirectXTexEXR.h>
+#include <fp16.h>
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>

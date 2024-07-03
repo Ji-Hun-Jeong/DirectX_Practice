@@ -6,7 +6,7 @@
 D3DUtils D3DUtils::m_inst;
 D3DUtils::D3DUtils()
 {
-	
+
 }
 
 bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
@@ -23,14 +23,14 @@ bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
 		ARRAYSIZE(featureLevel), D3D11_SDK_VERSION, m_device.GetAddressOf(),
 		&outputLevel, m_context.GetAddressOf());
 
-	m_device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4,
+	m_device->CheckMultisampleQualityLevels(DXGI_FORMAT_R16G16B16A16_FLOAT, 4,
 		&numOfMultiSamplingLevel);
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 	swapChainDesc.BufferDesc.Width = UINT(Core::GetInst().m_fWidth);
 	swapChainDesc.BufferDesc.Height = UINT(Core::GetInst().m_fHeight);
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
@@ -41,10 +41,10 @@ bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
 	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	if (numOfMultiSamplingLevel > 0)
 	{
-		swapChainDesc.SampleDesc.Count = 4; 
+		swapChainDesc.SampleDesc.Count = 4;
 		swapChainDesc.SampleDesc.Quality = numOfMultiSamplingLevel - 1;
 	}
-	else 
+	else
 	{
 		swapChainDesc.SampleDesc.Count = 1;
 		swapChainDesc.SampleDesc.Quality = 0;
@@ -183,60 +183,55 @@ void D3DUtils::ReadImage(const string& fileName, ComPtr<ID3D11Texture2D>& textur
 {
 	int width = 0;
 	int height = 0;
+	int channel = 0;
+	vector<uint8_t> image;
+	DXGI_FORMAT format;
+	if (fileName.find(".exr"))
+	{
+		format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		ReadHDRImage(fileName, format, image, width, height);
+	}
+	else
+	{
+		format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		ReadLDRImage(fileName, format, image, width, height);
+	}
+
+	this->CreateSRVByStaging(image, width, height, format, texture, shaderResourceView);
+}
+
+void D3DUtils::ReadLDRImage(const string& fileName, DXGI_FORMAT pixelFormat, vector<uint8_t>& image, int& width, int& height)
+{
 	int alphaChannel = 0;
 	unsigned char* img = stbi_load(fileName.c_str(), &width, &height, &alphaChannel, 0);
 	//assert(alphaChannel == 4);
 
-	std::vector<uint8_t> image;
 	image.resize(width * height * 4);
-	for (size_t i = 0; i < width * height; i++) 
+	for (size_t i = 0; i < width * height; i++)
 	{
-		for (size_t c = 0; c < 3; c++) 
+		for (size_t c = 0; c < 3; c++)
 		{
 			image[4 * i + c] = img[i * alphaChannel + c];
 		}
 		image[4 * i + 3] = 255;
 	}
 
-	ComPtr<ID3D11Texture2D> stagingTexture;
-	D3D11_TEXTURE2D_DESC textureDesc;
-	ZeroMemory(&textureDesc, sizeof(textureDesc));
-	textureDesc.Width = width;
-	textureDesc.Height = height;
-	textureDesc.MipLevels = textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	textureDesc.SampleDesc.Count = 1;
-	textureDesc.Usage = D3D11_USAGE_STAGING;
-	textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
-	// BindFlags를 SRV로 하면 안됨
+}
 
-	D3D11_SUBRESOURCE_DATA dataDesc;
-	dataDesc.pSysMem = image.data();
-	dataDesc.SysMemPitch = textureDesc.Width * 4 * sizeof(uint8_t);
-	//dataDesc.SysMemSlicePitch = 0;
-
-	// 스테이징 텍스쳐를 사용할 때는 저절로 텍스쳐가 만들어지지 않고 복사를 하나하나 해야함
-	m_device->CreateTexture2D(&textureDesc, nullptr, stagingTexture.GetAddressOf());
-	D3D11_MAPPED_SUBRESOURCE ms;
-	m_context->Map(stagingTexture.Get(), NULL, D3D11_MAP_WRITE, NULL, &ms);
-	uint8_t* pData = (uint8_t*)ms.pData;
-	for (UINT h = 0; h < UINT(height); h++) 
-	{ 
-		memcpy(&pData[h * ms.RowPitch], &image[h * width * 4],
-			width * sizeof(uint8_t) * 4);
-	}
-	m_context->Unmap(stagingTexture.Get(), NULL);
+void D3DUtils::ReadHDRImage(const string& fileName, DXGI_FORMAT pixelFormat, vector<uint8_t>& image, int& width, int& height)
+{
+	const wstring szFile(fileName.begin(), fileName.end());
+	TexMetadata metaData;
+	CHECKRESULT(GetMetadataFromEXRFile(szFile.c_str(), metaData));
+	ScratchImage img;
+	CHECKRESULT(LoadFromEXRFile(szFile.c_str(), &metaData, img));
 	
-	textureDesc.MipLevels = 0;
-	textureDesc.Usage = D3D11_USAGE_DEFAULT; 
-	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-
-	m_device->CreateTexture2D(&textureDesc, nullptr, texture.GetAddressOf());
-
-	m_context->CopySubresourceRegion(texture.Get(), 0, 0, 0, 0, stagingTexture.Get(), 0, nullptr);
-	m_device->CreateShaderResourceView(texture.Get(), nullptr, shaderResourceView.GetAddressOf());
-	m_context->GenerateMips(shaderResourceView.Get());
+	width = int(metaData.width);
+	height = int(metaData.height);
+	if (pixelFormat != metaData.format)
+		assert(0);
+	image.resize(img.GetPixelsSize());	// 그냥 메모리 통째로 복사 그럼 gpu내부에서 알아서 16비트 단위로 읽어들임
+	memcpy(image.data(), img.GetPixels(), image.size());
 }
 
 void D3DUtils::ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView)
@@ -277,5 +272,8 @@ void D3DUtils::ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& textu
 	m_device->CreateTexture2D(&textureDesc, &dataDesc, texture.GetAddressOf());
 	m_device->CreateShaderResourceView(texture.Get(), nullptr, shaderResourceView.GetAddressOf());
 }
+
+
+
 
 
