@@ -10,6 +10,7 @@ public:
 	void Enter() override;
 	void Exit() override;
 	void InitMesh() override;
+	void InitCubeMap() override;
 	void UpdateGUI() override;
 private:
 

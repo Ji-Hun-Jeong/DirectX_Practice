@@ -18,7 +18,6 @@ void CubeMap::UpdateVertexConstantData(float dt)
 {
 	Mesh::UpdateVertexConstantData(dt);
 	m_vertexConstantData.model = Matrix();
-	m_vertexConstantData.view = Matrix();
 }
 
 void CubeMap::ReadyToRender(ID3D11DeviceContext* context)
@@ -29,7 +28,7 @@ void CubeMap::ReadyToRender(ID3D11DeviceContext* context)
 
 void CubeMap::ReadImage(const string& textureName)
 {
-	wstring fileName = wstring().assign(textureName.begin(), textureName.end());
+	wstring fileName(textureName.begin(), textureName.end());
 	ComPtr<ID3D11Texture2D> texture;
 	ComPtr<ID3D11Device> device = D3DUtils::GetInst().GetDevice();
 	CreateDDSTextureFromFileEx(device.Get(), fileName.c_str(), 0

@@ -1,2 +1,4 @@
-﻿  D3DUtils.cpp
+﻿E:\source\repos\DX_Space\Space\CubeMapPixelShader.hlsl(24,11-53): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see E:\source\repos\DX_Space\x64\Debug\CubeMapPixelShader.cso
   Space.vcxproj -> E:\source\repos\DX_Space\x64\Debug\Space.exe

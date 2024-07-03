@@ -186,7 +186,8 @@ void D3DUtils::ReadImage(const string& fileName, ComPtr<ID3D11Texture2D>& textur
 	int channel = 0;
 	vector<uint8_t> image;
 	DXGI_FORMAT format;
-	if (fileName.find(".exr"))
+	string fileFormat = fileName.substr(fileName.size() - 3);
+	if (fileFormat=="exr")
 	{
 		format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		ReadHDRImage(fileName, format, image, width, height);

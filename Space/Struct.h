@@ -10,7 +10,6 @@ struct MeshData
 {
 	vector<Vertex> vertices;
 	vector<uint32_t> indices;
-	string textureName;
 };
 struct MyRay
 {

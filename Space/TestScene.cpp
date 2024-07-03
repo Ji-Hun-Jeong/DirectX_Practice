@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "Scene.h"
 #include "SceneMgr.h"
+#include "CubeMap.h"
 
 TestScene::TestScene()
 	: Scene()
@@ -55,6 +56,16 @@ void TestScene::InitMesh()
 	m_vecObj.push_back(sphere);
 
 	m_focusObj = sphere;*/
+}
+
+void TestScene::InitCubeMap()
+{
+	MeshData sphereData = GeometryGenerator::MakeSphere(30.0f, 30, 30);
+	std::reverse(sphereData.indices.begin(), sphereData.indices.end());
+	auto sphereCube = make_shared<CubeMap>();
+	sphereCube->Init(sphereData,L"CubeMap", L"CubeMap");
+	sphereCube->ReadImage("Image/PBR/HDRI/SkyBox/SampleSpecularHDR.dds");
+	m_vecNonObj.push_back(sphereCube);
 }
 
 void TestScene::UpdateGUI()

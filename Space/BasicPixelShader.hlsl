@@ -75,7 +75,7 @@ float4 main(PSInput input) : SV_TARGET
     
     if(useAlbedo)
     {
-        color = g_albedoTexture.SampleLevel(g_sampler, Input.uv, 0).xyz;
+        color = g_albedoTexture.SampleLevel(g_sampler, Input.uv, 0).rgb;
         color = ToneMapping(color);
     }
     

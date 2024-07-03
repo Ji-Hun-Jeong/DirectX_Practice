@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "GeometryGenerator.h"
 
-MeshData GeometryGenerator::MakeSphere(float radius, UINT numOfStack, UINT numOfSlice, const string& textureName)
+MeshData GeometryGenerator::MakeSphere(float radius, UINT numOfStack, UINT numOfSlice)
 {
 	MeshData meshData;
 	auto& vertices = meshData.vertices;
@@ -41,11 +41,10 @@ MeshData GeometryGenerator::MakeSphere(float radius, UINT numOfStack, UINT numOf
 			indices.push_back(startPoint + j + 1);
 		}
 	}
-	meshData.textureName = textureName;
 	return meshData;
 }
 
-MeshData GeometryGenerator::MakeDisc(float insideRadius, float outsideRadius, UINT numOfDevide, const string& textureName)
+MeshData GeometryGenerator::MakeDisc(float insideRadius, float outsideRadius, UINT numOfDevide)
 {
 	MeshData result;
 	vector<Vertex>& vertices = result.vertices;
@@ -80,14 +79,12 @@ MeshData GeometryGenerator::MakeDisc(float insideRadius, float outsideRadius, UI
 		indices.push_back(i + offset);
 		indices.push_back(i + 1 + offset);
 	}
-	result.textureName = textureName;
 	return result;
 }
 
 MeshData GeometryGenerator::MakeSquare()
 {
 	MeshData result;
-	result.textureName = "";
 	vector<Vertex>& v = result.vertices;
 	Vertex vertex;
 	vertex.position = Vector3{ -1.0f,-1.0f,0.0f };
@@ -128,7 +125,6 @@ MeshData GeometryGenerator::MakeSquare()
 MeshData GeometryGenerator::MakeTriangle()
 {
 	MeshData result;
-	result.textureName = "";
 
 	vector<Vertex>& v = result.vertices;
 	Vertex vertex;

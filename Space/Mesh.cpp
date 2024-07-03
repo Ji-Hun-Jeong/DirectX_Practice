@@ -27,11 +27,6 @@ void Mesh::Init(const MeshData& meshData, const wstring& vertexShaderPrefix, con
 	D3DUtils::GetInst().CreateConstantBuffer<VertexConstantData>(m_vertexConstantData, m_vertexConstantBuffer);
 	D3DUtils::GetInst().CreateConstantBuffer<PixelConstantData>(m_pixelConstantData, m_pixelConstantBuffer);
 	D3DUtils::GetInst().CreateSamplerState(m_samplerState);
-	if (!meshData.textureName.empty())
-	{
-		// ShaderResourceView
-		// ReadImage(meshData.textureName);
-	}
 
 	CreateVertexShaderAndInputLayout(vertexShaderPrefix, m_vertexShader);
 	CreatePixelShader(pixelShaderPrefix, m_pixelShader);
