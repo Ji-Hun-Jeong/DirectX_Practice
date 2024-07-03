@@ -1,6 +1,7 @@
 #pragma once
 class Scene;
 class ImageFilter;
+class PostProcess;
 class SceneMgr
 {
 public:
@@ -14,7 +15,7 @@ public:
 private:
 	shared_ptr<Scene> m_arrScene[(UINT)SCENE_TYPE::END];
 	shared_ptr<Scene> m_curScene;
-	vector<shared_ptr<ImageFilter>> m_filters;
+	shared_ptr<PostProcess> m_postProcess;
 	
 public:
 	float m_fWidth;
@@ -30,14 +31,24 @@ private:
 	bool CreateRenderTargetView();
 	bool CreateRasterizerState();
 	void CreateViewPort();
+	void CreateRenderBuffer();
 	void SetViewPort();
 	bool CreateDepthStencilView();
 	bool CreateDepthStencilState();
-	void CreateFilters();
 
 private:
+	ComPtr<ID3D11Texture2D> m_swapChainBackBuffer;
 	ComPtr<ID3D11ShaderResourceView> m_shaderResourceView;
 	ComPtr<ID3D11RenderTargetView> m_renderTargetView;
+
+	ComPtr<ID3D11Texture2D> m_msaaTexture;
+	ComPtr<ID3D11ShaderResourceView> m_msaaSRV;
+	ComPtr<ID3D11RenderTargetView> m_msaaRTV;
+
+	ComPtr<ID3D11Texture2D> m_notMsaaTexture;
+	ComPtr<ID3D11ShaderResourceView> m_notMsaaSRV;
+	ComPtr<ID3D11RenderTargetView> m_notMsaaRTV;
+
 	ComPtr<ID3D11RasterizerState> m_solidRasterizerState;
 	ComPtr<ID3D11RasterizerState> m_wireRasterizerState;
 	D3D11_VIEWPORT m_viewPort;

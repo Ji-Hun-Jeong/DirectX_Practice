@@ -1,10 +1,10 @@
 #pragma once
 #include "NonObject.h"
+class PostProcess;
 class ImageFilter : public NonObject
 {
 public:
-	ImageFilter(UINT width, UINT height,
-		const wstring& vsPrefix, const wstring& psPrefix);
+	ImageFilter(PostProcess* owner);
 // Default
 public:
 	virtual void Update(float dt) override;
@@ -27,5 +27,7 @@ private:
 
 	vector<ID3D11ShaderResourceView*> m_anotherSRVs;
 	vector<ID3D11RenderTargetView*> m_anotherRTVs;
+
+	shared_ptr<PostProcess> m_pOwner;
 };
 

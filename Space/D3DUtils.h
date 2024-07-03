@@ -3,7 +3,7 @@ class D3DUtils
 {
 	// InitDirect3D
 public:
-	bool CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel);
+	bool CreateDeviceAndSwapChain();
 	bool CreateRenderTargetView(ID3D11Resource* resource
 		, D3D11_RENDER_TARGET_VIEW_DESC* desc, ComPtr<ID3D11RenderTargetView>& rtv);
 	bool CreateRasterizerState(const D3D11_RASTERIZER_DESC* desc, ComPtr<ID3D11RasterizerState>& rasterizerState);

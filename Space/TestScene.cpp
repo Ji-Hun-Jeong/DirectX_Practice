@@ -19,7 +19,7 @@ void TestScene::Init()
 	Scene::Init();
 	m_pixelConstantData.light.lightPos = Vector3{ 0.0f,-2.4f,-5.0f };
 	m_pixelConstantData.rim.useRim = false;
-	GETCAMERA()->SetPos(Vector3(0.0f,0.0f,-1.0f));
+	GETCAMERA()->SetPos(Vector3(0.0f,0.0f,-3.0f));
 	GETCAMERA()->SetSpeed(10.0f);
 }
 
@@ -36,7 +36,7 @@ void TestScene::InitMesh()
 	MeshData squareData = GeometryGenerator::MakeSquare();
 	auto square = make_shared<Object>("square", Vector3(0.0f), Vector3(0.0f), Vector3(0.0f), Vector3(2.0f,1.0f,1.0f));
 	square->Init(squareData, L"Basic", L"Basic");
-	square->ReadImage("Image/PBR/HDRI/SkyBox/DaySkyHDRI015A_4K-HDR.exr", TEXTURE_TYPE::ALBEDO);
+	square->ReadImage("Image/PBR/Bricks/Bricks075A_1K_Color.png", TEXTURE_TYPE::ALBEDO);
 	/*square->ReadImage("Image/PBR/Bricks/Bricks075A_1K_NormalDX.png", TEXTURE_TYPE::NORMAL);
 	square->ReadImage("Image/PBR/Bricks/Bricks075A_1K_AmbientOcclusion.png", TEXTURE_TYPE::AO);
 	square->ReadImage("Image/PBR/Bricks/Bricks075A_1K_Displacement.png", TEXTURE_TYPE::HEIGHT);*/
@@ -60,7 +60,7 @@ void TestScene::InitMesh()
 
 void TestScene::InitCubeMap()
 {
-	MeshData sphereData = GeometryGenerator::MakeSphere(30.0f, 30, 30);
+	MeshData sphereData = GeometryGenerator::MakeSphere(30.0f, 100, 100);
 	std::reverse(sphereData.indices.begin(), sphereData.indices.end());
 	auto sphereCube = make_shared<CubeMap>();
 	sphereCube->Init(sphereData,L"CubeMap", L"CubeMap");

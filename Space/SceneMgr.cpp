@@ -7,10 +7,12 @@
 #include "SpaceScene.h"
 #include "TestScene.h"
 #include "KeyMgr.h"
+#include "PostProcess.h"
 SceneMgr SceneMgr::m_inst;
 SceneMgr::SceneMgr()
 	: m_arrScene{}
 	, m_curScene(nullptr)
+	, m_postProcess(nullptr)
 {
 	m_arrScene[(UINT)SCENE_TYPE::SPACE] = make_shared<SpaceScene>();
 	m_arrScene[(UINT)SCENE_TYPE::TEST] = make_shared<TestScene>();
@@ -31,7 +33,7 @@ bool SceneMgr::Init(float width, float height)
 		if (scene)
 			scene->Init();
 	}
-	CreateFilters();
+	m_postProcess = make_shared<PostProcess>(m_fWidth, m_fHeight, m_notMsaaSRV, m_renderTargetView);
 	return true;
 }
 
@@ -66,11 +68,8 @@ void SceneMgr::Update(float dt)
 	ImGui::Render(); // 렌더링할 것들 기록 끝
 	if (m_curScene)
 		m_curScene->Update(dt);
-	for (auto& filter : m_filters)
-	{
-		if (filter)
-			filter->Update(dt);
-	}
+	if (m_postProcess)
+		m_postProcess->Update(dt);
 	if (KEYCHECK(B1, TAP))
 		ChangeCurScene(SCENE_TYPE::SPACE);
 	else if (KEYCHECK(B2, TAP))
@@ -81,10 +80,10 @@ void SceneMgr::Render()
 {
 	ComPtr<ID3D11DeviceContext> context = D3DUtils::GetInst().GetContext();
 	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
-	context->ClearRenderTargetView(m_renderTargetView.Get(), clearColor);
+	context->ClearRenderTargetView(m_msaaRTV.Get(), clearColor);
 	context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
+	context->OMSetRenderTargets(1, m_msaaRTV.GetAddressOf(), m_depthStencilView.Get());
 	context->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
 
 	if (m_drawWireFrame)
@@ -95,12 +94,12 @@ void SceneMgr::Render()
 
 	if (m_curScene)
 		m_curScene->Render();
+	// 현재까지는 MSAA가 지원되는 RTV에 렌더링하였고 이제는 그걸 MSAA지원 안되는 RTV에 복사
+	context->ResolveSubresource(m_notMsaaTexture.Get(), 0, m_msaaTexture.Get(), 0
+		, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
-	for (auto& filter : m_filters)
-	{
-		if (filter)
-			filter->Render(context.Get());
-	}
+	if (m_postProcess)
+		m_postProcess->Render(context.Get());
 }
 
 void SceneMgr::ChangeCurScene(SCENE_TYPE scene)
@@ -112,14 +111,13 @@ void SceneMgr::ChangeCurScene(SCENE_TYPE scene)
 
 bool SceneMgr::InitDirect3D()
 {
-	if (!D3DUtils::GetInst().CreateDeviceAndSwapChain(m_iNumOfMultiSamplingLevel))
+	if (!D3DUtils::GetInst().CreateDeviceAndSwapChain())
 		return false;
 	if (!CreateRenderTargetView())
 		return false;
-	D3D11_RENDER_TARGET_VIEW_DESC desc;
-	m_renderTargetView->GetDesc(&desc);
 	if (!CreateRasterizerState())
 		return false;
+	CreateRenderBuffer();
 	CreateViewPort();
 	SetViewPort();
 	if (!CreateDepthStencilView())
@@ -132,12 +130,10 @@ bool SceneMgr::CreateRenderTargetView()
 {
 	ComPtr<IDXGISwapChain>& swapChain = D3DUtils::GetInst().GetSwapChain();
 	ComPtr<ID3D11Device>& device = D3DUtils::GetInst().GetDevice();
-	ComPtr<ID3D11Texture2D> swapChainBackBuffer;
-	swapChain->GetBuffer(0, IID_PPV_ARGS(swapChainBackBuffer.GetAddressOf()));
-	HRESULT result = device->CreateShaderResourceView(swapChainBackBuffer.Get(), nullptr, m_shaderResourceView.GetAddressOf());
-	if (FAILED(result))
-		assert(0);
-	return D3DUtils::GetInst().CreateRenderTargetView(swapChainBackBuffer.Get(), nullptr, m_renderTargetView);
+	swapChain->GetBuffer(0, IID_PPV_ARGS(m_swapChainBackBuffer.GetAddressOf()));
+	HRESULT result = device->CreateShaderResourceView(m_swapChainBackBuffer.Get(), nullptr, m_shaderResourceView.GetAddressOf());
+	CHECKRESULT(result);
+	return D3DUtils::GetInst().CreateRenderTargetView(m_swapChainBackBuffer.Get(), nullptr, m_renderTargetView);
 }
 
 bool SceneMgr::CreateRasterizerState()
@@ -169,6 +165,43 @@ void SceneMgr::CreateViewPort()
 	m_viewPort.Height = m_fHeight;
 	m_viewPort.MinDepth = 0.0f;
 	m_viewPort.MaxDepth = 1.0f;
+}
+
+void SceneMgr::CreateRenderBuffer()
+{
+	ComPtr<ID3D11Device>& device = D3DUtils::GetInst().GetDevice();
+	CHECKRESULT(device
+		->CheckMultisampleQualityLevels(DXGI_FORMAT_R16G16B16A16_FLOAT, 4, &m_iNumOfMultiSamplingLevel));
+	
+	D3D11_TEXTURE2D_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Width = m_fWidth;
+	desc.Height = m_fHeight;
+	desc.MipLevels = desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	if (m_iNumOfMultiSamplingLevel)
+	{
+		desc.SampleDesc.Count = 4;
+		desc.SampleDesc.Quality = m_iNumOfMultiSamplingLevel - 1;
+	}
+	else
+	{
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+	}
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = 0;
+	CHECKRESULT(device->CreateTexture2D(&desc, nullptr, m_msaaTexture.GetAddressOf()));
+	CHECKRESULT(device->CreateShaderResourceView(m_msaaTexture.Get(), nullptr, m_msaaSRV.GetAddressOf()));
+	CHECKRESULT(device->CreateRenderTargetView(m_msaaTexture.Get(), nullptr, m_msaaRTV.GetAddressOf()));
+
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	CHECKRESULT(device->CreateTexture2D(&desc, nullptr, m_notMsaaTexture.GetAddressOf()));
+	CHECKRESULT(device->CreateShaderResourceView(m_notMsaaTexture.Get(), nullptr, m_notMsaaSRV.GetAddressOf()));
+	CHECKRESULT(device->CreateRenderTargetView(m_notMsaaTexture.Get(), nullptr, m_notMsaaRTV.GetAddressOf()));
 }
 
 void SceneMgr::SetViewPort()
@@ -214,52 +247,51 @@ bool SceneMgr::CreateDepthStencilState()
 	return D3DUtils::GetInst().CreateDepthStencilState(&desc, m_depthStencilState);
 }
 
-void SceneMgr::CreateFilters()
-{
-	GETCURSCENE()->m_pixelConstantData.bloom.dx = 1.0f / m_fWidth;
-	GETCURSCENE()->m_pixelConstantData.bloom.dy = 1.0f / m_fHeight;
-
-	auto copyFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Copy");
-	copyFilter->SetShaderResourceViews({ m_shaderResourceView.Get() });
-	m_filters.push_back(copyFilter);
-
-	// blur
-	// DownSampling으로 Aliasing 현상을 줄임
-	int down = 64;
-	for (int height = 2; height <= down; height *= 2)
-	{
-		auto downFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"Copy");
-		downFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
-		m_filters.push_back(downFilter);
-	}
-
-	// Blur처리를 하면서 원본 크기까지 UpSampling
-	for (int height = down; height >= 1; height /= 2)
-	{
-		for (int i = 0; i < 5; ++i)
-		{
-			auto blurXFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"BlurX");
-			blurXFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
-			m_filters.push_back(blurXFilter);
-
-			auto blurYFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"BlurY");
-			blurYFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
-			m_filters.push_back(blurYFilter);
-		}
-	}
-
-	// 결과를 Bloom
-	auto bloomFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Bloom");
-	bloomFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
-	m_filters.push_back(bloomFilter);
-
-	// 원본영상에 합침
-	auto combineFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Combine");
-	combineFilter->SetShaderResourceViews(
-		{
-			copyFilter->GetShaderResourceView().Get(),
-			m_filters.back()->GetShaderResourceView().Get() }
-	);
-	combineFilter->SetRenderTargetViews({ m_renderTargetView.Get() });
-	m_filters.push_back(combineFilter);
-}
+//void SceneMgr::CreateFilters()
+//{
+//	
+//
+//	auto copyFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Copy");
+//	copyFilter->SetShaderResourceViews({ m_notMsaaSRV.Get() });
+//	m_filters.push_back(copyFilter);
+//
+//	// blur
+//	// DownSampling으로 Aliasing 현상을 줄임
+//	int down = 64;
+//	for (int height = 2; height <= down; height *= 2)
+//	{
+//		auto downFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"Copy");
+//		downFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
+//		m_filters.push_back(downFilter);
+//	}
+//
+//	// Blur처리를 하면서 원본 크기까지 UpSampling
+//	for (int height = down; height >= 1; height /= 2)
+//	{
+//		for (int i = 0; i < 5; ++i)
+//		{
+//			auto blurXFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"BlurX");
+//			blurXFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
+//			m_filters.push_back(blurXFilter);
+//
+//			auto blurYFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"BlurY");
+//			blurYFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
+//			m_filters.push_back(blurYFilter);
+//		}
+//	}
+//
+//	// 결과를 Bloom
+//	auto bloomFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Bloom");
+//	bloomFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
+//	m_filters.push_back(bloomFilter);
+//
+//	// 원본영상에 합침
+//	auto combineFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Combine");
+//	combineFilter->SetShaderResourceViews(
+//		{
+//			copyFilter->GetShaderResourceView().Get(),
+//			m_filters.back()->GetShaderResourceView().Get() }
+//	);
+//	combineFilter->SetRenderTargetViews({ m_renderTargetView.Get() });
+//	m_filters.push_back(combineFilter);
+//}

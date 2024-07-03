@@ -9,7 +9,7 @@ D3DUtils::D3DUtils()
 
 }
 
-bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
+bool D3DUtils::CreateDeviceAndSwapChain()
 {
 	D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE::D3D_DRIVER_TYPE_HARDWARE;
 	UINT createDeviceFlags = 0;
@@ -23,14 +23,14 @@ bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
 		ARRAYSIZE(featureLevel), D3D11_SDK_VERSION, m_device.GetAddressOf(),
 		&outputLevel, m_context.GetAddressOf());
 
-	m_device->CheckMultisampleQualityLevels(DXGI_FORMAT_R16G16B16A16_FLOAT, 4,
-		&numOfMultiSamplingLevel);
+	/*m_device->CheckMultisampleQualityLevels(DXGI_FORMAT_R16G16B16A16_FLOAT, 4,
+		&numOfMultiSamplingLevel);*/
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 	swapChainDesc.BufferDesc.Width = UINT(Core::GetInst().m_fWidth);
 	swapChainDesc.BufferDesc.Height = UINT(Core::GetInst().m_fHeight);
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
@@ -39,16 +39,11 @@ bool D3DUtils::CreateDeviceAndSwapChain(UINT& numOfMultiSamplingLevel)
 	swapChainDesc.Windowed = TRUE;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-	if (numOfMultiSamplingLevel > 0)
-	{
-		swapChainDesc.SampleDesc.Count = 4;
-		swapChainDesc.SampleDesc.Quality = numOfMultiSamplingLevel - 1;
-	}
-	else
-	{
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.SampleDesc.Quality = 0;
-	}
+	// FILP_DISCARD가 더 빠르지만 MSAA를 미지원
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SampleDesc.Quality = 0;
+
 	HRESULT result = D3D11CreateDeviceAndSwapChain(nullptr, driverType, 0
 		, createDeviceFlags, featureLevel, 1
 		, D3D11_SDK_VERSION, &swapChainDesc
@@ -187,14 +182,14 @@ void D3DUtils::ReadImage(const string& fileName, ComPtr<ID3D11Texture2D>& textur
 	vector<uint8_t> image;
 	DXGI_FORMAT format;
 	string fileFormat = fileName.substr(fileName.size() - 3);
-	if (fileFormat=="exr")
+	if (fileFormat == "exr")
 	{
 		format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		ReadHDRImage(fileName, format, image, width, height);
 	}
 	else
 	{
-		format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 		ReadLDRImage(fileName, format, image, width, height);
 	}
 
@@ -226,7 +221,7 @@ void D3DUtils::ReadHDRImage(const string& fileName, DXGI_FORMAT pixelFormat, vec
 	CHECKRESULT(GetMetadataFromEXRFile(szFile.c_str(), metaData));
 	ScratchImage img;
 	CHECKRESULT(LoadFromEXRFile(szFile.c_str(), &metaData, img));
-	
+
 	width = int(metaData.width);
 	height = int(metaData.height);
 	if (pixelFormat != metaData.format)

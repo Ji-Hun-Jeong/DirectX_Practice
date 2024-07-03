@@ -4,13 +4,23 @@
 #include "GeometryGenerator.h"
 #include "Scene.h"
 #include "SceneMgr.h"
+#include "PostProcess.h"
 
-ImageFilter::ImageFilter(UINT width, UINT height,
-	const wstring& vsPrefix, const wstring& psPrefix)
+ImageFilter::ImageFilter(PostProcess* owner)
 	: NonObject()
 {
-	MeshData meshData = GeometryGenerator::MakeSquare();
-	Mesh::Init(meshData, vsPrefix, psPrefix);
+	const int width = owner->m_fWidth;
+	const int height = owner->m_fHeight;
+	m_vertexShader = owner->m_vertexShader;
+	m_pixelShader = owner->m_pixelShader;
+	m_vertexBuffer = owner->m_vertexBuffer;
+	m_indexBuffer = owner->m_indexBuffer;
+	m_indexCount = owner->m_indexCount;
+	m_inputLayout = owner->m_inputLayout;
+	m_samplerState = owner->m_samplerState;
+	m_topology = owner->m_topology;
+	D3DUtils::GetInst().CreateConstantBuffer<VertexConstantData>(m_vertexConstantData, m_vertexConstantBuffer);
+	D3DUtils::GetInst().CreateConstantBuffer<PixelConstantData>(m_pixelConstantData, m_pixelConstantBuffer);
 
 	ComPtr<ID3D11Device> device = D3DUtils::GetInst().GetDevice();
 	D3D11_TEXTURE2D_DESC textureDesc;
@@ -71,7 +81,7 @@ void ImageFilter::Render(ID3D11DeviceContext* context)
 
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	context->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
-	context->PSSetShaderResources(0, UINT(m_anotherSRVs.size()), m_anotherSRVs.data());	
+	context->PSSetShaderResources(0, UINT(m_anotherSRVs.size()), m_anotherSRVs.data());
 	context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 
 	context->DrawIndexed(m_indexCount, 0, 0);

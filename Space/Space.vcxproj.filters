@@ -80,6 +80,9 @@
     <Filter Include="Engine\Scene\SpaceScene">
       <UniqueIdentifier>{44a5bf8b-6a05-4955-9502-cbfe038c2ca7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Mesh\Non Object\PostProcess">
+      <UniqueIdentifier>{f3087c79-6a35-451e-8e9f-c870e8b6b6c7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -154,6 +157,9 @@
     <ClInclude Include="SpaceScene.h">
       <Filter>Engine\Scene\SpaceScene</Filter>
     </ClInclude>
+    <ClInclude Include="PostProcess.h">
+      <Filter>Engine\Mesh\Non Object\PostProcess</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -219,6 +225,9 @@
     </ClCompile>
     <ClCompile Include="SpaceScene.cpp">
       <Filter>Engine\Scene\SpaceScene</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcess.cpp">
+      <Filter>Engine\Mesh\Non Object\PostProcess</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
