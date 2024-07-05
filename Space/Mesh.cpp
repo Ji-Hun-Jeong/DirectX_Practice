@@ -26,7 +26,8 @@ void Mesh::Init(const MeshData& meshData, const wstring& vertexShaderPrefix, con
 	D3DUtils::GetInst().CreateIndexBuffer<uint32_t>(meshData.indices, m_indexBuffer);
 	D3DUtils::GetInst().CreateConstantBuffer<VertexConstantData>(m_vertexConstantData, m_vertexConstantBuffer);
 	D3DUtils::GetInst().CreateConstantBuffer<PixelConstantData>(m_pixelConstantData, m_pixelConstantBuffer);
-	D3DUtils::GetInst().CreateSamplerState(m_samplerState);
+	D3DUtils::GetInst().CreateSamplerState(m_samplerState, false);
+	D3DUtils::GetInst().CreateSamplerState(m_clampSampler, true);
 
 	CreateVertexShaderAndInputLayout(vertexShaderPrefix, m_vertexShader);
 	CreatePixelShader(pixelShaderPrefix, m_pixelShader);
@@ -84,6 +85,8 @@ void Mesh::UpdatePixelConstantData()
 	m_pixelConstantData.useAlbedo = curScene->m_pixelConstantData.useAlbedo;
 	m_pixelConstantData.useNormal = curScene->m_pixelConstantData.useNormal;
 	m_pixelConstantData.useAO = curScene->m_pixelConstantData.useAO;
+	m_pixelConstantData.useMetallic = curScene->m_pixelConstantData.useMetallic;
+	m_pixelConstantData.useRoughness = curScene->m_pixelConstantData.useRoughness;
 	m_pixelConstantData.exposure = curScene->m_pixelConstantData.exposure;
 	m_pixelConstantData.gamma = curScene->m_pixelConstantData.gamma;
 }
@@ -106,16 +109,17 @@ void Mesh::ReadyToRender(ID3D11DeviceContext* context)
 
 	context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	context->VSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
-	//context->VSSetShaderResources((UINT)TEXTURE_TYPE::HEIGHT, 1, m_arrSRV[0].GetAddressOf());
-	context->VSSetShaderResources(0, 1, m_arrSRV[3].GetAddressOf());
+	context->VSSetShaderResources(0, 1, m_arrSRV[(UINT)TEXTURE_TYPE::HEIGHT].GetAddressOf());
+	context->VSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 
 	context->GSSetShader(m_geometryShader.Get(), nullptr, 0);
 	context->GSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
 
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	context->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
-	context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
-	context->PSSetShaderResources(0, (UINT)TEXTURE_TYPE::HEIGHT, m_arrSRV[0].GetAddressOf());
+	static ID3D11SamplerState* samplerStates[2] = { m_samplerState.Get(),m_clampSampler.Get() };
+	context->PSSetSamplers(0, 2, samplerStates);
+	context->PSSetShaderResources(0, (UINT)TEXTURE_TYPE::HEIGHT, m_arrSRV[(UINT)TEXTURE_TYPE::SPECULAR].GetAddressOf());
 }
 
 
@@ -142,11 +146,21 @@ void Mesh::CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11Geometry
 	D3DUtils::GetInst().CreateGeometryShader(hlslPrefix, geometryShader);
 }
 
-void Mesh::ReadImage(const string& textureName, TEXTURE_TYPE textureType)
+void Mesh::ReadImage(const string& textureName, TEXTURE_TYPE textureType, bool useSRGB)
 {
 	ComPtr<ID3D11Texture2D> texture;
 	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
-	D3DUtils::GetInst().ReadImage(textureName, texture, shaderResourceView);
+	D3DUtils::GetInst().ReadImage(textureName, useSRGB, texture, shaderResourceView);
+
+	m_arrTexture[(UINT)textureType] = texture;
+	m_arrSRV[(UINT)textureType] = shaderResourceView;
+}
+
+void Mesh::ReadCubeImage(const string& fileName, TEXTURE_TYPE textureType)
+{
+	ComPtr<ID3D11Texture2D> texture;
+	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
+	D3DUtils::GetInst().ReadCubeImage(fileName, texture, shaderResourceView);
 
 	m_arrTexture[(UINT)textureType] = texture;
 	m_arrSRV[(UINT)textureType] = shaderResourceView;

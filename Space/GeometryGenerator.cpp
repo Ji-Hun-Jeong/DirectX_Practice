@@ -5,7 +5,7 @@ MeshData GeometryGenerator::MakeSphere(float radius, UINT numOfStack, UINT numOf
 {
 	MeshData meshData;
 	auto& vertices = meshData.vertices;
-	Vector3 startPos = Vector3{ 0.0f,-radius,0.0f };
+	Vector3 startPos = Vector3{ 0.0f, -radius, 0.0f };
 	const float xTheta = -XM_2PI / float(numOfSlice);
 	const float yTheta = -XM_PI / float(numOfStack);
 	for (UINT i = 0; i <= numOfStack; ++i)
@@ -16,12 +16,19 @@ MeshData GeometryGenerator::MakeSphere(float radius, UINT numOfStack, UINT numOf
 		{
 			Vertex v;
 			v.position =
-				Vector3::Transform(startOfRotation, Matrix::CreateRotationY(xTheta * j));
-			v.tangent = 
-				Vector3::Transform(Vector3(1.0f, 0.0f, 0.0f), Matrix::CreateRotationY(xTheta * j));
+				Vector3::Transform(startOfRotation, Matrix::CreateRotationY(xTheta * float(j)));
+			
 			v.normal = v.position;
 			v.normal.Normalize();
-			v.uv = Vector2{ float(j) / numOfSlice, 1.0f - float(i) / numOfStack };
+			Vector3 biTangent = Vector3(0.0f, 1.0f, 0.0f);
+
+			Vector3 normalOrth =
+				v.normal - biTangent.Dot(v.normal) * v.normal;
+			normalOrth.Normalize();
+
+			v.tangent = biTangent.Cross(normalOrth);
+			v.tangent.Normalize();
+			v.uv = Vector2(float(j) / numOfSlice, 1.0f - float(i) / numOfStack) * 2;
 			vertices.push_back(v);
 		}
 	}

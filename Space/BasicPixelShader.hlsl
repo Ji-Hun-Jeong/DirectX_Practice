@@ -1,8 +1,15 @@
 #include "Header.hlsli"
-Texture2D g_albedoTexture : register(t0);
-Texture2D g_normalTexture : register(t1);
-Texture2D g_aoTexture : register(t2);
+TextureCube g_specularTexture : register(t0);
+TextureCube g_irradianceTexture : register(t1);
+Texture2D g_albedoTexture : register(t2);
+Texture2D g_normalTexture : register(t3);
+Texture2D g_aoTexture : register(t4);
+Texture2D g_metallicTexture : register(t5);
+Texture2D g_roughnessTexture : register(t6);
+Texture2D g_lutTexture : register(t7);
 SamplerState g_sampler : register(s0);
+SamplerState g_clampSampler : register(s1);
+static const float pi = 3.141592f;
 cbuffer PixelConstant : register(b0)
 {
     float3 eyePos;
@@ -11,6 +18,7 @@ cbuffer PixelConstant : register(b0)
     Material mat;
     Bloom bloom;
     Rim rim;
+    
     int useAlbedo;
     int useNormal;
     int useAO;
@@ -21,114 +29,108 @@ cbuffer PixelConstant : register(b0)
     float gamma;
     float dummy;
 };
-float3 BlinnPhong(float3 normal, float3 toLightVec, float3 toEyeVec, float3 lightStrength)
-{
-    float3 h = normalize(toLightVec + toEyeVec);
-    float hdotn = max(dot(h, normal), 0.0f);
-    float3 specular = mat.specular * pow(hdotn, mat.shiness);
-    return mat.ambient + (mat.diffuse + specular) * lightStrength;
-}
+
 float CalcAttenuation(float dist)
 {
     return saturate((light.fallOfEnd - dist) / (light.fallOfEnd - light.fallOfStart));
 }
 
-float3 ComputePointLight(PSInput input)
+float3 GetNormal(PSInput input)
 {
-    float3 toLightVec = light.lightPos - input.posWorld.xyz;
-    float toLightDistance = length(toLightVec);
-    if (light.fallOfEnd < toLightDistance)
-    {
-        return mat.ambient;
-    }
-    else
-    {
-        float3 toEyeVec = normalize(eyePos - input.posWorld.xyz);
-        float att = max(CalcAttenuation(toLightDistance), 0.0f);
-        float ndotl = max(dot(toLightVec, input.normal), 0.0f);
-        float3 finalLightStrength = light.lightStrength * ndotl * att;
-        float3 normToLightVec = toLightVec / toLightDistance;
-        return BlinnPhong(input.normal, normToLightVec, toEyeVec, finalLightStrength);
-    }
+    float3 normal = g_normalTexture.Sample(g_sampler, input.uv).xyz;
+    normal = 2.0f * normal - 1.0f;
+    float3 N = input.normal;
+    float3 T = normalize(input.tangent - dot(input.tangent, N) * N);
+    float3 B = cross(N, T);
+    float3x3 TBN = float3x3(T, B, N);
+    normal = normalize(mul(normal, TBN));
+    return normal;
 }
 
-float GetLOD(PSInput input)
+float3 GetDiffuseByIBL(float3 albedo, float3 normal)
 {
-    float toEyeDist = length(eyePos - input.posWorld.xyz);
-    float minMipDist = 100.0f;
-    float maxMipDist = 3000.0f;
-    float lod = max((toEyeDist - minMipDist), 0.0f) * 10.0f / (maxMipDist - minMipDist);
-    return lod;
+    float3 diffuseByIBL = g_irradianceTexture.Sample(g_sampler, normal).rgb;
+    return albedo * diffuseByIBL;
 }
-float3 ToneMapping(float3 color)
+
+float3 GetSpecularByIBL(float3 albedo, float3 normal, float3 v, float metallic, float roughness)
 {
-    float3 invGamma = float3(1.0f, 1.0f, 1.0f) / gamma;
-    float3 result = pow(clamp(color * exposure, 0.0f, 1.0f), invGamma);
-    return result;
+    float3 reflectDir = reflect(-v, normal);
+    float3 F0 = 0.04f;
+    float F = lerp(F0, albedo, metallic);
+    float3 evBRDF = g_lutTexture.Sample(g_clampSampler, float2(dot(v, normal), 1 - roughness));
+    float3 specularByIBL = g_specularTexture.SampleLevel(g_sampler, reflectDir, 5.0f * roughness);
+    return specularByIBL * (F * evBRDF.r + evBRDF.g);
+}
+
+float3 AmbientLighting(float3 albedo, float3 ao, float3 normal, float3 v, float metallic, float roughness)
+{
+    // 주변광을 구하는 식
+    // 주변광을 구할 때도 한 픽셀로 들어오는 주변광과 직접광을 전부 계산
+    float3 diffuse = GetDiffuseByIBL(albedo, normal); // 얘가 다른곳에서 오는 주변광
+    float3 specular = GetSpecularByIBL(albedo, normal, v, metallic, roughness); // 얘는 다른곳에서 오는 직접광
+    return (diffuse + specular) * ao;   // 최종적으로 한 픽셀이 가지는 주변광 따라서 ao도 여기서만 곱하기
+}
+
+float SpecularD(float ndoth,float roughness)
+{
+    float aa = roughness * roughness * roughness * roughness;
+    return aa / (pi * (ndoth * ndoth * (aa - 1) + 1) * (ndoth * ndoth * (aa - 1) + 1));
+}
+
+float G1(float ndotx, float roughness)
+{
+    float k = ((roughness + 1) * (roughness + 1)) / 8.0f;
+    float value = ndotx / ((ndotx * (1 - k)) + k);
+    return value;
+}
+
+float SpecularG(float ndotl, float ndotv, float roughness)
+{
+    return G1(ndotl, roughness) * G1(ndotv, roughness);
+}
+
+float3 SpecularF(float3 F0,float vdoth)
+{
+    float _2Pow = (-5.55473f * vdoth - 6.98316f) * vdoth;
+    return F0 + ((1 - F0) * pow(2, _2Pow));
+}
+
+float3 DirectLight(float3 albedo, float3 normal, float3 l, float3 v, float3 h, float roughness, float metallic)
+{
+    float ndotl = max(dot(normal, l), 0.0f);
+    float ndoth = max(dot(normal, h), 0.0f);
+    float ndotv = max(dot(normal, v), 0.0f);
+    float vdoth = max(dot(v, h), 0.0f);
+    
+    float3 F0 = 0.04f;
+    F0 = lerp(F0, albedo, metallic);
+    float3 F = SpecularF(F0, vdoth);
+    float D = SpecularD(ndoth, roughness);
+    float G = SpecularG(ndotl, ndotv, roughness);
+    float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metallic);
+    
+    float3 diffuse = (kd * albedo) / pi;
+    float3 specular = (F * D * G) / max(1e-5, 4.0f * ndotl * ndotv);
+
+    return diffuse + specular;
 }
 
 float4 main(PSInput input) : SV_TARGET
 {    
-    PSInput Input = input;
-    float3 toEye = normalize(eyePos - input.posWorld.xyz);
-    float3 color = float3(1.0f, 1.0f, 1.0f);
+    float3 albedo = useAlbedo ? g_albedoTexture.SampleLevel(g_sampler, input.uv, 0) : 1.0f;
+    float3 normal = useNormal ? GetNormal(input) : input.normal;
+    float3 ao = useAO ? g_aoTexture.SampleLevel(g_sampler, input.uv, 0) : 1.0f;
+    float metallic = useMetallic ? g_metallicTexture.Sample(g_sampler, input.uv).r : 1.0f;
+    float roughness = useRoughness ? g_roughnessTexture.Sample(g_sampler, input.uv).r : 1.0f;
     
-    if(useAlbedo)
-    {
-        color = g_albedoTexture.SampleLevel(g_sampler, Input.uv, 0).rgb;
-        color = ToneMapping(color);
-    }
+    float3 l = normalize(light.lightPos - input.posWorld.xyz);
+    float3 v = normalize(eyePos - input.posWorld.xyz);
+    float3 h = normalize(l + v);
+    float ndotl = max(0.0f, dot(l, normal));
     
-    if (useNormal)
-    {
-        float3 normal = g_normalTexture.SampleLevel(g_sampler, input.uv, 0);
-        normal = 2.0f * normal - 1.0f;
-        float3 N = input.normal;
-        float3 T = input.tangent;
-        float3 B = normalize(cross(N, T));
-        float3x3 TBN = float3x3(T, B, N);
-        normal = normalize(mul(normal, TBN));
-        Input.normal = normal;
-    }
-    
-    color = isSun ? color * float3(1.5f, 1.5f, 1.5f) : color * ComputePointLight(Input);
-    
-    if(useAO)
-    {
-        float3 ao = g_aoTexture.SampleLevel(g_sampler, input.uv, 0);
-        color *= ao;
-    }
-    
-    if (rim.useRim && !isSun)
-    {
-        float3 lightVec = normalize(light.lightPos - Input.posWorld.xyz);
-        float degreeOfLightAndNormal = dot(lightVec, Input.normal);
-        float degreeOfEyeAndLight = dot(toEye, lightVec);
-        if (degreeOfLightAndNormal <= 0.0f)
-        {
-            float degreeOfEyeAndLight = -dot(toEye, lightVec);
-            float degreeOfEyeAndNormal = max(dot(toEye, Input.normal), 0.0f);
-            color *= pow(1.0f - degreeOfEyeAndNormal, rim.rimPower);
-            color *= rim.rimStrength * degreeOfEyeAndLight;
-        }
-        if (mat.selected)
-        {
-            float degreeOfEyeAndNormal = max(dot(toEye, Input.normal), 0.0f);
-            return float4(1.0f, 0.0f, 1.0f, 1.0f);
-            if (degreeOfEyeAndNormal < 0.4f)
-            {
-                color *= float3(1.0f, 0.0f, 0.0f);
-            }
-        }
-    }
-    if (mat.selected)
-    {
-        float degreeOfEyeAndNormal = max(dot(toEye, input.normal), 0.0f);
-        if (degreeOfEyeAndNormal < 0.1f)
-        {
-            color *= float3(1.0f, 0.0f, 0.0f);
-        }
-    }
-    
+    float3 ambientLight = AmbientLighting(albedo, ao, normal, v, metallic, roughness);
+    float3 directLight = DirectLight(albedo, normal, l, v, h, roughness, metallic) * ndotl * light.lightStrength;
+    float3 color = directLight + ambientLight;
     return float4(color, 1.0f);
 }

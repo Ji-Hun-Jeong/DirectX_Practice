@@ -61,6 +61,8 @@ void Object::DrawNormal(ID3D11DeviceContext* context)
 
 	context->VSSetShader(m_normalVertexShader.Get(), nullptr, 0);
 	context->VSSetConstantBuffers(0, 1, m_normalConstantBuffer.GetAddressOf());
+	context->VSSetShaderResources(0, 1, m_arrSRV[(UINT)TEXTURE_TYPE::NORMAL].GetAddressOf());
+	context->VSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 
 	context->GSSetShader(m_normalGeometryShader.Get(), nullptr, 0);
 	context->GSSetConstantBuffers(0, 1, m_normalConstantBuffer.GetAddressOf());
@@ -123,6 +125,7 @@ void Object::UpdateNormalConstantData()
 	m_normalConstantData.projection = m_vertexConstantData.projection;
 
 	m_normalConstantData.normalSize = GETCURSCENE()->m_normalSize;
+	m_normalConstantData.useNormal = GETCURSCENE()->m_pixelConstantData.useNormal;
 }
 
 bool Object::AttachObject(const string& meshName, shared_ptr<Object> childObj)

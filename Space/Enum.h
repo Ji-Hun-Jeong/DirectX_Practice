@@ -21,9 +21,14 @@ enum class SCENE_TYPE
 };
 enum class TEXTURE_TYPE
 {
+	SPECULAR,
+	IRRADIANCE,
 	ALBEDO,
 	NORMAL,
 	AO,
+	METAL,
+	ROUGHNESS,
+	LUT,
 	HEIGHT,
 	END,
 };

@@ -9,7 +9,7 @@ cbuffer Constant : register(b0)
     matrix invTranspose;
     int useHeight;
     float heightScale;
-    float dummy[2];
+    float2 dummy;
 };
 PSInput main(VSInput input)
 {
@@ -21,18 +21,18 @@ PSInput main(VSInput input)
     output.normal = normal.xyz;
     
     float4 pos = float4(input.position, 1.0f);
+    pos = mul(pos, model);
     if (useHeight)
     {
         float height = g_heightTexture.SampleLevel(g_sampler, input.uv, 0).r;
         height = 2.0f * height - 1.0f;
         pos += float4(output.normal * height * heightScale, 0.0f);
     }
-    pos = mul(pos, model);
     output.posWorld = pos;
     pos = mul(pos, view);
     pos = mul(pos, projection);
-    output.posProj = pos;
     
+    output.posProj = pos;
     
     output.uv = input.uv;
     

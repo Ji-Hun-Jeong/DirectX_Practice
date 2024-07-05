@@ -86,12 +86,7 @@ void Scene::Render()
 
 void Scene::InitCubeMap()
 {
-	MeshData cubeMapData = GeometryGenerator::MakeSphere(1000.0f, 30, 30);
-	std::reverse(cubeMapData.indices.begin(), cubeMapData.indices.end());
-	auto cubeMap = make_shared<CubeMap>();
-	cubeMap->Init(cubeMapData, L"CubeMap", L"CubeMap");
-	cubeMap->ReadImage("image/space.dds");
-	m_vecNonObj.push_back(cubeMap);
+	
 }
 
 void Scene::CalcPickingObject()

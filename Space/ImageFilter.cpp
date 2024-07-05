@@ -6,30 +6,31 @@
 #include "SceneMgr.h"
 #include "PostProcess.h"
 
-ImageFilter::ImageFilter(PostProcess* owner)
+ImageFilter::ImageFilter(PostProcess* owner, ComPtr<ID3D11VertexShader>& vs, ComPtr<ID3D11PixelShader>& ps
+	, float width, float height)
 	: NonObject()
+	, m_fWidth(width)
+	, m_fHeight(height)
 {
-	const int width = owner->m_fWidth;
-	const int height = owner->m_fHeight;
-	m_vertexShader = owner->m_vertexShader;
-	m_pixelShader = owner->m_pixelShader;
+	m_vertexShader = vs;
+	m_pixelShader = ps;
 	m_vertexBuffer = owner->m_vertexBuffer;
 	m_indexBuffer = owner->m_indexBuffer;
 	m_indexCount = owner->m_indexCount;
 	m_inputLayout = owner->m_inputLayout;
 	m_samplerState = owner->m_samplerState;
 	m_topology = owner->m_topology;
-	D3DUtils::GetInst().CreateConstantBuffer<VertexConstantData>(m_vertexConstantData, m_vertexConstantBuffer);
-	D3DUtils::GetInst().CreateConstantBuffer<PixelConstantData>(m_pixelConstantData, m_pixelConstantBuffer);
+	m_vertexBuffer = owner->m_vertexBuffer;
+	m_pixelConstantBuffer = owner->m_pixelConstantBuffer;
 
 	ComPtr<ID3D11Device> device = D3DUtils::GetInst().GetDevice();
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
-	textureDesc.Width = width;
-	textureDesc.Height = height;
+	textureDesc.Width = m_fWidth;
+	textureDesc.Height = m_fHeight;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	textureDesc.CPUAccessFlags = 0;
@@ -45,8 +46,8 @@ ImageFilter::ImageFilter(PostProcess* owner)
 	ZeroMemory(&m_viewPort, sizeof(D3D11_VIEWPORT));
 	m_viewPort.TopLeftX = 0;
 	m_viewPort.TopLeftY = 0;
-	m_viewPort.Width = float(width);
-	m_viewPort.Height = float(height);
+	m_viewPort.Width = float(m_fWidth);
+	m_viewPort.Height = float(m_fHeight);
 	m_viewPort.MinDepth = 0.0f;
 	m_viewPort.MaxDepth = 1.0f;
 

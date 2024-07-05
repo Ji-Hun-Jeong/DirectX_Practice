@@ -33,7 +33,9 @@ bool SceneMgr::Init(float width, float height)
 		if (scene)
 			scene->Init();
 	}
-	m_postProcess = make_shared<PostProcess>(m_fWidth, m_fHeight, m_notMsaaSRV, m_renderTargetView);
+	D3D11_SHADER_RESOURCE_VIEW_DESC desc;
+	m_notMsaaSRV->GetDesc(&desc);
+	m_postProcess = make_shared<PostProcess>(m_fWidth, m_fHeight, 2, m_notMsaaSRV, m_renderTargetView);
 	return true;
 }
 
@@ -94,6 +96,7 @@ void SceneMgr::Render()
 
 	if (m_curScene)
 		m_curScene->Render();
+
 	// 현재까지는 MSAA가 지원되는 RTV에 렌더링하였고 이제는 그걸 MSAA지원 안되는 RTV에 복사
 	context->ResolveSubresource(m_notMsaaTexture.Get(), 0, m_msaaTexture.Get(), 0
 		, DXGI_FORMAT_R16G16B16A16_FLOAT);

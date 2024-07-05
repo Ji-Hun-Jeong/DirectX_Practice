@@ -76,6 +76,7 @@ struct PixelConstantData	// 96
 	float gamma = 1.0f;
 	float dummy;
 };
+
 struct NormalConstantData	// 48
 {
 	Matrix model;
@@ -83,7 +84,8 @@ struct NormalConstantData	// 48
 	Matrix projection;
 	Matrix invTranspose;
 	float normalSize = 1.0f;
-	float dummy[3] = { 0.0f };
+	int useNormal = false;
+	float dummy[2];
 };
 
 struct DirArrowConstantData 

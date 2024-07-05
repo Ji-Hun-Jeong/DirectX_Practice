@@ -16,13 +16,7 @@
       <FullPath>E:\source\repos\DX_Space\x64\Debug\BasicVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\source\repos\DX_Space\x64\Debug\BloomPixelShader.cso</FullPath>
-    </ContentFile>
-    <ContentFile>
-      <FullPath>E:\source\repos\DX_Space\x64\Debug\BlurXPixelShader.cso</FullPath>
-    </ContentFile>
-    <ContentFile>
-      <FullPath>E:\source\repos\DX_Space\x64\Debug\BlurYPixelShader.cso</FullPath>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\BlurPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
       <FullPath>E:\source\repos\DX_Space\x64\Debug\CombinePixelShader.cso</FullPath>
@@ -53,6 +47,9 @@
     </ContentFile>
     <ContentFile>
       <FullPath>E:\source\repos\DX_Space\x64\Debug\NormalVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\PhongPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
       <FullPath>E:\source\repos\DX_Space\x64\Debug\DirArrowVertexShader.cso</FullPath>

@@ -29,6 +29,7 @@ void SpaceScene::Update(float dt)
 
 void SpaceScene::InitMesh()
 {
+	return;
 	MeshData solarData = GeometryGenerator::MakeSphere(109, 30, 30);
 	auto solar = make_shared<Sphere>("Solar", Vector3(0.0f), Vector3{ 0.0f,0.01f,0.0f }, Vector3{ 0.0f,0.0f,0.0f }, Vector3(1.0f));
 	solar->Init(solarData, L"Basic", L"Basic");

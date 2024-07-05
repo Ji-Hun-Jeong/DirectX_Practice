@@ -19,7 +19,7 @@ void TestScene::Init()
 	Scene::Init();
 	m_pixelConstantData.light.lightPos = Vector3{ 0.0f,-2.4f,-5.0f };
 	m_pixelConstantData.rim.useRim = false;
-	GETCAMERA()->SetPos(Vector3(0.0f,0.0f,-3.0f));
+	GETCAMERA()->SetPos(Vector3(0.0f, 0.0f, -3.0f));
 	GETCAMERA()->SetSpeed(10.0f);
 }
 
@@ -33,29 +33,22 @@ void TestScene::Exit()
 
 void TestScene::InitMesh()
 {
-	MeshData squareData = GeometryGenerator::MakeSquare();
-	auto square = make_shared<Object>("square", Vector3(0.0f), Vector3(0.0f), Vector3(0.0f), Vector3(2.0f,1.0f,1.0f));
-	square->Init(squareData, L"Basic", L"Basic");
-	square->ReadImage("Image/PBR/Bricks/Bricks075A_1K_Color.png", TEXTURE_TYPE::ALBEDO);
-	/*square->ReadImage("Image/PBR/Bricks/Bricks075A_1K_NormalDX.png", TEXTURE_TYPE::NORMAL);
-	square->ReadImage("Image/PBR/Bricks/Bricks075A_1K_AmbientOcclusion.png", TEXTURE_TYPE::AO);
-	square->ReadImage("Image/PBR/Bricks/Bricks075A_1K_Displacement.png", TEXTURE_TYPE::HEIGHT);*/
-	square->GetPixelConstantData().mat.diffuse = Vector3(0.7f);
-	square->GetPixelConstantData().mat.specular = Vector3(0.7f);
-	m_vecObj.push_back(square);
-	
-	/*MeshData sphereData = GeometryGenerator::MakeSphere(1.0f, 30, 30);
-	auto sphere = make_shared<Sphere>("sphere", Vector3(0.0f,1.0f,1.0f), Vector3(0.0f), Vector3(0.0f), Vector3(1.0f));
+	// 포맷구조 변경 큐브맵 텍스쳐 변경
+	MeshData sphereData = GeometryGenerator::MakeSphere(1.0f, 100, 100);
+	auto sphere = make_shared<Sphere>("sphere", Vector3(0.0f, 1.0f, 1.0f), Vector3(0.0f), Vector3(0.0f), Vector3(1.0f));
 	sphere->Init(sphereData, L"Basic", L"Basic");
-	sphere->ReadImage("Image/PBR/Rock/grey_porous_rock_40_56_diffuse.jpg", TEXTURE_TYPE::ALBEDO);
-	sphere->ReadImage("Image/PBR/Rock/grey_porous_rock_40_56_normal.jpg", TEXTURE_TYPE::NORMAL);
-	sphere->ReadImage("Image/PBR/Rock/grey_porous_rock_40_56_ao.jpg", TEXTURE_TYPE::AO);
-	sphere->ReadImage("Image/PBR/Rock/grey_porous_rock_40_56_height.jpg", TEXTURE_TYPE::HEIGHT);
-	sphere->GetPixelConstantData().mat.diffuse = Vector3(0.7f);
-	sphere->GetPixelConstantData().mat.specular = Vector3(0.7f);
+	sphere->ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", TEXTURE_TYPE::SPECULAR);
+	sphere->ReadCubeImage("Image/PBR/SkyBox/SampleDiffuseHDR.dds", TEXTURE_TYPE::IRRADIANCE);
+	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_albedo.png", TEXTURE_TYPE::ALBEDO, true);
+	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_normal-dx.png", TEXTURE_TYPE::NORMAL);
+	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_ao.png", TEXTURE_TYPE::AO);
+	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_metallic.png", TEXTURE_TYPE::METAL);
+	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_roughness.png", TEXTURE_TYPE::ROUGHNESS);
+	sphere->ReadCubeImage("Image/PBR/SkyBox/SampleBrdf.dds", TEXTURE_TYPE::LUT);
+	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_height.png", TEXTURE_TYPE::HEIGHT);
 	m_vecObj.push_back(sphere);
 
-	m_focusObj = sphere;*/
+	m_focusObj = sphere;
 }
 
 void TestScene::InitCubeMap()
@@ -63,8 +56,8 @@ void TestScene::InitCubeMap()
 	MeshData sphereData = GeometryGenerator::MakeSphere(30.0f, 100, 100);
 	std::reverse(sphereData.indices.begin(), sphereData.indices.end());
 	auto sphereCube = make_shared<CubeMap>();
-	sphereCube->Init(sphereData,L"CubeMap", L"CubeMap");
-	sphereCube->ReadImage("Image/PBR/HDRI/SkyBox/SampleSpecularHDR.dds");
+	sphereCube->Init(sphereData, L"CubeMap", L"CubeMap");
+	sphereCube->ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", TEXTURE_TYPE::SPECULAR);
 	m_vecNonObj.push_back(sphereCube);
 }
 
@@ -77,23 +70,29 @@ void TestScene::UpdateGUI()
 	static bool useNormal = false;
 	static bool useAO = false;
 	static bool useHeight = false;
+	static bool useMetallic = false;
+	static bool useRoughness = false;
 	ImGui::Checkbox("Use Albedo", &useAlbedo);
 	m_pixelConstantData.useAlbedo = useAlbedo;
 	ImGui::Checkbox("Use Normal", &useNormal);
 	m_pixelConstantData.useNormal = useNormal;
 	ImGui::Checkbox("Use AO", &useAO);
 	m_pixelConstantData.useAO = useAO;
-	ImGui::SliderFloat("Exposure", &m_pixelConstantData.exposure, 0.0f, 5.0f);
-	ImGui::SliderFloat("Gamma", &m_pixelConstantData.gamma, 0.0f, 5.0f);
 	if (m_focusObj)
 	{
 		ImGui::Checkbox("Use Height", &useHeight);
 		m_useHeight = useHeight;
 		ImGui::SliderFloat("Height Scale", &m_heightScale, 0.0f, 2.0f);
 	}
-	
+	ImGui::Checkbox("Use Metallic", &useMetallic);
+	m_pixelConstantData.useMetallic = useMetallic;
+	ImGui::Checkbox("Use Roughness", &useRoughness);
+	m_pixelConstantData.useRoughness = useRoughness;
+
+	ImGui::SliderFloat("Exposure", &m_pixelConstantData.exposure, 0.0f, 5.0f);
+	ImGui::SliderFloat("Gamma", &m_pixelConstantData.gamma, 0.0f, 5.0f);
 	// ImGui::SliderFloat("Threshold", &m_pixelConstantData.bloom.threshold, 0.0f, 1.0f);
-	// ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloom.bloomStrength, 0.0f, 1.0f);
+	ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloom.bloomStrength, 0.0f, 1.0f);
 	// ImGui::SliderFloat("LightStrength", &m_pixelConstantData.light.lightStrength.x, 0.0f, 1.0f);
 	ImGui::SliderFloat3("LightPos", &m_pixelConstantData.light.lightPos.x, -5.0f, 5.0f);
 	// if (m_focusObj)

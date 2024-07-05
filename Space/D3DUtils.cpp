@@ -30,7 +30,7 @@ bool D3DUtils::CreateDeviceAndSwapChain()
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 	swapChainDesc.BufferDesc.Width = UINT(Core::GetInst().m_fWidth);
 	swapChainDesc.BufferDesc.Height = UINT(Core::GetInst().m_fHeight);
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
@@ -160,21 +160,31 @@ void D3DUtils::CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelSh
 		assert(0);
 }
 
-void D3DUtils::CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState)
+void D3DUtils::CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState, bool isClamp)
 {
 	D3D11_SAMPLER_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
 	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	if (isClamp)
+	{
+		desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	}
+	else
+	{
+		desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	}
 	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	desc.MinLOD = 0;
 	desc.MaxLOD = D3D11_FLOAT32_MAX;
 	m_device->CreateSamplerState(&desc, samplerState.GetAddressOf());
 }
 
-void D3DUtils::ReadImage(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView)
+void D3DUtils::ReadImage(const string& fileName, bool useSRGB,
+	ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView)
 {
 	int width = 0;
 	int height = 0;
@@ -189,7 +199,7 @@ void D3DUtils::ReadImage(const string& fileName, ComPtr<ID3D11Texture2D>& textur
 	}
 	else
 	{
-		format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		format = useSRGB ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM;
 		ReadLDRImage(fileName, format, image, width, height);
 	}
 
@@ -230,6 +240,15 @@ void D3DUtils::ReadHDRImage(const string& fileName, DXGI_FORMAT pixelFormat, vec
 	memcpy(image.data(), img.GetPixels(), image.size());
 }
 
+void D3DUtils::ReadCubeImage(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView)
+{
+	wstring wFileName(fileName.begin(), fileName.end());
+	CreateDDSTextureFromFileEx(m_device.Get(), wFileName.c_str(), 0
+		, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE
+		, 0, D3D11_RESOURCE_MISC_TEXTURECUBE, DDS_LOADER_FLAGS(false), (ID3D11Resource**)texture.GetAddressOf()
+		, shaderResourceView.GetAddressOf(), nullptr);
+}
+
 void D3DUtils::ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView)
 {
 	int width = 0;
@@ -268,6 +287,8 @@ void D3DUtils::ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& textu
 	m_device->CreateTexture2D(&textureDesc, &dataDesc, texture.GetAddressOf());
 	m_device->CreateShaderResourceView(texture.Get(), nullptr, shaderResourceView.GetAddressOf());
 }
+
+
 
 
 

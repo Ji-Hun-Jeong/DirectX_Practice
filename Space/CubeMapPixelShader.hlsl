@@ -1,5 +1,6 @@
 #include "Header.hlsli"
-TextureCube g_textureCubeMap : register(t0);
+TextureCube g_specularCubeMap : register(t0);
+TextureCube g_irradianceCubeMap : register(t1);
 SamplerState g_sampler : register(s0);
 cbuffer PixelConstant : register(b0)
 {
@@ -27,7 +28,7 @@ float3 ToneMapping(float3 color)
 }
 float4 main(PSInput input) : SV_TARGET
 {
-    float3 color = g_textureCubeMap.Sample(g_sampler, input.posWorld.xyz).rgb;
+    float3 color = g_specularCubeMap.Sample(g_sampler, input.posWorld.xyz).rgb;
     return float4(ToneMapping(color), 1.0f);
 
 }

@@ -8,8 +8,8 @@ public:
 	virtual void Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix);
 	virtual void Update(float dt);
 	virtual void Render(ID3D11DeviceContext* context);
-	virtual void ReadImage(const string& textureName, TEXTURE_TYPE textureType);
-
+	virtual void ReadImage(const string& textureName, TEXTURE_TYPE textureType, bool useSRGB = false);
+	void ReadCubeImage(const string& fileName, TEXTURE_TYPE textureType);
 protected:
 	virtual void UpdateVertexConstantData(float dt);
 	virtual void UpdatePixelConstantData();
@@ -53,6 +53,7 @@ protected:
 	ComPtr<ID3D11Texture2D> m_arrTexture[(UINT)TEXTURE_TYPE::END];
 	ComPtr<ID3D11ShaderResourceView> m_arrSRV[(UINT)TEXTURE_TYPE::END];
 	ComPtr<ID3D11SamplerState> m_samplerState;
+	ComPtr<ID3D11SamplerState> m_clampSampler;
 
 	D3D11_PRIMITIVE_TOPOLOGY m_topology;
 

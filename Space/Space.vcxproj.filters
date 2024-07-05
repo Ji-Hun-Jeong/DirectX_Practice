@@ -258,19 +258,13 @@
     <FxCompile Include="CopyVertexShader.hlsl">
       <Filter>Engine\Shader\FilterShader</Filter>
     </FxCompile>
-    <FxCompile Include="BloomPixelShader.hlsl">
-      <Filter>Engine\Shader\FilterShader</Filter>
-    </FxCompile>
     <FxCompile Include="CopyPixelShader.hlsl">
       <Filter>Engine\Shader\FilterShader</Filter>
     </FxCompile>
     <FxCompile Include="CombinePixelShader.hlsl">
       <Filter>Engine\Shader\FilterShader</Filter>
     </FxCompile>
-    <FxCompile Include="BlurXPixelShader.hlsl">
-      <Filter>Engine\Shader\FilterShader</Filter>
-    </FxCompile>
-    <FxCompile Include="BlurYPixelShader.hlsl">
+    <FxCompile Include="BlurPixelShader.hlsl">
       <Filter>Engine\Shader\FilterShader</Filter>
     </FxCompile>
     <FxCompile Include="DirArrowVertexShader.hlsl">
@@ -281,6 +275,9 @@
     </FxCompile>
     <FxCompile Include="DirArrowPixelShader.hlsl">
       <Filter>Engine\Shader\DirArrowShader</Filter>
+    </FxCompile>
+    <FxCompile Include="PhongPixelShader.hlsl">
+      <Filter>Engine\Shader\BasicShader</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
