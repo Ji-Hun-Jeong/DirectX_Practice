@@ -95,6 +95,7 @@ void TestScene::UpdateGUI()
 	ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloom.bloomStrength, 0.0f, 1.0f);
 	// ImGui::SliderFloat("LightStrength", &m_pixelConstantData.light.lightStrength.x, 0.0f, 1.0f);
 	ImGui::SliderFloat3("LightPos", &m_pixelConstantData.light.lightPos.x, -5.0f, 5.0f);
+	ImGui::SliderFloat("Metallic", &m_pixelConstantData.metallic, 0.0f, 1.0f);
 	// if (m_focusObj)
 	// {
 	// 	ImGui::SliderFloat3("Ambient", &m_focusObj->GetPixelConstantData().mat.ambient.x, 0.0f, 1.0f);

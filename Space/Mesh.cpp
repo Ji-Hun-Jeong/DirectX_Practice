@@ -89,6 +89,7 @@ void Mesh::UpdatePixelConstantData()
 	m_pixelConstantData.useRoughness = curScene->m_pixelConstantData.useRoughness;
 	m_pixelConstantData.exposure = curScene->m_pixelConstantData.exposure;
 	m_pixelConstantData.gamma = curScene->m_pixelConstantData.gamma;
+	m_pixelConstantData.metallic = curScene->m_pixelConstantData.metallic;
 }
 
 void Mesh::Render(ID3D11DeviceContext* context)

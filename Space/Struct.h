@@ -74,7 +74,7 @@ struct PixelConstantData	// 96
 	int useMetallic = false;
 	float exposure = 1.0f;
 	float gamma = 1.0f;
-	float dummy;
+	float metallic = 0.0f;
 };
 
 struct NormalConstantData	// 48
