@@ -83,6 +83,9 @@
     <Filter Include="Engine\Mesh\Non Object\PostProcess">
       <UniqueIdentifier>{f3087c79-6a35-451e-8e9f-c870e8b6b6c7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\ModelLoader">
+      <UniqueIdentifier>{39e2f329-09ba-4146-8aa4-7f6ff3400f2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -160,6 +163,9 @@
     <ClInclude Include="PostProcess.h">
       <Filter>Engine\Mesh\Non Object\PostProcess</Filter>
     </ClInclude>
+    <ClInclude Include="ModelLoader.h">
+      <Filter>Engine\ModelLoader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -228,6 +234,9 @@
     </ClCompile>
     <ClCompile Include="PostProcess.cpp">
       <Filter>Engine\Mesh\Non Object\PostProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelLoader.cpp">
+      <Filter>Engine\ModelLoader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

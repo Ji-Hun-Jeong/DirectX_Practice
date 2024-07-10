@@ -47,6 +47,7 @@ float3 GetNormal(PSInput input)
     return normal;
 }
 
+// 프레넬은 보는각도에 따라서 빛의 세기가 변하는것
 float3 SpecularF(float3 F0, float vdoth)
 {
     float _2Pow = (-5.55473f * vdoth - 6.98316f) * vdoth;
@@ -67,18 +68,19 @@ float3 GetSpecularByIBL(float3 albedo, float3 normal, float3 v, float3 F, float 
     return specularByIBL * (F * evBRDF.r + evBRDF.g);
 }
 
+// 주변광을 구하는 식
+// 주변광을 구할 때도 한 픽셀로 난반사, 정반사되어 들어오는 빛의 양을 계산
 float3 AmbientLighting(float3 albedo, float3 ao, float3 normal, float3 v
                      , float3 h, float metallic, float roughness)
 {
-    // 주변광을 구하는 식
-    // 주변광을 구할 때도 한 픽셀로 들어오는 주변광과 직접광을 전부 계산
     float3 F0 = 0.04f;
     float3 F = lerp(F0, albedo, metallic);
-    float3 diffuse = GetDiffuseByIBL(albedo, normal, 1.0f - F); // 얘가 다른곳에서 오는 주변광
-    float3 specular = GetSpecularByIBL(albedo, normal, v, F, roughness); // 얘는 다른곳에서 오는 직접광
+    float3 diffuse = GetDiffuseByIBL(albedo, normal, 1.0f - F); // 얘가 다른곳에서 오는 난반사
+    float3 specular = GetSpecularByIBL(albedo, normal, v, F, roughness); // 얘는 다른곳에서 오는 정반사
     return (diffuse + specular) * ao ; // 최종적으로 한 픽셀이 가지는 주변광 따라서 ao도 여기서만 곱하기
 }
 
+// Normal Distribution, 우리가 보는 방향이 미세표면의 노말인 표면의 비율 스페큘러에서 하이라이트를 결정
 float SpecularD(float ndoth,float roughness)
 {
     float aa = roughness * roughness * roughness * roughness;
@@ -92,11 +94,14 @@ float G1(float ndotx, float roughness)
     return value;
 }
 
+// Geometry Funciton, 미세표면에서 반사된 빛이 막히거나 빛이 미세표면에 박혀 못들어오는 상황,
+// 기하학적인 형태 표면이 울퉁불퉁함을 결정한다.
 float SpecularG(float ndotl, float ndotv, float roughness)
 {
     return G1(ndotl, roughness) * G1(ndotv, roughness);
 }
 
+// 실제 광원에서 물체에 맞아 반사되는 빛의 양을 계산
 float3 DirectLight(float3 albedo, float3 normal, float3 l, float3 v, float3 h, float roughness, float metallic)
 {
     float ndotl = max(dot(normal, l), 0.0f);
@@ -114,6 +119,8 @@ float3 DirectLight(float3 albedo, float3 normal, float3 l, float3 v, float3 h, f
     float G = SpecularG(ndotl, ndotv, roughness);
     // float3 kd = lerp(1.0f - F, 0.0f, metallic);
     
+    // 빛의 세기를 난반사와 정반사에 나눠서 주는 것
+    // diffuse에는 1-F, specular에는 F
     float3 diffuse = ((1.0f - F) * albedo) / pi;
     float3 specular = (F * D * G) / max(1e-5, 4.0f * ndotl * ndotv);
 
@@ -135,6 +142,6 @@ float4 main(PSInput input) : SV_TARGET
     
     float3 ambientLight = AmbientLighting(albedo, ao, normal, v, h, metallic, roughness);
     float3 directLight = DirectLight(albedo, normal, l, v, h, roughness, metallic) * ndotl * light.lightStrength;
-    float3 color = ambientLight + directLight; // ambientLight; //+ 
+    float3 color = ambientLight + directLight;
     return float4(color, 1.0f);
 }

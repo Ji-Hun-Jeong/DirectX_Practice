@@ -7,6 +7,7 @@
 #include "Scene.h"
 #include "SceneMgr.h"
 #include "CubeMap.h"
+#include "ModelLoader.h"
 
 TestScene::TestScene()
 	: Scene()
@@ -34,7 +35,7 @@ void TestScene::Exit()
 void TestScene::InitMesh()
 {
 	// 포맷구조 변경 큐브맵 텍스쳐 변경
-	MeshData sphereData = GeometryGenerator::MakeSphere(1.0f, 100, 100);
+	/*MeshData sphereData = GeometryGenerator::MakeSphere(1.0f, 100, 100);
 	auto sphere = make_shared<Sphere>("sphere", Vector3(0.0f, 1.0f, 1.0f), Vector3(0.0f), Vector3(0.0f), Vector3(1.0f));
 	sphere->Init(sphereData, L"Basic", L"Basic");
 	sphere->ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", TEXTURE_TYPE::SPECULAR);
@@ -46,9 +47,19 @@ void TestScene::InitMesh()
 	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_roughness.png", TEXTURE_TYPE::ROUGHNESS);
 	sphere->ReadCubeImage("Image/PBR/SkyBox/SampleBrdf.dds", TEXTURE_TYPE::LUT);
 	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_height.png", TEXTURE_TYPE::HEIGHT);
-	m_vecObj.push_back(sphere);
+	m_vecObj.push_back(sphere);*/
+	ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
+	auto& obj = ModelLoader::GetInst().resultMesh;
+	obj->ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", TEXTURE_TYPE::SPECULAR);
+	obj->ReadCubeImage("Image/PBR/SkyBox/SampleDiffuseHDR.dds", TEXTURE_TYPE::IRRADIANCE);
+	obj->ReadCubeImage("Image/PBR/SkyBox/SampleBrdf.dds", TEXTURE_TYPE::LUT);
+	obj->ReadImage("Image/Character/Sample/angel_armor_albedo.jpg", TEXTURE_TYPE::ALBEDO, true);
+	obj->ReadImage("Image/Character/Sample/angel_armor_metalness.jpg", TEXTURE_TYPE::METAL);
+	obj->ReadImage("Image/Character/Sample/angel_armor_normal.jpg", TEXTURE_TYPE::NORMAL);
+	obj->ReadImage("Image/Character/Sample/angel_armor_roughness.jpg", TEXTURE_TYPE::ROUGHNESS);
+	m_vecObj.push_back(obj);
 
-	m_focusObj = sphere;
+	m_focusObj = obj;
 }
 
 void TestScene::InitCubeMap()

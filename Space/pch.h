@@ -21,7 +21,6 @@
 #include <wrl.h>
 #include <directxtk/DDSTextureLoader.h>
 #include <DirectXTexEXR.h>
-#include <fp16.h>
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>

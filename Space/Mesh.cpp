@@ -149,6 +149,8 @@ void Mesh::CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11Geometry
 
 void Mesh::ReadImage(const string& textureName, TEXTURE_TYPE textureType, bool useSRGB)
 {
+	if (textureName == "")
+		return;
 	ComPtr<ID3D11Texture2D> texture;
 	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
 	D3DUtils::GetInst().ReadImage(textureName, useSRGB, texture, shaderResourceView);

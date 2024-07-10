@@ -8,6 +8,7 @@ E:\source\repos\DX_Space\Space\ImageFilter.cpp;E:\source\repos\DX_Space\Space\x6
 E:\source\repos\DX_Space\Space\KeyMgr.cpp;E:\source\repos\DX_Space\Space\x64\Debug\KeyMgr.obj
 E:\source\repos\DX_Space\Space\Main.cpp;E:\source\repos\DX_Space\Space\x64\Debug\Main.obj
 E:\source\repos\DX_Space\Space\Mesh.cpp;E:\source\repos\DX_Space\Space\x64\Debug\Mesh.obj
+E:\source\repos\DX_Space\Space\ModelLoader.cpp;E:\source\repos\DX_Space\Space\x64\Debug\ModelLoader.obj
 E:\source\repos\DX_Space\Space\NonObject.cpp;E:\source\repos\DX_Space\Space\x64\Debug\NonObject.obj
 E:\source\repos\DX_Space\Space\Object.cpp;E:\source\repos\DX_Space\Space\x64\Debug\Object.obj
 E:\source\repos\DX_Space\Space\PostProcess.cpp;E:\source\repos\DX_Space\Space\x64\Debug\PostProcess.obj
