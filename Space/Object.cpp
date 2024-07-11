@@ -7,7 +7,7 @@
 
 Object::Object()
 	: Mesh()
-	, m_normalTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+	, m_normalTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST)
 	, m_ownerObj(nullptr)
 {
 }
@@ -55,23 +55,28 @@ void Object::Update(float dt)
 	}
 }
 
-void Object::Render(ID3D11DeviceContext* context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
+void Object::Render(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
 {
 	Mesh::Render(context, viewProjBuffer);
 	if (GETCURSCENE()->m_drawNormal)
-		DrawNormal(context);
+		DrawNormal(context, viewProjBuffer);
 	for (shared_ptr<Object>& childObj : m_vecObj)
 		childObj->Render(context, viewProjBuffer);
 }
 
 
-void Object::DrawNormal(ID3D11DeviceContext* context)
+void Object::DrawNormal(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
 {
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
 	context->IASetPrimitiveTopology(m_normalTopology);
+	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
+	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	context->IASetInputLayout(m_inputLayout.Get());
 
 	context->VSSetShader(m_normalVertexShader.Get(), nullptr, 0);
 	vector<ComPtr<ID3D11Buffer>> vertexCB =
-	{ m_normalConstantBuffer ,GETCURSCENE()->m_viewProjBuffer };
+	{ m_normalConstantBuffer ,viewProjBuffer };
 	context->VSSetConstantBuffers(0, vertexCB.size(), vertexCB.data()->GetAddressOf());
 	context->VSSetShaderResources(0, 1, m_arrSRV[(UINT)TEXTURE_TYPE::NORMAL].GetAddressOf());
 	context->VSSetSamplers(0, 1, m_samplerState.GetAddressOf());
@@ -82,6 +87,7 @@ void Object::DrawNormal(ID3D11DeviceContext* context)
 	context->PSSetShader(m_normalPixelShader.Get(), nullptr, 0);
 
 	context->DrawIndexed(m_indexCount, 0, 0);
+	context->GSSetShader(nullptr, nullptr, 0);
 }
 
 void Object::UpdateVertexConstantData(float dt)

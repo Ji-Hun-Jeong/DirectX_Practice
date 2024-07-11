@@ -11,7 +11,7 @@ public:
 	bool CreateDepthStencilView(D3D11_TEXTURE2D_DESC* depthBufferDesc, ComPtr<ID3D11Texture2D>& depthBuffer, const D3D11_DEPTH_STENCIL_VIEW_DESC* depthStencilViewdesc
 		, ComPtr<ID3D11DepthStencilView>& depthStencilView);
 	bool CreateDepthStencilState(const D3D11_DEPTH_STENCIL_DESC* desc, ComPtr<ID3D11DepthStencilState>& depthStencilState);
-
+	bool CreateBlendState(const D3D11_BLEND_DESC* desc, ComPtr<ID3D11BlendState>& bs);
 	// CreateShader
 public:
 	void CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vs

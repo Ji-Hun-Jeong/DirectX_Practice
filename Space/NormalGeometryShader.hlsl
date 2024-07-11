@@ -4,7 +4,8 @@ cbuffer NormalConstant : register(b0)
     matrix model;
     matrix invTranspose;
     float normalSize;
-    float3 dummy;
+    bool useNormal;
+    float2 dummy;
 }
 cbuffer ViewProj : register(b1)
 {

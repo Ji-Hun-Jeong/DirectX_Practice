@@ -42,13 +42,13 @@ void TestScene::InitIBL()
 
 void TestScene::InitMesh()
 {
-	/*ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
+	ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
 	auto& obj = ModelLoader::GetInst().resultMesh;
 	obj->ReadImage("Image/Character/Sample/angel_armor_albedo.jpg", TEXTURE_TYPE::ALBEDO, true);
 	obj->ReadImage("Image/Character/Sample/angel_armor_metalness.jpg", TEXTURE_TYPE::METAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_normal.jpg", TEXTURE_TYPE::NORMAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_roughness.jpg", TEXTURE_TYPE::ROUGHNESS);
-	m_vecObj.push_back(obj);*/
+	m_vecObj.push_back(obj);
 
 	MeshData md = GeometryGenerator::MakeSphere(0.1f, 30, 30);
 	auto light = make_shared<Sphere>();
@@ -72,7 +72,8 @@ void TestScene::InitMesh()
 	mirror->Init(sq, L"Basic", L"Basic");
 	m_vecMirrors.push_back(mirror);
 	
-	// m_focusObj = light;
+	m_focusObj = obj;
+	m_focusObj->GetPixelConstantData().mat.selected = true;
 }
 
 void TestScene::InitCubeMap()
@@ -113,9 +114,9 @@ void TestScene::UpdateGUI()
 	ImGui::Checkbox("Use Roughness", &useRoughness);
 	m_pixelConstantData.useRoughness = useRoughness;
 
+	ImGui::SliderFloat("Alpha", &m_fAlpha, 0.0f, 1.0f);
 	ImGui::SliderFloat("Exposure", &m_pixelConstantData.exposure, 0.0f, 5.0f);
 	ImGui::SliderFloat("Gamma", &m_pixelConstantData.gamma, 0.0f, 5.0f);
-	// ImGui::SliderFloat("Threshold", &m_pixelConstantData.bloom.threshold, 0.0f, 1.0f);
 	ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloom.bloomStrength, 0.0f, 1.0f);
 	// ImGui::SliderFloat("LightStrength", &m_pixelConstantData.light.lightStrength.x, 0.0f, 1.0f);
 	ImGui::SliderFloat3("LightPos", &m_pixelConstantData.light.lightPos.x, -5.0f, 5.0f);

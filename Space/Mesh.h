@@ -7,13 +7,14 @@ public:
 public:
 	virtual void Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix);
 	virtual void Update(float dt);
-	virtual void Render(ID3D11DeviceContext* context, const ComPtr<ID3D11Buffer>& viewProjBuffer);
+	virtual void Render(ComPtr<ID3D11DeviceContext>&, const ComPtr<ID3D11Buffer>& viewProjBuffer);
 	virtual void ReadImage(const string& textureName, TEXTURE_TYPE textureType, bool useSRGB = false);
 	void ReadCubeImage(const string& fileName, TEXTURE_TYPE textureType);
+	virtual void ReadyToRender(ComPtr<ID3D11DeviceContext>&, const ComPtr<ID3D11Buffer>& viewProjBuffer);
 protected:
 	virtual void UpdateVertexConstantData(float dt);
 	virtual void UpdatePixelConstantData();
-	virtual void ReadyToRender(ID3D11DeviceContext* context, const ComPtr<ID3D11Buffer>& viewProjBuffer);
+	
 
 	void CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vertexShader);
 	void CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& pixelShader);

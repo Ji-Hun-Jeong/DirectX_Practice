@@ -77,26 +77,29 @@ void Mesh::UpdatePixelConstantData()
 	m_pixelConstantData.light = curScene->m_pixelConstantData.light;
 	m_pixelConstantData.rim = curScene->m_pixelConstantData.rim;
 	m_pixelConstantData.useAlbedo = curScene->m_pixelConstantData.useAlbedo;
-	m_pixelConstantData.useNormal = curScene->m_pixelConstantData.useNormal;
-	m_pixelConstantData.useAO = curScene->m_pixelConstantData.useAO;
-	m_pixelConstantData.useMetallic = curScene->m_pixelConstantData.useMetallic;
-	m_pixelConstantData.useRoughness = curScene->m_pixelConstantData.useRoughness;
+	if (m_pixelConstantData.mat.selected)
+	{
+		m_pixelConstantData.useNormal = curScene->m_pixelConstantData.useNormal;
+		m_pixelConstantData.useAO = curScene->m_pixelConstantData.useAO;
+		m_pixelConstantData.useMetallic = curScene->m_pixelConstantData.useMetallic;
+		m_pixelConstantData.useRoughness = curScene->m_pixelConstantData.useRoughness;
+	}
 	m_pixelConstantData.exposure = curScene->m_pixelConstantData.exposure;
 	m_pixelConstantData.gamma = curScene->m_pixelConstantData.gamma;
 	m_pixelConstantData.metallic = curScene->m_pixelConstantData.metallic;
 }
 
-void Mesh::Render(ID3D11DeviceContext* context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
+void Mesh::Render(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
 {
 	ReadyToRender(context, viewProjBuffer);
 	context->DrawIndexed(m_indexCount, 0, 0);
+	context->GSSetShader(nullptr, nullptr, 0);
 }
 
-void Mesh::ReadyToRender(ID3D11DeviceContext* context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
+void Mesh::ReadyToRender(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
 {
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	context->OMSetRenderTargets(1, SceneMgr::GetInst().GetRenderTargetView().GetAddressOf(), SceneMgr::GetInst().GetDepthStencilView().Get());
 	context->IASetPrimitiveTopology(m_topology);
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	context->IASetInputLayout(m_inputLayout.Get());

@@ -65,7 +65,7 @@ void ImageFilter::UpdatePixelConstantData()
 	m_pixelConstantData = GETCURSCENE()->m_pixelConstantData;
 }
 
-void ImageFilter::Render(ID3D11DeviceContext* context)
+void ImageFilter::Render(ComPtr<ID3D11DeviceContext>& context)
 {
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;

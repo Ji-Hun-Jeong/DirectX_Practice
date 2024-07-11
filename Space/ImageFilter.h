@@ -10,7 +10,7 @@ public:
 public:
 	virtual void Update(float dt) override;
 	virtual void UpdatePixelConstantData() override;
-	void Render(ID3D11DeviceContext* context);
+	void Render(ComPtr<ID3D11DeviceContext>& context);
 
 	// Getter, Setter
 public:

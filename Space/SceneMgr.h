@@ -26,6 +26,7 @@ public:
 	ComPtr<ID3D11DepthStencilView>& GetDepthStencilView() { return m_depthStencilView; }
 	ComPtr<ID3D11RenderTargetView>& GetRenderTargetView() { return m_renderTargetView; }
 	shared_ptr<Scene>& GetCurScene() { return m_curScene; }
+	ComPtr<ID3D11BlendState>& GetBlendState() { return m_blendState; }
 	ComPtr<ID3D11RasterizerState>& GetRSS(RSS_TYPE rssType) { return m_arrRSS[(UINT)rssType]; }
 	ComPtr<ID3D11DepthStencilState>& GetDSS(DSS_TYPE dssType) { return m_arrDSS[(UINT)dssType]; }
 private:
@@ -34,6 +35,7 @@ private:
 	void CreateViewPort();
 	void CreateRenderBuffer();
 	void SetViewPort();
+	void CreateBlendState();
 	bool CreateDepthStencilView();
 	bool CreateDepthStencilState();
 
@@ -56,6 +58,8 @@ private:
 	ComPtr<ID3D11Texture2D> m_depthBuffer;
 	ComPtr<ID3D11DepthStencilView> m_depthStencilView;
 	ComPtr<ID3D11DepthStencilState> m_arrDSS[(UINT)DSS_TYPE::END];
+
+	ComPtr<ID3D11BlendState> m_blendState;
 
 	UINT m_iNumOfMultiSamplingLevel;
 // SingleTon

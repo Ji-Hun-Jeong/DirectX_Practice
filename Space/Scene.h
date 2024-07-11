@@ -35,6 +35,7 @@ public:
 	float m_heightScale = 1.0f;
 	bool m_drawNormal = false;
 	float m_normalSize = 1.0f;
+	float m_fAlpha = 0.0f;
 
 	ComPtr<ID3D11Buffer> m_viewProjBuffer;
 	Matrix				 m_viewProj;

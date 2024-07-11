@@ -39,7 +39,7 @@ void PostProcess::Update(float dt)
 	}
 }
 
-void PostProcess::Render(ID3D11DeviceContext* context)
+void PostProcess::Render(ComPtr<ID3D11DeviceContext>& context)
 {
 	context->RSSetState(m_rss.Get());
 	for (auto& filter : m_filters)

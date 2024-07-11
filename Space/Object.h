@@ -9,8 +9,8 @@ public:
 public:
     virtual void Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix) override;
     virtual void Update(float dt) override;
-    virtual void Render(ID3D11DeviceContext* context, const ComPtr<ID3D11Buffer>& viewProjBuffer) override;
-    virtual void DrawNormal(ID3D11DeviceContext* context);
+    virtual void Render(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer) override;
+    virtual void DrawNormal(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer);
 
     virtual void UpdateVertexConstantData(float dt) override;
     virtual void UpdatePixelConstantData() override;

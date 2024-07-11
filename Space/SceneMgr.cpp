@@ -102,7 +102,7 @@ void SceneMgr::Render()
 		, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 	if (m_postProcess)
-		m_postProcess->Render(context.Get());
+		m_postProcess->Render(context);
 }
 
 void SceneMgr::ChangeCurScene(SCENE_TYPE scene)
@@ -122,6 +122,7 @@ bool SceneMgr::InitDirect3D()
 		return false;
 	CreateRenderBuffer();
 	CreateViewPort();
+	CreateBlendState();
 	SetViewPort();
 	if (!CreateDepthStencilView())
 		return false;
@@ -214,6 +215,29 @@ void SceneMgr::CreateRenderBuffer()
 void SceneMgr::SetViewPort()
 {
 	D3DUtils::GetInst().SetViewPort(&m_viewPort);
+}
+
+void SceneMgr::CreateBlendState()
+{
+	D3D11_BLEND_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.AlphaToCoverageEnable = true; // MSAA
+	desc.IndependentBlendEnable = false;
+	// 개별 RenderTarget에 대해서 설정 (최대 8개)
+	desc.RenderTarget[0].BlendEnable = true;
+	desc.RenderTarget[0].SrcBlend = D3D11_BLEND_INV_BLEND_FACTOR;
+	desc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
+	desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+
+	desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+
+	// 필요하면 RGBA 각각에 대해서도 조절 가능
+	desc.RenderTarget[0].RenderTargetWriteMask =
+		D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	D3DUtils::GetInst().CreateBlendState(&desc, m_blendState);
 }
 
 bool SceneMgr::CreateDepthStencilView()

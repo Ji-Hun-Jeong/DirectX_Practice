@@ -49,12 +49,12 @@ void DirArrow::UpdateVertexConstantData(float dt)
 	m_dirArrowConstantData.upDir = camera->GetUpDir();
 }
 
-void DirArrow::ReadyToRender(ID3D11DeviceContext* context)
+void DirArrow::ReadyToRender(ComPtr<ID3D11DeviceContext>& context)
 {
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
-	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R8G8B8A8_UINT, 0);
+	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	context->IASetPrimitiveTopology(m_topology);
 	context->IASetInputLayout(m_inputLayout.Get());
 

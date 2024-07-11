@@ -88,6 +88,12 @@ bool D3DUtils::CreateDepthStencilState(const D3D11_DEPTH_STENCIL_DESC* desc, Com
 	return true;
 }
 
+bool D3DUtils::CreateBlendState(const D3D11_BLEND_DESC* desc, ComPtr<ID3D11BlendState>& bs)
+{
+	CHECKRESULT(m_device->CreateBlendState(desc, bs.GetAddressOf()));
+	return false;
+}
+
 void D3DUtils::CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vs, const vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc, ComPtr<ID3D11InputLayout>& inputLayout)
 {
 	ComPtr<ID3DBlob> shaderBlob;
