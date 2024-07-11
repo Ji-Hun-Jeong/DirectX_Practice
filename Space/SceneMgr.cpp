@@ -282,9 +282,9 @@ bool SceneMgr::CreateDepthStencilState()
 		desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
 		desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
 		// 앞면에 대해서 어떻게 작동할지 설정
-		desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;	// stencil fail
+		desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;	// stencil success depth fail
+		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;	// stnencil success depth success
 		desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 		// 뒷면에 대해 어떻게 작동할지 설정 (뒷면도 그릴 경우)
 		desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
@@ -295,76 +295,26 @@ bool SceneMgr::CreateDepthStencilState()
 	D3DUtils::GetInst().CreateDepthStencilState(&desc, m_arrDSS[(UINT)DSS_TYPE::BASIC]);
 
 	{
-		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 		desc.DepthFunc = D3D11_COMPARISON_LESS;
 		desc.StencilEnable = true;
 		desc.StencilReadMask = 0xFF;
 		desc.StencilWriteMask = 0xFF;
 		desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 		desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
-		desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;	// 모든 비교를 다 통과하면 stencil을 업데이트
+		desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;	// OMSetDepthStencilState에서 설정한 ref값을 항상 넣어줌
 	}
 	D3DUtils::GetInst().CreateDepthStencilState(&desc, m_arrDSS[(UINT)DSS_TYPE::MASK]);
 
 	{
 		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+		desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;	// 거울을 그자리에 다시 그려야 하기 때문
 		desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 		desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		desc.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+		desc.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;	// OMSetDepthStencilState에서 설정한 ref값과 같은놈만 그림
 	}
 	D3DUtils::GetInst().CreateDepthStencilState(&desc, m_arrDSS[(UINT)DSS_TYPE::DRAWMASK]);
 	
 	return true;
 }
-
-//void SceneMgr::CreateFilters()
-//{
-//	
-//
-//	auto copyFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Copy");
-//	copyFilter->SetShaderResourceViews({ m_notMsaaSRV.Get() });
-//	m_filters.push_back(copyFilter);
-//
-//	// blur
-//	// DownSampling으로 Aliasing 현상을 줄임
-//	int down = 64;
-//	for (int height = 2; height <= down; height *= 2)
-//	{
-//		auto downFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"Copy");
-//		downFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
-//		m_filters.push_back(downFilter);
-//	}
-//
-//	// Blur처리를 하면서 원본 크기까지 UpSampling
-//	for (int height = down; height >= 1; height /= 2)
-//	{
-//		for (int i = 0; i < 5; ++i)
-//		{
-//			auto blurXFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"BlurX");
-//			blurXFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
-//			m_filters.push_back(blurXFilter);
-//
-//			auto blurYFilter = make_shared<ImageFilter>(m_fWidth / height, m_fHeight / height, L"Copy", L"BlurY");
-//			blurYFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
-//			m_filters.push_back(blurYFilter);
-//		}
-//	}
-//
-//	// 결과를 Bloom
-//	auto bloomFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Bloom");
-//	bloomFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
-//	m_filters.push_back(bloomFilter);
-//
-//	// 원본영상에 합침
-//	auto combineFilter = make_shared<ImageFilter>(m_fWidth, m_fHeight, L"Copy", L"Combine");
-//	combineFilter->SetShaderResourceViews(
-//		{
-//			copyFilter->GetShaderResourceView().Get(),
-//			m_filters.back()->GetShaderResourceView().Get() }
-//	);
-//	combineFilter->SetRenderTargetViews({ m_renderTargetView.Get() });
-//	m_filters.push_back(combineFilter);
-//}

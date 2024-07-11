@@ -5,8 +5,9 @@ Texture2D g_lutTexture : register(t2);
 Texture2D g_albedoTexture : register(t3);
 Texture2D g_normalTexture : register(t4);
 Texture2D g_aoTexture : register(t5);
-Texture2D g_metallicTexture : register(t6);
-Texture2D g_roughnessTexture : register(t7);
+Texture2D g_emissiveTexture : register(t6);
+Texture2D g_metallicTexture : register(t7);
+Texture2D g_roughnessTexture : register(t8);
 
 SamplerState g_sampler : register(s0);
 SamplerState g_clampSampler : register(s1);
@@ -29,6 +30,10 @@ cbuffer PixelConstant : register(b0)
     float exposure;
     float gamma;
     float Metallic;
+    
+    int useEmissive;
+    float Roughness;
+    float dummy[2];
 };
 
 float CalcAttenuation(float dist)
@@ -149,7 +154,7 @@ float4 main(PSInput input) : SV_TARGET
     float3 normal = useNormal ? GetNormal(input) : input.normal;
     float3 ao = useAO ? g_aoTexture.SampleLevel(g_sampler, input.uv, 0) : 1.0f;
     float metallic = useMetallic ? g_metallicTexture.Sample(g_sampler, input.uv).r : Metallic;
-    float roughness = useRoughness ? g_roughnessTexture.Sample(g_sampler, input.uv).r : 0.1f;
+    float roughness = useRoughness ? g_roughnessTexture.Sample(g_sampler, input.uv).r : Roughness;
     
     float3 l = normalize(light.lightPos - input.posWorld.xyz);
     float3 v = normalize(eyePos - input.posWorld.xyz);
@@ -158,7 +163,10 @@ float4 main(PSInput input) : SV_TARGET
     
     float3 ambientLight = AmbientLighting(albedo, ao, normal, v, h, metallic, roughness);
     float3 directLight = DirectLight(albedo, normal, l, v, h, roughness, metallic) * ndotl * light.lightStrength;
-    float3 color = ambientLight + directLight;
+    
+    float3 emissive = useEmissive ? g_emissiveTexture.SampleLevel(g_sampler, input.uv, 0) : 0.0f;
+    float3 color = (ambientLight + directLight) + emissive;
+    
     
     return float4(color, 1.0f);
 }

@@ -64,6 +64,7 @@ struct PixelConstantData	// 96
 	Material mat;
 	Bloom bloom;
 	Rim rim;
+
 	int useAlbedo = false;
 	int useNormal = false;
 	int useAO = false;
@@ -73,6 +74,10 @@ struct PixelConstantData	// 96
 	float exposure = 1.0f;
 	float gamma = 1.0f;
 	float metallic = 0.0f;
+
+	int useEmissive = false;
+	float roughness = 0.1f;
+	float dummy[2];
 };
 
 struct NormalConstantData	// 48

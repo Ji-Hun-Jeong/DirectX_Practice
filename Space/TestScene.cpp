@@ -47,6 +47,7 @@ void TestScene::InitMesh()
 	obj->ReadImage("Image/Character/Sample/angel_armor_albedo.jpg", TEXTURE_TYPE::ALBEDO, true);
 	obj->ReadImage("Image/Character/Sample/angel_armor_metalness.jpg", TEXTURE_TYPE::METAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_normal.jpg", TEXTURE_TYPE::NORMAL);
+	obj->ReadImage("Image/Character/Sample/angel_armor_e.jpg", TEXTURE_TYPE::EMISSIVE);
 	obj->ReadImage("Image/Character/Sample/angel_armor_roughness.jpg", TEXTURE_TYPE::ROUGHNESS);
 	m_vecObj.push_back(obj);
 
@@ -94,6 +95,7 @@ void TestScene::UpdateGUI()
 	static bool useAlbedo = true;
 	static bool useNormal = false;
 	static bool useAO = false;
+	static bool useEmissive = false;
 	static bool useHeight = false;
 	static bool useMetallic = false;
 	static bool useRoughness = false;
@@ -103,6 +105,8 @@ void TestScene::UpdateGUI()
 	m_pixelConstantData.useNormal = useNormal;
 	ImGui::Checkbox("Use AO", &useAO);
 	m_pixelConstantData.useAO = useAO;
+	ImGui::Checkbox("Use Emissive", &useEmissive);
+	m_pixelConstantData.useEmissive = useEmissive;
 	if (m_focusObj)
 	{
 		ImGui::Checkbox("Use Height", &useHeight);
@@ -121,13 +125,7 @@ void TestScene::UpdateGUI()
 	// ImGui::SliderFloat("LightStrength", &m_pixelConstantData.light.lightStrength.x, 0.0f, 1.0f);
 	ImGui::SliderFloat3("LightPos", &m_pixelConstantData.light.lightPos.x, -5.0f, 5.0f);
 	ImGui::SliderFloat("Metallic", &m_pixelConstantData.metallic, 0.0f, 1.0f);
-	// if (m_focusObj)
-	// {
-	// 	ImGui::SliderFloat3("Ambient", &m_focusObj->GetPixelConstantData().mat.ambient.x, 0.0f, 1.0f);
-	// 	ImGui::SliderFloat3("Diffuse", &m_focusObj->GetPixelConstantData().mat.diffuse.x, 0.0f, 1.0f);
-	// 	ImGui::SliderFloat3("Specular", &m_focusObj->GetPixelConstantData().mat.specular.x, 0.0f, 1.0f);
-	// 	ImGui::SliderFloat("Shiness", &m_focusObj->GetPixelConstantData().mat.shiness, 0.0f, 10.0f);
-	// }
+	ImGui::SliderFloat("Roughness", &m_pixelConstantData.roughness, 0.0f, 1.0f);
 	// ImGui::SliderFloat("fallOfStart", &m_pixelConstantData.light.fallOfStart, 0.0f, 5.0f);
 	// ImGui::SliderFloat("fallOfEnd", &m_pixelConstantData.light.fallOfEnd, 0.0f, 10.0f);
 }

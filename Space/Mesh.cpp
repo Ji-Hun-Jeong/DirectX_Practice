@@ -81,12 +81,14 @@ void Mesh::UpdatePixelConstantData()
 	{
 		m_pixelConstantData.useNormal = curScene->m_pixelConstantData.useNormal;
 		m_pixelConstantData.useAO = curScene->m_pixelConstantData.useAO;
+		m_pixelConstantData.useEmissive = curScene->m_pixelConstantData.useEmissive;
 		m_pixelConstantData.useMetallic = curScene->m_pixelConstantData.useMetallic;
 		m_pixelConstantData.useRoughness = curScene->m_pixelConstantData.useRoughness;
 	}
 	m_pixelConstantData.exposure = curScene->m_pixelConstantData.exposure;
 	m_pixelConstantData.gamma = curScene->m_pixelConstantData.gamma;
 	m_pixelConstantData.metallic = curScene->m_pixelConstantData.metallic;
+	m_pixelConstantData.roughness = curScene->m_pixelConstantData.roughness;
 }
 
 void Mesh::Render(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer)

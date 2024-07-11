@@ -5,11 +5,12 @@ SamplerState g_sampler : register(s0);
 cbuffer PixelConstant : register(b0)
 {
     float3 eyePos;
-    int isSun;
+    int isLight;
     Light light;
     Material mat;
     Bloom bloom;
     Rim rim;
+    
     int useAlbedo;
     int useNormal;
     int useAO;
@@ -18,7 +19,7 @@ cbuffer PixelConstant : register(b0)
     int useMetallic;
     float exposure;
     float gamma;
-    float dummy;
+    float Metallic;
 };
 float3 ToneMapping(float3 color)
 {
