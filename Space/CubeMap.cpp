@@ -20,9 +20,9 @@ void CubeMap::UpdateVertexConstantData(float dt)
 	m_vertexConstantData.model = Matrix();
 }
 
-void CubeMap::ReadyToRender(ID3D11DeviceContext* context)
+void CubeMap::ReadyToRender(ID3D11DeviceContext* context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
 {
-	Mesh::ReadyToRender(context);
+	Mesh::ReadyToRender(context, viewProjBuffer);
 	context->PSSetShaderResources(0, (UINT)TEXTURE_TYPE::IRRADIANCE - (UINT)TEXTURE_TYPE::SPECULAR + 1
 		, m_arrSRV[(UINT)TEXTURE_TYPE::SPECULAR].GetAddressOf());
 }

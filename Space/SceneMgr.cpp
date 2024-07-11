@@ -86,14 +86,14 @@ void SceneMgr::Render()
 	context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	context->OMSetRenderTargets(1, m_msaaRTV.GetAddressOf(), m_depthStencilView.Get());
-	context->OMSetDepthStencilState(m_depthStencilState.Get(), 0);
 
-	if (m_drawWireFrame)
-		context->RSSetState(m_wireRasterizerState.Get());
-	else
-		context->RSSetState(m_solidRasterizerState.Get());
 	context->RSSetViewports(1, &m_viewPort);
 
+	if (m_drawWireFrame)
+		context->RSSetState(m_arrRSS[(UINT)RSS_TYPE::WIRE].Get());
+	else
+		context->RSSetState(m_arrRSS[(UINT)RSS_TYPE::SOLID].Get());
+	
 	if (m_curScene)
 		m_curScene->Render();
 
@@ -147,15 +147,19 @@ bool SceneMgr::CreateRasterizerState()
 	desc.CullMode = D3D11_CULL_BACK;	// None, Front
 	desc.FrontCounterClockwise = false;
 	desc.DepthClipEnable = true;
+	desc.MultisampleEnable = true;
 
-	bool result = D3DUtils::GetInst().CreateRasterizerState(&desc, m_solidRasterizerState);
-	if (!result)
-		return false;
+	D3DUtils::GetInst().CreateRasterizerState(&desc, m_arrRSS[(UINT)RSS_TYPE::SOLID]);
+	
+	desc.FrontCounterClockwise = true;
+	D3DUtils::GetInst().CreateRasterizerState(&desc, m_arrRSS[(UINT)RSS_TYPE::SOLIDCCW]);
 
 	desc.FillMode = D3D11_FILL_WIREFRAME;
-	result = D3DUtils::GetInst().CreateRasterizerState(&desc, m_wireRasterizerState);
-	if (!result)
-		return false;
+	D3DUtils::GetInst().CreateRasterizerState(&desc, m_arrRSS[(UINT)RSS_TYPE::WIRECCW]);
+
+	desc.FrontCounterClockwise = false;
+	D3DUtils::GetInst().CreateRasterizerState(&desc, m_arrRSS[(UINT)RSS_TYPE::WIRE]);
+
 	return true;
 }
 
@@ -175,7 +179,7 @@ void SceneMgr::CreateRenderBuffer()
 	ComPtr<ID3D11Device>& device = D3DUtils::GetInst().GetDevice();
 	CHECKRESULT(device
 		->CheckMultisampleQualityLevels(DXGI_FORMAT_R16G16B16A16_FLOAT, 4, &m_iNumOfMultiSamplingLevel));
-	
+
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
 	desc.Width = m_fWidth;
@@ -221,7 +225,9 @@ bool SceneMgr::CreateDepthStencilView()
 	depthBufferDesc.Height = UINT(m_fHeight);
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
-	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; // 깊이에 24비트, 스텐실에 8비트 지원 32비트 z-버퍼 형식입니다.
+	// 깊이에 24비트, 스텐실에 8비트 지원 32비트 z-버퍼 형식
+	// 24비트를 깊이에 사용하지만 결국 0~1 사이로 정규화 하기에 UNORM
+	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	if (m_iNumOfMultiSamplingLevel > 0)
 	{
 		depthBufferDesc.SampleDesc.Count = 4;
@@ -244,10 +250,50 @@ bool SceneMgr::CreateDepthStencilState()
 {
 	D3D11_DEPTH_STENCIL_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
-	desc.DepthEnable = true;
-	desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	return D3DUtils::GetInst().CreateDepthStencilState(&desc, m_depthStencilState);
+	{
+		desc.DepthEnable = true;
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		desc.DepthFunc = D3D11_COMPARISON_LESS;
+		desc.StencilEnable = false; // Stencil 불필요
+		desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+		desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+		// 앞면에 대해서 어떻게 작동할지 설정
+		desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+		// 뒷면에 대해 어떻게 작동할지 설정 (뒷면도 그릴 경우)
+		desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+		desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	}
+	D3DUtils::GetInst().CreateDepthStencilState(&desc, m_arrDSS[(UINT)DSS_TYPE::BASIC]);
+
+	{
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		desc.DepthFunc = D3D11_COMPARISON_LESS;
+		desc.StencilEnable = true;
+		desc.StencilReadMask = 0xFF;
+		desc.StencilWriteMask = 0xFF;
+		desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+		desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	}
+	D3DUtils::GetInst().CreateDepthStencilState(&desc, m_arrDSS[(UINT)DSS_TYPE::MASK]);
+
+	{
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+		desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+		desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+		desc.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+	}
+	D3DUtils::GetInst().CreateDepthStencilState(&desc, m_arrDSS[(UINT)DSS_TYPE::DRAWMASK]);
+	
+	return true;
 }
 
 //void SceneMgr::CreateFilters()

@@ -2,11 +2,13 @@
 cbuffer NormalConstant : register(b0)
 {
     matrix model;
-    matrix view;
-    matrix projection;
     matrix invTranspose;
     float normalSize;
     float3 dummy;
+}
+cbuffer ViewProj : register(b1)
+{
+    matrix viewProj;
 }
 [maxvertexcount(2)]
 void main(
@@ -21,8 +23,7 @@ void main(
         float3 normal = input[0].normal;
         pos.xyz += normal * i * normalSize;
         output.posWorld = pos;
-        pos = mul(pos, view);
-        pos = mul(pos, projection);
+        pos = mul(pos, viewProj);
         output.posProj = pos;
         
         output.normal = normal;

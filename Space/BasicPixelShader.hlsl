@@ -1,19 +1,20 @@
 #include "Header.hlsli"
 TextureCube g_specularTexture : register(t0);
 TextureCube g_irradianceTexture : register(t1);
-Texture2D g_albedoTexture : register(t2);
-Texture2D g_normalTexture : register(t3);
-Texture2D g_aoTexture : register(t4);
-Texture2D g_metallicTexture : register(t5);
-Texture2D g_roughnessTexture : register(t6);
-Texture2D g_lutTexture : register(t7);
+Texture2D g_lutTexture : register(t2);
+Texture2D g_albedoTexture : register(t3);
+Texture2D g_normalTexture : register(t4);
+Texture2D g_aoTexture : register(t5);
+Texture2D g_metallicTexture : register(t6);
+Texture2D g_roughnessTexture : register(t7);
+
 SamplerState g_sampler : register(s0);
 SamplerState g_clampSampler : register(s1);
 static const float pi = 3.141592f;
 cbuffer PixelConstant : register(b0)
 {
     float3 eyePos;
-    int isSun;
+    int isLight;
     Light light;
     Material mat;
     Bloom bloom;
@@ -50,12 +51,13 @@ float3 GetNormal(PSInput input)
 // 프레넬은 보는각도에 따라서 빛의 세기가 변하는것
 float3 SpecularF(float3 F0, float vdoth)
 {
-    float _2Pow = (-5.55473f * vdoth - 6.98316f) * vdoth;
-    return F0 + ((1 - F0) * pow(2, _2Pow));
+    return F0 + (1.0 - F0) * pow(1.0 - vdoth, 5.0);
 }
 
 float3 GetDiffuseByIBL(float3 albedo, float3 normal, float3 F)
 {
+    // normal방향으로 한번만 샘플링 했을 경우 그 지점이 받을 수 있는 빛의 양을 계산해놓은 것이
+    // irradiance map
     float3 diffuseByIBL = g_irradianceTexture.Sample(g_sampler, normal).rgb;
     return F * diffuseByIBL * albedo;
 }
@@ -63,8 +65,13 @@ float3 GetDiffuseByIBL(float3 albedo, float3 normal, float3 F)
 float3 GetSpecularByIBL(float3 albedo, float3 normal, float3 v, float3 F, float roughness)
 {
     float3 reflectDir = reflect(-v, normal);
+    // IBL에 의한 specular brdf를 구하기 위해 아래의 식 (F0 ~ + ~)이 필요한데 그 식의 ~부분을
+    // 미리 Look Up Table로 만들어 둔 것이다.
+    // 아래 식의 evBRDF.r과 evBRDF.g
     float3 evBRDF = g_lutTexture.Sample(g_clampSampler, float2(dot(v, normal), 1 - roughness));
-    float3 specularByIBL = g_specularTexture.SampleLevel(g_sampler, reflectDir, 2.0f * roughness);
+    
+    // specular는 specular맵에서 완전반사방향으로 한번한 샘플링 하면된다. 정반사이기 때문에
+    float3 specularByIBL = g_specularTexture.SampleLevel(g_sampler, reflectDir, 5.0f * roughness);
     return specularByIBL * (F * evBRDF.r + evBRDF.g);
 }
 
@@ -83,15 +90,17 @@ float3 AmbientLighting(float3 albedo, float3 ao, float3 normal, float3 v
 // Normal Distribution, 우리가 보는 방향이 미세표면의 노말인 표면의 비율 스페큘러에서 하이라이트를 결정
 float SpecularD(float ndoth,float roughness)
 {
-    float aa = roughness * roughness * roughness * roughness;
-    return aa / (pi * (ndoth * ndoth * (aa - 1) + 1) * (ndoth * ndoth * (aa - 1) + 1));
+    float minRoughness = max(roughness, 1e-5);
+    float alpha = minRoughness * minRoughness;
+    float alpha2 = alpha * alpha;
+    float denom = ndoth * ndoth * (alpha2 - 1.0) + 1.0;
+    return alpha2 / (pi * denom * denom);
 }
 
 float G1(float ndotx, float roughness)
 {
-    float k = ((roughness + 1) * (roughness + 1)) / 8.0f;
-    float value = ndotx / ((ndotx * (1 - k)) + k);
-    return value;
+    float k = (roughness + 1.0) * (roughness + 1.0) / 8.0;
+    return ndotx / (ndotx * (1.0 - k) + k);
 }
 
 // Geometry Funciton, 미세표면에서 반사된 빛이 막히거나 빛이 미세표면에 박혀 못들어오는 상황,
@@ -102,6 +111,7 @@ float SpecularG(float ndotl, float ndotv, float roughness)
 }
 
 // 실제 광원에서 물체에 맞아 반사되는 빛의 양을 계산
+// 이것이 Shading Model에서의 PBR 위의 Image Based Lighting은 할지말지 결정할 수 있는 것
 float3 DirectLight(float3 albedo, float3 normal, float3 l, float3 v, float3 h, float roughness, float metallic)
 {
     float ndotl = max(dot(normal, l), 0.0f);
@@ -113,6 +123,8 @@ float3 DirectLight(float3 albedo, float3 normal, float3 l, float3 v, float3 h, f
     // F0는 반사율.
     // 흡수를 많이하면 albedo값이 적어질 것이고 반사를 전부 하면 albedo값이 되어버릴것이다.
     // 그것이 metallic에 의해 결정되는것이고
+    // metallic이 1이되어버리면 아예 반사율이 albedo가 되어버리는 것
+    // metallic이 올라갈 수록 색이 어두워지는 이유는 albedo가 0인경우이다.
     F0 = lerp(F0, albedo, metallic);
     float3 F = SpecularF(F0, vdoth);
     float D = SpecularD(ndoth, roughness);
@@ -123,17 +135,21 @@ float3 DirectLight(float3 albedo, float3 normal, float3 l, float3 v, float3 h, f
     // diffuse에는 1-F, specular에는 F
     float3 diffuse = ((1.0f - F) * albedo) / pi;
     float3 specular = (F * D * G) / max(1e-5, 4.0f * ndotl * ndotv);
+    float distance = length(l);
+    float3 lightStrength = light.lightStrength * CalcAttenuation(distance);
 
-    return diffuse + specular;
+    return (diffuse + specular) * lightStrength;
 }
 
 float4 main(PSInput input) : SV_TARGET
 {    
+    if(isLight)
+        return float4(1.0f, 1.0f, 0.0f, 1.0f);
     float3 albedo = useAlbedo ? g_albedoTexture.SampleLevel(g_sampler, input.uv, 0) : 1.0f;
     float3 normal = useNormal ? GetNormal(input) : input.normal;
     float3 ao = useAO ? g_aoTexture.SampleLevel(g_sampler, input.uv, 0) : 1.0f;
     float metallic = useMetallic ? g_metallicTexture.Sample(g_sampler, input.uv).r : Metallic;
-    float roughness = useRoughness ? g_roughnessTexture.Sample(g_sampler, input.uv).r : 0.0f;
+    float roughness = useRoughness ? g_roughnessTexture.Sample(g_sampler, input.uv).r : 0.1f;
     
     float3 l = normalize(light.lightPos - input.posWorld.xyz);
     float3 v = normalize(eyePos - input.posWorld.xyz);
@@ -143,5 +159,6 @@ float4 main(PSInput input) : SV_TARGET
     float3 ambientLight = AmbientLighting(albedo, ao, normal, v, h, metallic, roughness);
     float3 directLight = DirectLight(albedo, normal, l, v, h, roughness, metallic) * ndotl * light.lightStrength;
     float3 color = ambientLight + directLight;
+    
     return float4(color, 1.0f);
 }

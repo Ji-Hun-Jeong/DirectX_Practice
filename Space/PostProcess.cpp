@@ -18,6 +18,15 @@ PostProcess::PostProcess(float width, float height, UINT bloomLevel,
 	dx.CreatePixelShader(L"Blur", m_blurShader);
 	dx.CreatePixelShader(L"Combine", m_combineShader);
 
+	D3D11_RASTERIZER_DESC rastDesc;
+	ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC)); // Need this
+	rastDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
+	rastDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
+	rastDesc.FrontCounterClockwise = false;
+	rastDesc.DepthClipEnable = false;
+
+	D3DUtils::GetInst().GetDevice()->CreateRasterizerState(&rastDesc, m_rss.GetAddressOf());
+
 	CreateFilters(bloomLevel);
 }
 
@@ -32,6 +41,7 @@ void PostProcess::Update(float dt)
 
 void PostProcess::Render(ID3D11DeviceContext* context)
 {
+	context->RSSetState(m_rss.Get());
 	for (auto& filter : m_filters)
 	{
 		if (filter)

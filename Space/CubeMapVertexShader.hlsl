@@ -2,9 +2,11 @@
 cbuffer CubeMapConstant : register(b0)
 {
     matrix model;
-    matrix view;
-    matrix projection;
     matrix invTranspose;
+}
+cbuffer ViewProj : register(b1)
+{
+    matrix viewProj;
 }
 PSInput main(VSInput input)
 {
@@ -12,8 +14,7 @@ PSInput main(VSInput input)
     float4 pos = float4(input.position, 1.0f);
     pos = mul(pos, model);
     output.posWorld = pos;
-    pos = mul(pos, view);
-    pos = mul(pos, projection);
+    pos = mul(pos, viewProj);
     output.posProj = pos;
     
     float4 normal = float4(input.normal, 0.0f);

@@ -34,7 +34,7 @@ void SpaceScene::InitMesh()
 	auto solar = make_shared<Sphere>("Solar", Vector3(0.0f), Vector3{ 0.0f,0.01f,0.0f }, Vector3{ 0.0f,0.0f,0.0f }, Vector3(1.0f));
 	solar->Init(solarData, L"Basic", L"Basic");
 	solar->ReadImage("image/Solar.jpg", TEXTURE_TYPE::ALBEDO);
-	solar->GetPixelConstantData().isSun = 1;
+	// solar->GetPixelConstantData().isSun = 1;
 	m_vecObj.push_back(solar);
 
 	MeshData mercuryData = GeometryGenerator::MakeSphere(0.38f, 30, 30);

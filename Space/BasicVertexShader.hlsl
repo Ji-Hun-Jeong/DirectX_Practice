@@ -4,13 +4,15 @@ SamplerState g_sampler : register(s0);
 cbuffer Constant : register(b0)
 {
     matrix model;
-    matrix view;
-    matrix projection;
     matrix invTranspose;
     int useHeight;
     float heightScale;
     float2 dummy;
 };
+cbuffer ViewProj : register(b1)
+{
+    matrix viewProj;
+}
 PSInput main(VSInput input)
 {
     PSInput output;
@@ -24,13 +26,13 @@ PSInput main(VSInput input)
     pos = mul(pos, model);
     if (useHeight)
     {
+        // VS에서는 SampleLevel사용
         float height = g_heightTexture.SampleLevel(g_sampler, input.uv, 0).r;
         height = 2.0f * height - 1.0f;
         pos += float4(output.normal * height * heightScale, 0.0f);
     }
     output.posWorld = pos;
-    pos = mul(pos, view);
-    pos = mul(pos, projection);
+    pos = mul(pos, viewProj);
     
     output.posProj = pos;
     

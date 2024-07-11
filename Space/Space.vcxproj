@@ -149,6 +149,7 @@
     <ClInclude Include="ImageFilter.h" />
     <ClInclude Include="KeyMgr.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Mirror.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="NonObject.h" />
     <ClInclude Include="Object.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="KeyMgr.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Mirror.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="NonObject.cpp" />
     <ClCompile Include="Object.cpp" />

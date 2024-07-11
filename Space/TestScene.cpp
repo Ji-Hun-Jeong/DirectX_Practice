@@ -8,6 +8,7 @@
 #include "SceneMgr.h"
 #include "CubeMap.h"
 #include "ModelLoader.h"
+#include "Mirror.h"
 
 TestScene::TestScene()
 	: Scene()
@@ -18,10 +19,10 @@ TestScene::TestScene()
 void TestScene::Init()
 {
 	Scene::Init();
-	m_pixelConstantData.light.lightPos = Vector3{ 0.0f,-2.4f,-5.0f };
+	m_pixelConstantData.light.lightPos = Vector3{ 0.0f,2.0f,-1.0f };
 	m_pixelConstantData.rim.useRim = false;
-	GETCAMERA()->SetPos(Vector3(0.0f, 0.0f, -3.0f));
-	GETCAMERA()->SetSpeed(10.0f);
+	GETCAMERA()->SetPos(Vector3(0.0f, 1.0f, -1.0f));
+	GETCAMERA()->SetSpeed(5.0f);
 }
 
 void TestScene::Enter()
@@ -32,34 +33,46 @@ void TestScene::Exit()
 {
 }
 
+void TestScene::InitIBL()
+{
+	ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", TEXTURE_TYPE::SPECULAR);
+	ReadCubeImage("Image/PBR/SkyBox/SampleDiffuseHDR.dds", TEXTURE_TYPE::IRRADIANCE);
+	ReadCubeImage("Image/PBR/SkyBox/SampleBrdf.dds", TEXTURE_TYPE::LUT);
+}
+
 void TestScene::InitMesh()
 {
-	// 포맷구조 변경 큐브맵 텍스쳐 변경
-	/*MeshData sphereData = GeometryGenerator::MakeSphere(1.0f, 100, 100);
-	auto sphere = make_shared<Sphere>("sphere", Vector3(0.0f, 1.0f, 1.0f), Vector3(0.0f), Vector3(0.0f), Vector3(1.0f));
-	sphere->Init(sphereData, L"Basic", L"Basic");
-	sphere->ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", TEXTURE_TYPE::SPECULAR);
-	sphere->ReadCubeImage("Image/PBR/SkyBox/SampleDiffuseHDR.dds", TEXTURE_TYPE::IRRADIANCE);
-	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_albedo.png", TEXTURE_TYPE::ALBEDO, true);
-	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_normal-dx.png", TEXTURE_TYPE::NORMAL);
-	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_ao.png", TEXTURE_TYPE::AO);
-	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_metallic.png", TEXTURE_TYPE::METAL);
-	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_roughness.png", TEXTURE_TYPE::ROUGHNESS);
-	sphere->ReadCubeImage("Image/PBR/SkyBox/SampleBrdf.dds", TEXTURE_TYPE::LUT);
-	sphere->ReadImage("Image/PBR/Metal/worn-painted-metal_height.png", TEXTURE_TYPE::HEIGHT);
-	m_vecObj.push_back(sphere);*/
-	ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
+	/*ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
 	auto& obj = ModelLoader::GetInst().resultMesh;
-	obj->ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", TEXTURE_TYPE::SPECULAR);
-	obj->ReadCubeImage("Image/PBR/SkyBox/SampleDiffuseHDR.dds", TEXTURE_TYPE::IRRADIANCE);
-	obj->ReadCubeImage("Image/PBR/SkyBox/SampleBrdf.dds", TEXTURE_TYPE::LUT);
 	obj->ReadImage("Image/Character/Sample/angel_armor_albedo.jpg", TEXTURE_TYPE::ALBEDO, true);
 	obj->ReadImage("Image/Character/Sample/angel_armor_metalness.jpg", TEXTURE_TYPE::METAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_normal.jpg", TEXTURE_TYPE::NORMAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_roughness.jpg", TEXTURE_TYPE::ROUGHNESS);
-	m_vecObj.push_back(obj);
+	m_vecObj.push_back(obj);*/
 
-	m_focusObj = obj;
+	MeshData md = GeometryGenerator::MakeSphere(0.1f, 30, 30);
+	auto light = make_shared<Sphere>();
+	light->Init(md, L"Basic", L"Basic");
+	light->GetPixelConstantData().isLight = true;
+	m_vecObj.push_back(light);
+
+	MeshData sq = GeometryGenerator::MakeSquare();
+	auto ground = make_shared<Object>();
+	ground->Init(sq, L"Basic", L"Basic");
+	ground->ReadImage("Image/Ground.png", TEXTURE_TYPE::ALBEDO, true);
+	ground->m_rotation1 = Vector3(XM_PI / 2.0f, 0.0f, 0.0f);
+	ground->m_scale = Vector3(5.0f);
+	m_vecObj.push_back(ground);
+
+	auto mirror = make_shared<Mirror>("Mirror", Vector3(2.0f, 1.6f, 0.0f), Vector3(0.0f, 90.0f, 0.0f), Vector3(0.0f), Vector3(1.0f, 1.66f, 1.0f));
+	mirror->Init(sq, L"Basic", L"Basic");
+	m_vecMirrors.push_back(mirror);
+
+	mirror = make_shared<Mirror>("Mirror2", Vector3(0.0f, 1.6f, 2.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f), Vector3(1.0f, 1.66f, 1.0f));
+	mirror->Init(sq, L"Basic", L"Basic");
+	m_vecMirrors.push_back(mirror);
+	
+	// m_focusObj = light;
 }
 
 void TestScene::InitCubeMap()
@@ -77,7 +90,7 @@ void TestScene::UpdateGUI()
 	ImGui::Checkbox("DrawWireFrame", &SceneMgr::GetInst().m_drawWireFrame);
 	ImGui::Checkbox("DrawNormal", &m_drawNormal);
 	ImGui::SliderFloat("NormalSize", &m_normalSize, 0.0f, 2.0f);
-	static bool useAlbedo = false;
+	static bool useAlbedo = true;
 	static bool useNormal = false;
 	static bool useAO = false;
 	static bool useHeight = false;
@@ -117,3 +130,9 @@ void TestScene::UpdateGUI()
 	// ImGui::SliderFloat("fallOfStart", &m_pixelConstantData.light.fallOfStart, 0.0f, 5.0f);
 	// ImGui::SliderFloat("fallOfEnd", &m_pixelConstantData.light.fallOfEnd, 0.0f, 10.0f);
 }
+
+void TestScene::Update(float dt)
+{
+	Scene::Update(dt);
+}
+

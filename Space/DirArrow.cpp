@@ -40,6 +40,7 @@ void DirArrow::UpdateVertexConstantData(float dt)
 	float aspect = core.GetAspect();
 	float nearZ = camera->GetNearZ();
 	float farZ = camera->GetFarZ();
+
 	m_dirArrowConstantData.projection = XMMatrixOrthographicLH(2 * aspect, 2, nearZ, farZ);
 	m_dirArrowConstantData.projection = m_dirArrowConstantData.projection.Transpose();
 

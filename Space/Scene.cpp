@@ -8,15 +8,18 @@
 #include "CubeMap.h"
 #include "KeyMgr.h"
 #include "SceneMgr.h"
+#include "Mirror.h"
 
 Scene::Scene()
 	: m_camera(make_shared<Camera>())
 {
-
+	
 }
 
 void Scene::Init()
 {
+	D3DUtils::GetInst().CreateConstantBuffer<Matrix>(m_viewProj, m_viewProjBuffer);
+	InitIBL();
 	InitMesh();
 	InitCubeMap();
 }
@@ -25,10 +28,17 @@ void Scene::Update(float dt)
 {
 	m_camera->Update(dt);
 	m_pixelConstantData.eyePos = m_camera->GetPos();
-
+	m_viewProj = m_camera->m_view * m_camera->m_projection;
+	
 	if (KEYCHECK(LBUTTON, TAP))
 	{
 		CalcPickingObject();
+	}
+
+	for (auto& mirror : m_vecMirrors)
+	{
+		if (mirror)
+			mirror->Update(dt);
 	}
 
 	for (auto& obj : m_vecObj)
@@ -42,6 +52,9 @@ void Scene::Update(float dt)
 		if (nonObj)
 			nonObj->Update(dt);
 	}
+
+	m_viewProj = m_viewProj.Transpose();
+	D3DUtils::GetInst().UpdateBuffer(m_viewProjBuffer, m_viewProj);
 }
 
 void Scene::UpdateGUI()
@@ -72,21 +85,72 @@ void Scene::UpdateGUI()
 void Scene::Render()
 {
 	ComPtr<ID3D11DeviceContext>& context = D3DUtils::GetInst().GetContext();
+	context->OMSetDepthStencilState(SceneMgr::GetInst().GetDSS(DSS_TYPE::BASIC).Get(), 0);
 	for (auto& obj : m_vecObj)
 	{
 		if (obj)
-			obj->Render(context.Get());
+			obj->Render(context.Get(), m_viewProjBuffer);
 	}
 	for (auto& nonObj : m_vecNonObj)
 	{
 		if (nonObj)
-			nonObj->Render(context.Get());
+			nonObj->Render(context.Get(), m_viewProjBuffer);
 	}
+	for (int i = 0; i < m_vecMirrors.size(); ++i)
+	{
+		if (!m_vecMirrors[i]) continue;
+		context->OMSetDepthStencilState(SceneMgr::GetInst().GetDSS(DSS_TYPE::MASK).Get(), i + 1);
+		m_vecMirrors[i]->Render(context.Get(), m_viewProjBuffer);
+	}
+	for (int i = 0; i < m_vecMirrors.size(); ++i)
+	{
+		if (!m_vecMirrors[i]) continue;
+		this->RenderMirror(context, m_vecMirrors[i], i + 1);
+	}
+}
+
+void Scene::InitIBL()
+{
+}
+
+void Scene::ReadCubeImage(const string& fileName, TEXTURE_TYPE textureType)
+{
+	if (fileName == "")
+		return;
+	ComPtr<ID3D11Texture2D> texture;
+	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
+	D3DUtils::GetInst().ReadCubeImage(fileName, texture, shaderResourceView);
+
+	m_iblTexture[(UINT)textureType] = texture;
+	m_iblSRV[(UINT)textureType] = shaderResourceView;
+}
+
+void Scene::RenderMirror(ComPtr<ID3D11DeviceContext>& context, shared_ptr<Mirror>& mirror, UINT maskNum)
+{
+	context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get(),
+		D3D11_CLEAR_DEPTH, 1.0f, 0);
+	context->OMSetDepthStencilState(SceneMgr::GetInst().GetDSS(DSS_TYPE::DRAWMASK).Get(), maskNum);
+	context->RSSetState(SceneMgr::GetInst().GetRSS(RSS_TYPE::SOLIDCCW).Get());
+
+	ComPtr<ID3D11Buffer>& viewProjBuffer = mirror->GetViewProjBuffer();
+
+	for (auto& obj : m_vecObj)
+	{
+		if (obj)
+			obj->Render(context.Get(), viewProjBuffer);
+	}
+	for (auto& nonObj : m_vecNonObj)
+	{
+		if (nonObj)
+			nonObj->Render(context.Get(), viewProjBuffer);
+	}
+
+	context->RSSetState(SceneMgr::GetInst().GetRSS(RSS_TYPE::SOLID).Get());
 }
 
 void Scene::InitCubeMap()
 {
-	
+
 }
 
 void Scene::CalcPickingObject()

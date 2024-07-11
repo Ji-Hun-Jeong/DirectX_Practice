@@ -65,12 +65,6 @@ void Mesh::UpdateVertexConstantData(float dt)
 	m_vertexConstantData.model = m_vertexConstantData.model.Transpose();
 	m_vertexConstantData.invTranspose = m_vertexConstantData.invTranspose.Transpose();
 
-	m_vertexConstantData.view = GETCAMERA()->m_view;
-	m_vertexConstantData.view = m_vertexConstantData.view.Transpose();
-
-	m_vertexConstantData.projection = GETCAMERA()->m_projection;
-	m_vertexConstantData.projection = m_vertexConstantData.projection.Transpose();
-
 	m_vertexConstantData.heightScale = GETCURSCENE()->m_heightScale;
 	m_vertexConstantData.useHeight = GETCURSCENE()->m_useHeight;
 }
@@ -92,13 +86,13 @@ void Mesh::UpdatePixelConstantData()
 	m_pixelConstantData.metallic = curScene->m_pixelConstantData.metallic;
 }
 
-void Mesh::Render(ID3D11DeviceContext* context)
+void Mesh::Render(ID3D11DeviceContext* context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
 {
-	ReadyToRender(context);
+	ReadyToRender(context, viewProjBuffer);
 	context->DrawIndexed(m_indexCount, 0, 0);
 }
 
-void Mesh::ReadyToRender(ID3D11DeviceContext* context)
+void Mesh::ReadyToRender(ID3D11DeviceContext* context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
 {
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
@@ -109,7 +103,9 @@ void Mesh::ReadyToRender(ID3D11DeviceContext* context)
 	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 	context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
-	context->VSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
+	vector<ComPtr<ID3D11Buffer>> vertexCB =
+	{ m_vertexConstantBuffer , viewProjBuffer };
+	context->VSSetConstantBuffers(0, vertexCB.size(), vertexCB.data()->GetAddressOf());
 	context->VSSetShaderResources(0, 1, m_arrSRV[(UINT)TEXTURE_TYPE::HEIGHT].GetAddressOf());
 	context->VSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 

@@ -34,8 +34,8 @@ void main(
     float3 arr[3] = { viewDir, upDir, rightDir };
     arrowPos.xyz += arr[primID] * arrowSize;
     arrowPos = mul(arrowPos, model);
-    arrowPos = mul(arrowPos, view);
-    arrowPos = mul(arrowPos, projection);
+    originPos = mul(originPos, view);
+    originPos = mul(originPos, projection);
     output.posProj = arrowPos;
     output.uv = float2(1.0f, float(primID) / 2.0f);
     outputStream.Append(output);

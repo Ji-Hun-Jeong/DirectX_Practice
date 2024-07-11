@@ -50,8 +50,6 @@ struct Rim
 struct VertexConstantData
 {
 	Matrix model;
-	Matrix view;
-	Matrix projection;
 	Matrix invTranspose;
 	int useHeight = false;
 	float heightScale = 1.0f;
@@ -61,7 +59,7 @@ struct VertexConstantData
 struct PixelConstantData	// 96
 {
 	Vector3 eyePos;
-	int isSun = 0;
+	int isLight = 0;
 	Light light;
 	Material mat;
 	Bloom bloom;
@@ -80,8 +78,6 @@ struct PixelConstantData	// 96
 struct NormalConstantData	// 48
 {
 	Matrix model;
-	Matrix view;
-	Matrix projection;
 	Matrix invTranspose;
 	float normalSize = 1.0f;
 	int useNormal = false;

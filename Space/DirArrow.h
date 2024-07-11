@@ -9,7 +9,7 @@ public:
     virtual void Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix) override;
     virtual void Update(float dt) override;
     virtual void UpdateVertexConstantData(float dt) override;
-    virtual void ReadyToRender(ID3D11DeviceContext* context) override;
+    void ReadyToRender(ID3D11DeviceContext* context);
 private:
     DirArrowConstantData m_dirArrowConstantData;
 };

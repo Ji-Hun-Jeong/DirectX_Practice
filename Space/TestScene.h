@@ -12,6 +12,11 @@ public:
 	void InitMesh() override;
 	void InitCubeMap() override;
 	void UpdateGUI() override;
+	void Update(float dt) override;
+protected:
+	
+	void InitIBL() override;
+
 private:
 
 };

@@ -65,9 +65,7 @@ bool D3DUtils::CreateRenderTargetView(ID3D11Resource* resource
 
 bool D3DUtils::CreateRasterizerState(const D3D11_RASTERIZER_DESC* desc, ComPtr<ID3D11RasterizerState>& rasterizerState)
 {
-	HRESULT result = m_device->CreateRasterizerState(desc, rasterizerState.GetAddressOf());
-	if (FAILED(result))
-		return false;
+	CHECKRESULT(m_device->CreateRasterizerState(desc, rasterizerState.GetAddressOf()));
 	return true;
 }
 
@@ -79,20 +77,14 @@ void D3DUtils::SetViewPort(const D3D11_VIEWPORT* viewPort)
 bool D3DUtils::CreateDepthStencilView(D3D11_TEXTURE2D_DESC* depthBufferDesc, ComPtr<ID3D11Texture2D>& depthBuffer, const D3D11_DEPTH_STENCIL_VIEW_DESC* depthStencilViewdesc
 	, ComPtr<ID3D11DepthStencilView>& depthStencilView)
 {
-	HRESULT result = m_device->CreateTexture2D(depthBufferDesc, nullptr, depthBuffer.GetAddressOf());
-	if (FAILED(result))
-		return false;
-	result = m_device->CreateDepthStencilView(depthBuffer.Get(), depthStencilViewdesc, depthStencilView.GetAddressOf());
-	if (FAILED(result))
-		return false;
+	CHECKRESULT(m_device->CreateTexture2D(depthBufferDesc, nullptr, depthBuffer.GetAddressOf()));
+	CHECKRESULT(m_device->CreateDepthStencilView(depthBuffer.Get(), depthStencilViewdesc, depthStencilView.GetAddressOf()));
 	return true;
 }
 
 bool D3DUtils::CreateDepthStencilState(const D3D11_DEPTH_STENCIL_DESC* desc, ComPtr<ID3D11DepthStencilState>& depthStencilState)
 {
-	HRESULT result = m_device->CreateDepthStencilState(desc, depthStencilState.GetAddressOf());
-	if (FAILED(result))
-		return false;
+	CHECKRESULT(m_device->CreateDepthStencilState(desc, depthStencilState.GetAddressOf()));
 	return true;
 }
 

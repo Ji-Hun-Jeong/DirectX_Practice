@@ -23,12 +23,27 @@ enum class TEXTURE_TYPE
 {
 	SPECULAR,
 	IRRADIANCE,
+	LUT,
 	ALBEDO,
 	NORMAL,
 	AO,
 	METAL,
 	ROUGHNESS,
-	LUT,
 	HEIGHT,
+	END,
+};
+enum class RSS_TYPE
+{
+	SOLID,
+	SOLIDCCW,
+	WIRE,
+	WIRECCW,
+	END,
+};
+enum class DSS_TYPE
+{
+	BASIC,
+	MASK,
+	DRAWMASK,
 	END,
 };

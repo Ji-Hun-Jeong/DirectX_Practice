@@ -2,8 +2,6 @@
 cbuffer Constant : register(b0)
 {
     matrix model;
-    matrix view;
-    matrix projection;
     matrix invTranspose;
     float3 viewDir;
     float arrowSize = 1.0f;
@@ -12,6 +10,10 @@ cbuffer Constant : register(b0)
     float3 rightDir;
     float dummy2 = 0.0f;
 };
+cbuffer ViewProj : register(b1)
+{
+    matrix viewProj;
+}
 GSInput main(VSInput input) 
 {
     GSInput output;

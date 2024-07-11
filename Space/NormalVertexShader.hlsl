@@ -4,13 +4,15 @@ SamplerState g_sampler : register(s0);
 cbuffer NormalConstant : register(b0)
 {
     matrix model;
-    matrix view;
-    matrix projection;
     matrix invTranspose;
     float normalSize;
     bool useNormal;
     float2 dummy;
 };
+cbuffer ViewProj : register(b1)
+{
+    matrix viewProj;
+}
 float3 GetNormal(VSInput input)
 {
     float3 normal = g_normalTexture.SampleLevel(g_sampler, input.uv,0).xyz;
