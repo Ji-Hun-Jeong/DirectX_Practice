@@ -34,9 +34,6 @@ void Object::Init(const MeshData& meshData, const wstring& vertexShaderPrefix, c
 	m_arrTexture[(UINT)TEXTURE_TYPE::LUT] = GETCURSCENE()->GetIBLTexture(TEXTURE_TYPE::LUT);
 
 	D3DUtils::GetInst().CreateConstantBuffer<NormalConstantData>(m_normalConstantData, m_normalConstantBuffer);
-	CreateVertexShaderAndInputLayout(L"Normal", m_normalVertexShader);
-	CreatePixelShader(L"Normal", m_normalPixelShader);
-	CreateGeometryShader(L"Normal", m_normalGeometryShader);
 }
 
 bool Object::IsCollision(const MyRay& ray)
@@ -58,8 +55,6 @@ void Object::Update(float dt)
 void Object::Render(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
 {
 	Mesh::Render(context, viewProjBuffer);
-	if (GETCURSCENE()->m_drawNormal)
-		DrawNormal(context, viewProjBuffer);
 	for (shared_ptr<Object>& childObj : m_vecObj)
 		childObj->Render(context, viewProjBuffer);
 }
@@ -69,25 +64,18 @@ void Object::DrawNormal(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D1
 {
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	context->IASetPrimitiveTopology(m_normalTopology);
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	context->IASetInputLayout(m_inputLayout.Get());
 
-	context->VSSetShader(m_normalVertexShader.Get(), nullptr, 0);
 	vector<ComPtr<ID3D11Buffer>> vertexCB =
 	{ m_normalConstantBuffer ,viewProjBuffer };
 	context->VSSetConstantBuffers(0, vertexCB.size(), vertexCB.data()->GetAddressOf());
 	context->VSSetShaderResources(0, 1, m_arrSRV[(UINT)TEXTURE_TYPE::NORMAL].GetAddressOf());
 	context->VSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 
-	context->GSSetShader(m_normalGeometryShader.Get(), nullptr, 0);
 	context->GSSetConstantBuffers(0, vertexCB.size(), vertexCB.data()->GetAddressOf());
 
-	context->PSSetShader(m_normalPixelShader.Get(), nullptr, 0);
-
 	context->DrawIndexed(m_indexCount, 0, 0);
-	context->GSSetShader(nullptr, nullptr, 0);
 }
 
 void Object::UpdateVertexConstantData(float dt)

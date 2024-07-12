@@ -28,10 +28,10 @@
       <FullPath>E:\source\repos\DX_Space\x64\Debug\CopyVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\source\repos\DX_Space\x64\Debug\CubeMapPixelShader.cso</FullPath>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\SkyBoxPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>E:\source\repos\DX_Space\x64\Debug\CubeMapVertexShader.cso</FullPath>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\SkyBoxVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
       <FullPath>E:\source\repos\DX_Space\x64\Debug\DirArrowGeometryShader.cso</FullPath>

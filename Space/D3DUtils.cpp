@@ -158,27 +158,9 @@ void D3DUtils::CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelSh
 		assert(0);
 }
 
-void D3DUtils::CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState, bool isClamp)
+void D3DUtils::CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState, const D3D11_SAMPLER_DESC& desc)
 {
-	D3D11_SAMPLER_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	if (isClamp)
-	{
-		desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-		desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-		desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	}
-	else
-	{
-		desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	}
-	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	desc.MinLOD = 0;
-	desc.MaxLOD = D3D11_FLOAT32_MAX;
-	m_device->CreateSamplerState(&desc, samplerState.GetAddressOf());
+	CHECKRESULT(m_device->CreateSamplerState(&desc, samplerState.GetAddressOf()));
 }
 
 void D3DUtils::ReadImage(const string& fileName, bool useSRGB,

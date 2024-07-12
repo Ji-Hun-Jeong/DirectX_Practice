@@ -8,6 +8,8 @@
 #include "TestScene.h"
 #include "KeyMgr.h"
 #include "PostProcess.h"
+#include "GraphicsCommons.h"
+#include "GraphicsPSO.h"
 SceneMgr SceneMgr::m_inst;
 SceneMgr::SceneMgr()
 	: m_arrScene{}
@@ -28,13 +30,12 @@ bool SceneMgr::Init(float width, float height)
 		return false;
 	if (!InitGUI())
 		return false;
+	Graphics::InitCommonStates();
 	for (auto& scene : m_arrScene)
 	{
 		if (scene)
 			scene->Init();
 	}
-	D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-	m_notMsaaSRV->GetDesc(&desc);
 	m_postProcess = make_shared<PostProcess>(m_fWidth, m_fHeight, 2, m_notMsaaSRV, m_renderTargetView);
 	return true;
 }
@@ -87,12 +88,11 @@ void SceneMgr::Render()
 
 	context->OMSetRenderTargets(1, m_msaaRTV.GetAddressOf(), m_depthStencilView.Get());
 
-	context->RSSetViewports(1, &m_viewPort);
+	context->VSSetSamplers(0, Graphics::g_vecSamplers.size(), Graphics::g_vecSamplers.data());
+	context->GSSetSamplers(0, Graphics::g_vecSamplers.size(), Graphics::g_vecSamplers.data());
+	context->PSSetSamplers(0, Graphics::g_vecSamplers.size(), Graphics::g_vecSamplers.data());
 
-	if (m_drawWireFrame)
-		context->RSSetState(m_arrRSS[(UINT)RSS_TYPE::WIRE].Get());
-	else
-		context->RSSetState(m_arrRSS[(UINT)RSS_TYPE::SOLID].Get());
+	context->RSSetViewports(1, &m_viewPort);
 	
 	if (m_curScene)
 		m_curScene->Render();
@@ -101,6 +101,7 @@ void SceneMgr::Render()
 	context->ResolveSubresource(m_notMsaaTexture.Get(), 0, m_msaaTexture.Get(), 0
 		, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
+	Graphics::g_postProcessPSO.Setting();
 	if (m_postProcess)
 		m_postProcess->Render(context);
 }
@@ -118,15 +119,10 @@ bool SceneMgr::InitDirect3D()
 		return false;
 	if (!CreateRenderTargetView())
 		return false;
-	if (!CreateRasterizerState())
-		return false;
 	CreateRenderBuffer();
 	CreateViewPort();
-	CreateBlendState();
 	SetViewPort();
 	if (!CreateDepthStencilView())
-		return false;
-	if (!CreateDepthStencilState())
 		return false;
 	return true;
 }
@@ -138,30 +134,6 @@ bool SceneMgr::CreateRenderTargetView()
 	HRESULT result = device->CreateShaderResourceView(m_swapChainBackBuffer.Get(), nullptr, m_shaderResourceView.GetAddressOf());
 	CHECKRESULT(result);
 	return D3DUtils::GetInst().CreateRenderTargetView(m_swapChainBackBuffer.Get(), nullptr, m_renderTargetView);
-}
-
-bool SceneMgr::CreateRasterizerState()
-{
-	D3D11_RASTERIZER_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.FillMode = D3D11_FILL_SOLID;	// WireFrame
-	desc.CullMode = D3D11_CULL_BACK;	// None, Front
-	desc.FrontCounterClockwise = false;
-	desc.DepthClipEnable = true;
-	desc.MultisampleEnable = true;
-
-	D3DUtils::GetInst().CreateRasterizerState(&desc, m_arrRSS[(UINT)RSS_TYPE::SOLID]);
-	
-	desc.FrontCounterClockwise = true;
-	D3DUtils::GetInst().CreateRasterizerState(&desc, m_arrRSS[(UINT)RSS_TYPE::SOLIDCCW]);
-
-	desc.FillMode = D3D11_FILL_WIREFRAME;
-	D3DUtils::GetInst().CreateRasterizerState(&desc, m_arrRSS[(UINT)RSS_TYPE::WIRECCW]);
-
-	desc.FrontCounterClockwise = false;
-	D3DUtils::GetInst().CreateRasterizerState(&desc, m_arrRSS[(UINT)RSS_TYPE::WIRE]);
-
-	return true;
 }
 
 void SceneMgr::CreateViewPort()
@@ -217,29 +189,6 @@ void SceneMgr::SetViewPort()
 	D3DUtils::GetInst().SetViewPort(&m_viewPort);
 }
 
-void SceneMgr::CreateBlendState()
-{
-	D3D11_BLEND_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.AlphaToCoverageEnable = true; // MSAA
-	desc.IndependentBlendEnable = false;
-	// 개별 RenderTarget에 대해서 설정 (최대 8개)
-	desc.RenderTarget[0].BlendEnable = true;
-	desc.RenderTarget[0].SrcBlend = D3D11_BLEND_INV_BLEND_FACTOR;
-	desc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
-	desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-
-	desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-	desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-
-	// 필요하면 RGBA 각각에 대해서도 조절 가능
-	desc.RenderTarget[0].RenderTargetWriteMask =
-		D3D11_COLOR_WRITE_ENABLE_ALL;
-
-	D3DUtils::GetInst().CreateBlendState(&desc, m_blendState);
-}
-
 bool SceneMgr::CreateDepthStencilView()
 {
 	// DepthBuffer
@@ -268,53 +217,4 @@ bool SceneMgr::CreateDepthStencilView()
 	depthBufferDesc.MiscFlags = 0;
 
 	return D3DUtils::GetInst().CreateDepthStencilView(&depthBufferDesc, m_depthBuffer, nullptr, m_depthStencilView);
-}
-
-bool SceneMgr::CreateDepthStencilState()
-{
-	D3D11_DEPTH_STENCIL_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	{
-		desc.DepthEnable = true;
-		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		desc.DepthFunc = D3D11_COMPARISON_LESS;
-		desc.StencilEnable = false; // Stencil 불필요
-		desc.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
-		desc.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
-		// 앞면에 대해서 어떻게 작동할지 설정
-		desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;	// stencil fail
-		desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;	// stencil success depth fail
-		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;	// stnencil success depth success
-		desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-		// 뒷면에 대해 어떻게 작동할지 설정 (뒷면도 그릴 경우)
-		desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-		desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
-		desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	}
-	D3DUtils::GetInst().CreateDepthStencilState(&desc, m_arrDSS[(UINT)DSS_TYPE::BASIC]);
-
-	{
-		desc.DepthFunc = D3D11_COMPARISON_LESS;
-		desc.StencilEnable = true;
-		desc.StencilReadMask = 0xFF;
-		desc.StencilWriteMask = 0xFF;
-		desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;	// 모든 비교를 다 통과하면 stencil을 업데이트
-		desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;	// OMSetDepthStencilState에서 설정한 ref값을 항상 넣어줌
-	}
-	D3DUtils::GetInst().CreateDepthStencilState(&desc, m_arrDSS[(UINT)DSS_TYPE::MASK]);
-
-	{
-		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;	// 거울을 그자리에 다시 그려야 하기 때문
-		desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
-		desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		desc.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;	// OMSetDepthStencilState에서 설정한 ref값과 같은놈만 그림
-	}
-	D3DUtils::GetInst().CreateDepthStencilState(&desc, m_arrDSS[(UINT)DSS_TYPE::DRAWMASK]);
-	
-	return true;
 }

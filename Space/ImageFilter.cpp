@@ -73,10 +73,6 @@ void ImageFilter::Render(ComPtr<ID3D11DeviceContext>& context)
 
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	context->IASetPrimitiveTopology(m_topology);
-	context->IASetInputLayout(m_inputLayout.Get());
-
-	context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 
 	context->RSSetViewports(1, &m_viewPort);
 

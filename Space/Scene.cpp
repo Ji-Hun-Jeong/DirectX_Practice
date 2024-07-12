@@ -9,11 +9,13 @@
 #include "KeyMgr.h"
 #include "SceneMgr.h"
 #include "Mirror.h"
+#include "GraphicsCommons.h"
+#include "GraphicsPSO.h"
 
 Scene::Scene()
 	: m_camera(make_shared<Camera>())
 {
-	
+
 }
 
 void Scene::Init()
@@ -29,7 +31,7 @@ void Scene::Update(float dt)
 	m_camera->Update(dt);
 	m_pixelConstantData.eyePos = m_camera->GetPos();
 	m_viewProj = m_camera->m_view * m_camera->m_projection;
-	
+
 	if (KEYCHECK(LBUTTON, TAP))
 	{
 		CalcPickingObject();
@@ -85,25 +87,37 @@ void Scene::UpdateGUI()
 void Scene::Render()
 {
 	ComPtr<ID3D11DeviceContext>& context = D3DUtils::GetInst().GetContext();
-	context->OMSetDepthStencilState(SceneMgr::GetInst().GetDSS(DSS_TYPE::BASIC).Get(), 0);
+	bool drawSolidFrame = !SceneMgr::GetInst().m_drawWireFrame;
+	drawSolidFrame ? Graphics::g_defaultSolidPSO.Setting() : Graphics::g_defaultWirePSO.Setting();
 	for (auto& obj : m_vecObj)
 	{
 		if (obj)
 			obj->Render(context, m_viewProjBuffer);
 	}
-	
+	drawSolidFrame ? Graphics::g_skyBoxSolidPSO.Setting() : Graphics::g_skyBoxWirePSO.Setting();
 	for (auto& nonObj : m_vecNonObj)
 	{
 		if (nonObj)
 			nonObj->Render(context, m_viewProjBuffer);
 	}
-	
+	if (GETCURSCENE()->m_drawNormal)
+	{
+		Graphics::g_normalPSO.Setting();
+		for (auto& obj : m_vecObj)
+		{
+			if (obj)
+				obj->DrawNormal(context, m_viewProjBuffer);
+		}
+	}
+	drawSolidFrame ? Graphics::g_defaultSolidPSO.Setting() : Graphics::g_defaultWirePSO.Setting();
 	context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get()
 		, D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 	for (int i = 0; i < m_vecMirrors.size(); ++i)
 	{
 		if (!m_vecMirrors[i]) continue;
-		context->OMSetDepthStencilState(SceneMgr::GetInst().GetDSS(DSS_TYPE::MASK).Get(), i + 1);
+		Graphics::g_stencilMaskPSO.SetStencilRef(i + 1);
+		Graphics::g_stencilMaskPSO.Setting();
 		m_vecMirrors[i]->Render(context, m_viewProjBuffer);
 	}
 	for (int i = 0; i < m_vecMirrors.size(); ++i)
@@ -134,23 +148,25 @@ void Scene::RenderMirror(ComPtr<ID3D11DeviceContext>& context, shared_ptr<Mirror
 	SceneMgr& smgr = SceneMgr::GetInst();
 	// 여기서 거울을 그릴때마다 depth를 초기화를 해주기 때문에 거울을 하나씩 렌더링 하면 
 	// 거울 안쪽세상이 현재 세상보다 위에 그려지는 것
-	
+
 	// context->OMSetDepthStencilState(SceneMgr::GetInst().GetDSS(DSS_TYPE::MASK).Get(), i + 1);
 	// m_vecMirrors[i]->Render(context.Get(), m_viewProjBuffer); <- 이렇게 하면 안됌
-	
+
 	// 반드시 모든 거울을 스텐실처리를 하고 하나의 depthstencilview 위에서 전부 그려야한다.
 	context->ClearDepthStencilView(smgr.GetDepthStencilView().Get(),
 		D3D11_CLEAR_DEPTH, 1.0f, 0);
-	context->OMSetDepthStencilState(smgr.GetDSS(DSS_TYPE::DRAWMASK).Get(), maskNum);
-	context->RSSetState(smgr.GetRSS(RSS_TYPE::SOLIDCCW).Get());
 
 	ComPtr<ID3D11Buffer>& viewProjBuffer = mirror->GetViewProjBuffer();
 
+	Graphics::g_drawMaskSolidPSO.SetStencilRef(maskNum);
+	Graphics::g_drawMaskSolidPSO.Setting();
 	for (auto& obj : m_vecObj)
 	{
 		if (obj)
 			obj->Render(context, viewProjBuffer);
 	}
+	Graphics::g_drawMaskSkyBoxSolidPSO.SetStencilRef(maskNum);
+	Graphics::g_drawMaskSkyBoxSolidPSO.Setting();
 	for (auto& nonObj : m_vecNonObj)
 	{
 		if (nonObj)
@@ -158,14 +174,14 @@ void Scene::RenderMirror(ComPtr<ID3D11DeviceContext>& context, shared_ptr<Mirror
 	}
 
 	float alpha[4] = { m_fAlpha,m_fAlpha ,m_fAlpha ,m_fAlpha };
-	context->RSSetState(smgr.GetRSS(RSS_TYPE::SOLID).Get());
-	context->OMSetBlendState(SceneMgr::GetInst().GetBlendState().Get(), alpha, 0xFF);
+	Graphics::g_blendSolidPSO.SetStencilRef(maskNum);
+	Graphics::g_blendSolidPSO.SetBlendFactor(alpha);
+	Graphics::g_blendSolidPSO.Setting();
 	for (auto& mirror : m_vecMirrors)
 	{
 		if (!mirror) continue;
 		mirror->Render(context, m_viewProjBuffer);
 	}
-	context->OMSetBlendState(nullptr, nullptr, 0xff);
 }
 
 void Scene::InitCubeMap()

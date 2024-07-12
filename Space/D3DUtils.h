@@ -18,7 +18,7 @@ public:
 		, const vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc, ComPtr<ID3D11InputLayout>& inputLayout);
 	void CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11GeometryShader>& gs);
 	void CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& ps);
-	void CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState, bool isClamp);
+	void CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState, const D3D11_SAMPLER_DESC& desc);
 	void ReadImage(const string& fileName, bool useSRGB,  ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
 	void ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
 	void ReadCubeImage(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);

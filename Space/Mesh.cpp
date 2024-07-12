@@ -26,11 +26,6 @@ void Mesh::Init(const MeshData& meshData, const wstring& vertexShaderPrefix, con
 	D3DUtils::GetInst().CreateIndexBuffer<uint32_t>(meshData.indices, m_indexBuffer);
 	D3DUtils::GetInst().CreateConstantBuffer<VertexConstantData>(m_vertexConstantData, m_vertexConstantBuffer);
 	D3DUtils::GetInst().CreateConstantBuffer<PixelConstantData>(m_pixelConstantData, m_pixelConstantBuffer);
-	D3DUtils::GetInst().CreateSamplerState(m_samplerState, false);
-	D3DUtils::GetInst().CreateSamplerState(m_clampSampler, true);
-
-	CreateVertexShaderAndInputLayout(vertexShaderPrefix, m_vertexShader);
-	CreatePixelShader(pixelShaderPrefix, m_pixelShader);
 	// CreateGeometryShader(L"Basic", m_geometryShader);
 }
 void Mesh::Update(float dt)
@@ -95,29 +90,23 @@ void Mesh::Render(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffe
 {
 	ReadyToRender(context, viewProjBuffer);
 	context->DrawIndexed(m_indexCount, 0, 0);
-	context->GSSetShader(nullptr, nullptr, 0);
 }
 
 void Mesh::ReadyToRender(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
 {
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	context->IASetPrimitiveTopology(m_topology);
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
-	context->IASetInputLayout(m_inputLayout.Get());
 	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
 	vector<ComPtr<ID3D11Buffer>> vertexCB =
 	{ m_vertexConstantBuffer , viewProjBuffer };
 	context->VSSetConstantBuffers(0, vertexCB.size(), vertexCB.data()->GetAddressOf());
 	context->VSSetShaderResources(0, 1, m_arrSRV[(UINT)TEXTURE_TYPE::HEIGHT].GetAddressOf());
 	context->VSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 
-	context->GSSetShader(m_geometryShader.Get(), nullptr, 0);
 	context->GSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
 
-	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
 	context->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
 	static ID3D11SamplerState* samplerStates[2] = { m_samplerState.Get(),m_clampSampler.Get() };
 	context->PSSetSamplers(0, 2, samplerStates);

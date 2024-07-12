@@ -5,6 +5,7 @@
 #include "ImageFilter.h"
 #include "Scene.h"
 #include "SceneMgr.h"
+#include "GraphicsCommons.h"
 PostProcess::PostProcess(float width, float height, UINT bloomLevel,
 	ComPtr<ID3D11ShaderResourceView>& srv, ComPtr<ID3D11RenderTargetView>& rtv)
 	: m_originalSRV(srv)
@@ -15,8 +16,9 @@ PostProcess::PostProcess(float width, float height, UINT bloomLevel,
 	MeshData squareData = GeometryGenerator::MakeSquare();
 	Mesh::Init(squareData, L"Copy", L"Copy");
 	D3DUtils& dx = D3DUtils::GetInst();
-	dx.CreatePixelShader(L"Blur", m_blurShader);
-	dx.CreatePixelShader(L"Combine", m_combineShader);
+	m_blurShader = Graphics::g_blurPS;
+	m_combineShader = Graphics::g_combinePS;
+	m_pixelShader = Graphics::g_copyPS;
 
 	D3D11_RASTERIZER_DESC rastDesc;
 	ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC)); // Need this
@@ -41,7 +43,6 @@ void PostProcess::Update(float dt)
 
 void PostProcess::Render(ComPtr<ID3D11DeviceContext>& context)
 {
-	context->RSSetState(m_rss.Get());
 	for (auto& filter : m_filters)
 	{
 		if (filter)

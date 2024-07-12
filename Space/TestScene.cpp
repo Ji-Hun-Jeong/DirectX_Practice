@@ -42,14 +42,14 @@ void TestScene::InitIBL()
 
 void TestScene::InitMesh()
 {
-	ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
+	/*ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
 	auto& obj = ModelLoader::GetInst().resultMesh;
 	obj->ReadImage("Image/Character/Sample/angel_armor_albedo.jpg", TEXTURE_TYPE::ALBEDO, true);
 	obj->ReadImage("Image/Character/Sample/angel_armor_metalness.jpg", TEXTURE_TYPE::METAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_normal.jpg", TEXTURE_TYPE::NORMAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_e.jpg", TEXTURE_TYPE::EMISSIVE);
 	obj->ReadImage("Image/Character/Sample/angel_armor_roughness.jpg", TEXTURE_TYPE::ROUGHNESS);
-	m_vecObj.push_back(obj);
+	m_vecObj.push_back(obj);*/
 
 	MeshData md = GeometryGenerator::MakeSphere(0.1f, 30, 30);
 	auto light = make_shared<Sphere>();
@@ -73,7 +73,7 @@ void TestScene::InitMesh()
 	mirror->Init(sq, L"Basic", L"Basic");
 	m_vecMirrors.push_back(mirror);
 	
-	m_focusObj = obj;
+	m_focusObj = light;
 	m_focusObj->GetPixelConstantData().mat.selected = true;
 }
 
@@ -82,7 +82,7 @@ void TestScene::InitCubeMap()
 	MeshData sphereData = GeometryGenerator::MakeSphere(30.0f, 100, 100);
 	std::reverse(sphereData.indices.begin(), sphereData.indices.end());
 	auto sphereCube = make_shared<CubeMap>();
-	sphereCube->Init(sphereData, L"CubeMap", L"CubeMap");
+	sphereCube->Init(sphereData, L"SkyBox", L"CubeMap");
 	sphereCube->ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", TEXTURE_TYPE::SPECULAR);
 	m_vecNonObj.push_back(sphereCube);
 }

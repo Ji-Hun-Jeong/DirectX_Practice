@@ -38,9 +38,6 @@
     <Filter Include="Engine\Shader\BasicShader">
       <UniqueIdentifier>{a6c0ca5c-74cd-4e03-810b-f092656e0548}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Shader\CubeMapShader">
-      <UniqueIdentifier>{c8ffaa43-33d8-4152-8a73-d65f4123cdd2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Shader\NormalShader">
       <UniqueIdentifier>{68e49bcb-de5c-4660-9bb6-ad57de88e9c9}</UniqueIdentifier>
     </Filter>
@@ -88,6 +85,15 @@
     </Filter>
     <Filter Include="Engine\Mesh\Object\Mirror">
       <UniqueIdentifier>{96273d9d-643f-4679-860d-6609ac3c9d9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GraphicsCommons">
+      <UniqueIdentifier>{8b628fb7-5ca0-43cd-99ad-6dcb440ade4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GraphicsPSO">
+      <UniqueIdentifier>{c4d946f7-38f6-4299-a1b3-c3f81b20e266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Shader\SkyBoxShader">
+      <UniqueIdentifier>{c8ffaa43-33d8-4152-8a73-d65f4123cdd2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +178,12 @@
     <ClInclude Include="Mirror.h">
       <Filter>Engine\Mesh\Object\Mirror</Filter>
     </ClInclude>
+    <ClInclude Include="GraphicsCommons.h">
+      <Filter>Engine\GraphicsCommons</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsPSO.h">
+      <Filter>Engine\GraphicsPSO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -247,6 +259,12 @@
     <ClCompile Include="Mirror.cpp">
       <Filter>Engine\Mesh\Object\Mirror</Filter>
     </ClCompile>
+    <ClCompile Include="GraphicsCommons.cpp">
+      <Filter>Engine\GraphicsCommons</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsPSO.cpp">
+      <Filter>Engine\GraphicsPSO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicVertexShader.hlsl">
@@ -255,11 +273,11 @@
     <FxCompile Include="BasicPixelShader.hlsl">
       <Filter>Engine\Shader\BasicShader</Filter>
     </FxCompile>
-    <FxCompile Include="CubeMapVertexShader.hlsl">
-      <Filter>Engine\Shader\CubeMapShader</Filter>
+    <FxCompile Include="SkyBoxVertexShader.hlsl">
+      <Filter>Engine\Shader\SkyBoxShader</Filter>
     </FxCompile>
-    <FxCompile Include="CubeMapPixelShader.hlsl">
-      <Filter>Engine\Shader\CubeMapShader</Filter>
+    <FxCompile Include="SkyBoxPixelShader.hlsl">
+      <Filter>Engine\Shader\SkyBoxShader</Filter>
     </FxCompile>
     <FxCompile Include="NormalVertexShader.hlsl">
       <Filter>Engine\Shader\NormalShader</Filter>

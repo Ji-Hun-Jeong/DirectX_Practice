@@ -146,6 +146,8 @@
     <ClInclude Include="Enum.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="GraphicsCommons.h" />
+    <ClInclude Include="GraphicsPSO.h" />
     <ClInclude Include="ImageFilter.h" />
     <ClInclude Include="KeyMgr.h" />
     <ClInclude Include="Mesh.h" />
@@ -172,6 +174,8 @@
     <ClCompile Include="D3DUtils.cpp" />
     <ClCompile Include="DirArrow.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
+    <ClCompile Include="GraphicsCommons.cpp" />
+    <ClCompile Include="GraphicsPSO.cpp" />
     <ClCompile Include="ImageFilter.cpp" />
     <ClCompile Include="KeyMgr.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -245,13 +249,13 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="CubeMapPixelShader.hlsl">
+    <FxCompile Include="SkyBoxPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="CubeMapVertexShader.hlsl">
+    <FxCompile Include="SkyBoxVertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
