@@ -14,11 +14,12 @@ SceneMgr SceneMgr::m_inst;
 SceneMgr::SceneMgr()
 	: m_arrScene{}
 	, m_curScene(nullptr)
+	, m_fWidth(0.0f)
+	, m_fHeight(0.0f)
 	, m_postProcess(nullptr)
 {
 	m_arrScene[(UINT)SCENE_TYPE::SPACE] = make_shared<SpaceScene>();
 	m_arrScene[(UINT)SCENE_TYPE::TEST] = make_shared<TestScene>();
-
 	m_curScene = m_arrScene[(UINT)SCENE_TYPE::TEST];
 }
 
@@ -30,13 +31,18 @@ bool SceneMgr::Init(float width, float height)
 		return false;
 	if (!InitGUI())
 		return false;
+
 	Graphics::InitCommonStates();
+	m_postProcess = make_shared<PostProcess>(m_fWidth, m_fHeight, 2, m_notMsaaSRV, m_renderTargetView);
+	
 	for (auto& scene : m_arrScene)
 	{
 		if (scene)
 			scene->Init();
 	}
-	m_postProcess = make_shared<PostProcess>(m_fWidth, m_fHeight, 2, m_notMsaaSRV, m_renderTargetView);
+
+	m_curScene->Enter();
+
 	return true;
 }
 
@@ -64,17 +70,18 @@ bool SceneMgr::InitGUI()
 
 void SceneMgr::Update(float dt)
 {
-	if (m_curScene)
-		m_curScene->UpdateGUI();
+	m_curScene->UpdateGUI();
+
 	ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
 	ImGui::End();
 	ImGui::Render(); // 렌더링할 것들 기록 끝
-	if (m_curScene)
-		m_curScene->Update(dt);
-	if (m_postProcess)
-		m_postProcess->Update(dt);
+
+	m_curScene->Update(dt);
+
+	// m_postProcess->Update(dt);
 	if (KEYCHECK(B1, TAP))
 		ChangeCurScene(SCENE_TYPE::SPACE);
+
 	else if (KEYCHECK(B2, TAP))
 		ChangeCurScene(SCENE_TYPE::TEST);
 }
@@ -88,22 +95,16 @@ void SceneMgr::Render()
 
 	context->OMSetRenderTargets(1, m_msaaRTV.GetAddressOf(), m_depthStencilView.Get());
 
-	context->VSSetSamplers(0, Graphics::g_vecSamplers.size(), Graphics::g_vecSamplers.data());
-	context->GSSetSamplers(0, Graphics::g_vecSamplers.size(), Graphics::g_vecSamplers.data());
-	context->PSSetSamplers(0, Graphics::g_vecSamplers.size(), Graphics::g_vecSamplers.data());
-
 	context->RSSetViewports(1, &m_viewPort);
 	
-	if (m_curScene)
-		m_curScene->Render();
+	m_curScene->Render(context, m_drawWireFrame);
 
 	// 현재까지는 MSAA가 지원되는 RTV에 렌더링하였고 이제는 그걸 MSAA지원 안되는 RTV에 복사
 	context->ResolveSubresource(m_notMsaaTexture.Get(), 0, m_msaaTexture.Get(), 0
 		, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 	Graphics::g_postProcessPSO.Setting();
-	if (m_postProcess)
-		m_postProcess->Render(context);
+	m_postProcess->Render(context);
 }
 
 void SceneMgr::ChangeCurScene(SCENE_TYPE scene)

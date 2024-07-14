@@ -2,7 +2,7 @@
 #include <assimp\Importer.hpp>
 #include <assimp\postprocess.h>
 #include <assimp\scene.h>
-class Object;
+class Mesh;
 class ModelLoader 
 {
 public:
@@ -19,7 +19,7 @@ private:
 
 public:
     std::string basePath;
-    shared_ptr<Object> resultMesh;
+    shared_ptr<Mesh> resultMesh;
     // std::vector<MeshData> meshes;
     SINGLE(ModelLoader)
 };

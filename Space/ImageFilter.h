@@ -1,15 +1,12 @@
 #pragma once
-#include "NonObject.h"
 class PostProcess;
-class ImageFilter : public NonObject
+class ImageFilter
 {
 public:
-	ImageFilter(PostProcess* owner, ComPtr<ID3D11VertexShader>& vs, ComPtr<ID3D11PixelShader>& ps
+	ImageFilter(PostProcess* owner, ComPtr<ID3D11PixelShader>& ps
 		, float width, float height);
 	// Default
 public:
-	virtual void Update(float dt) override;
-	virtual void UpdatePixelConstantData() override;
 	void Render(ComPtr<ID3D11DeviceContext>& context);
 
 	// Getter, Setter
@@ -26,10 +23,12 @@ private:
 	ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 	D3D11_VIEWPORT m_viewPort;
 
+	ComPtr<ID3D11PixelShader> m_pixelShader;
+
 	vector<ID3D11ShaderResourceView*> m_anotherSRVs;
 	vector<ID3D11RenderTargetView*> m_anotherRTVs;
 
-	shared_ptr<PostProcess> m_pOwner;
+	PostProcess* m_pOwner;
 	float m_fWidth;
 	float m_fHeight;
 };

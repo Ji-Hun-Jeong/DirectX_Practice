@@ -1,5 +1,5 @@
 #include "Header.hlsli"
-cbuffer Constant : register(b0)
+cbuffer MeshConstant : register(b1)
 {
     matrix model;
     matrix invTranspose;
@@ -10,10 +10,6 @@ cbuffer Constant : register(b0)
     float3 rightDir;
     float dummy2 = 0.0f;
 };
-cbuffer ViewProj : register(b1)
-{
-    matrix viewProj;
-}
 GSInput main(VSInput input) 
 {
     GSInput output;

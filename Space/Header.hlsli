@@ -54,3 +54,25 @@ struct Rim
     float dummy;
     int useRim;
 };
+
+cbuffer GlobalConstData : register(b0)
+{
+    matrix view;
+    matrix proj;
+    matrix viewProj;
+    float3 eyePos;
+    float strengthIBL;
+
+    Light light;
+    
+    float exposure;
+    float gamma;
+    float2 dummy;
+}
+
+TextureCube g_specularTexture : register(t10);
+TextureCube g_irradianceTexture : register(t11);
+Texture2D g_lutTexture : register(t12);
+
+SamplerState g_linearSampler : register(s0);
+SamplerState g_clampSampler : register(s1);

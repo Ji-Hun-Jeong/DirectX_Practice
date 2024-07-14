@@ -55,7 +55,8 @@ namespace Graphics
 	GraphicsPSO g_skyBoxSolidPSO;
 	GraphicsPSO g_skyBoxWirePSO;
 	GraphicsPSO g_normalPSO;
-	GraphicsPSO g_stencilMaskPSO;
+	GraphicsPSO g_stencilMaskSolidPSO;
+	GraphicsPSO g_stencilMaskWirePSO;
 	GraphicsPSO g_drawMaskSolidPSO;
 	GraphicsPSO g_drawMaskWirePSO;
 	GraphicsPSO g_drawMaskSkyBoxSolidPSO;
@@ -248,9 +249,13 @@ namespace Graphics
 		g_normalPSO.SetPS(g_normalPS);
 		g_normalPSO.SetTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-		// StencilMaskPSO
-		g_stencilMaskPSO = g_defaultSolidPSO;
-		g_stencilMaskPSO.SetDSS(g_maskDSS);
+		// StencilSolidMaskPSO
+		g_stencilMaskSolidPSO = g_defaultSolidPSO;
+		g_stencilMaskSolidPSO.SetDSS(g_maskDSS);
+
+		// StencilWireMaskPSO
+		g_stencilMaskWirePSO = g_stencilMaskSolidPSO;
+		g_stencilMaskWirePSO.SetRS(g_wireCWRS);
 
 		// DrawMaskSolidPSO
 		g_drawMaskSolidPSO = g_defaultSolidPSO;

@@ -6,136 +6,148 @@
 #include "SceneMgr.h"
 
 Mesh::Mesh()
-	: Mesh(Vector3(0.0f), Vector3(0.0f), Vector3(0.0f), Vector3(1.0f), D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+	: Mesh("", Vector3(0.0f), Vector3(0.0f), Vector3(0.0f), Vector3(1.0f))
 {
 }
 
-Mesh::Mesh(const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale, D3D11_PRIMITIVE_TOPOLOGY topology)
-	: m_indexCount(0)
+Mesh::Mesh(const string& strName, const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale)
+	: m_strName(strName)
+	, m_ownerObj(nullptr)
+	, m_indexCount(0)
 	, m_translation(translation)
 	, m_rotation1(rotation1* XM_PI / 180.0f)
 	, m_rotation2(rotation2* XM_PI / 180.0f)
 	, m_scale(scale)
-	, m_topology(topology)
 {
 }
-void Mesh::Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
+void Mesh::Init(const MeshData& meshData)
 {
 	D3DUtils::GetInst().CreateVertexBuffer<Vertex>(meshData.vertices, m_vertexBuffer);
-	m_indexCount = UINT(meshData.indices.size());
 	D3DUtils::GetInst().CreateIndexBuffer<uint32_t>(meshData.indices, m_indexBuffer);
-	D3DUtils::GetInst().CreateConstantBuffer<VertexConstantData>(m_vertexConstantData, m_vertexConstantBuffer);
-	D3DUtils::GetInst().CreateConstantBuffer<PixelConstantData>(m_pixelConstantData, m_pixelConstantBuffer);
+	m_indexCount = UINT(meshData.indices.size());
+
+	D3DUtils::GetInst().CreateConstantBuffer<MeshConstData>(m_meshConstData, m_meshConstBuffer);
+	D3DUtils::GetInst().CreateConstantBuffer<MaterialConstData>(m_materialConstData, m_materialConstBuffer);
+	D3DUtils::GetInst().CreateConstantBuffer<CommonConstData>(m_commonConstData, m_commonConstBuffer);
 	// CreateGeometryShader(L"Basic", m_geometryShader);
 }
 void Mesh::Update(float dt)
 {
-	this->UpdateVertexConstantData(dt);
-	this->UpdatePixelConstantData();
-	D3DUtils::GetInst().UpdateBuffer<VertexConstantData>(m_vertexConstantBuffer, m_vertexConstantData);
-	D3DUtils::GetInst().UpdateBuffer<PixelConstantData>(m_pixelConstantBuffer, m_pixelConstantData);
+	this->UpdateMeshConstantData(dt);
+	this->UpdateMaterialConstantData();
+	this->UpdateCommonConstantData();
+	D3DUtils::GetInst().UpdateBuffer<MeshConstData>(m_meshConstData, m_meshConstBuffer);
+	D3DUtils::GetInst().UpdateBuffer<MaterialConstData>(m_materialConstData, m_materialConstBuffer);
+	D3DUtils::GetInst().UpdateBuffer<CommonConstData>(m_commonConstData, m_commonConstBuffer);
+
+	for (shared_ptr<Mesh>& childObj : m_vecObj)
+	{
+		childObj->Update(dt);
+	}
 }
 
-void Mesh::UpdateVertexConstantData(float dt)
+bool Mesh::IsCollision(MyRay ray)
+{
+	return false;
+}
+
+void Mesh::UpdateMeshConstantData(float dt)
 {
 	float time = GetTic(dt);
 
 	Quaternion rotateX = Quaternion::CreateFromAxisAngle(Vector3{ 1.0f,0.0f,0.0f }, m_rotation1.x);
-	Quaternion rotateY = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, m_rotation1.y * time);
+	Quaternion rotateY = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, m_rotation1.y);
 	Quaternion rotateZ = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,0.0f,1.0f }, m_rotation1.z);
-	m_vertexConstantData.model =
+	if (m_bIsLight)
+		m_translation = GETCURSCENE()->m_globalCD.light.lightPos;
+
+	m_meshConstData.world =
 		Matrix::CreateScale(m_scale)
 		* Matrix::CreateFromQuaternion(rotateY)
-		* Matrix::CreateFromQuaternion(rotateX)	
+		* Matrix::CreateFromQuaternion(rotateX)
 		* Matrix::CreateFromQuaternion(rotateZ)
 		* Matrix::CreateTranslation(m_translation)
-		* Matrix::CreateRotationX(m_rotation2.x * time)
-		* Matrix::CreateRotationY(m_rotation2.y * time)
-		* Matrix::CreateRotationZ(m_rotation2.z * time);
+		* Matrix::CreateRotationX(m_rotation2.x)
+		* Matrix::CreateRotationY(m_rotation2.y)
+		* Matrix::CreateRotationZ(m_rotation2.z);
 
-	m_vertexConstantData.invTranspose = m_vertexConstantData.model;
-	m_vertexConstantData.invTranspose.Translation(Vector3(0.0f));
-	m_vertexConstantData.invTranspose = m_vertexConstantData.invTranspose.Invert().Transpose();
+	if (m_ownerObj)
+		m_meshConstData.world *= m_ownerObj->m_prevTransformModel;
 
-	m_vertexConstantData.model = m_vertexConstantData.model.Transpose();
-	m_vertexConstantData.invTranspose = m_vertexConstantData.invTranspose.Transpose();
+	m_prevTransformModel = m_meshConstData.world;
 
-	m_vertexConstantData.heightScale = GETCURSCENE()->m_heightScale;
-	m_vertexConstantData.useHeight = GETCURSCENE()->m_useHeight;
+	m_meshConstData.worldIT = m_meshConstData.world;
+	m_meshConstData.worldIT.Translation(Vector3(0.0f));
+	m_meshConstData.worldIT = m_meshConstData.worldIT.Invert().Transpose();
+
+	m_meshConstData.world = m_meshConstData.world.Transpose();
+	m_meshConstData.worldIT = m_meshConstData.worldIT.Transpose();
 }
 
-void Mesh::UpdatePixelConstantData()
+void Mesh::UpdateMaterialConstantData()
 {
 	shared_ptr<Scene>& curScene = GETCURSCENE();
-	m_pixelConstantData.bloom = curScene->m_pixelConstantData.bloom;
-	m_pixelConstantData.eyePos = curScene->m_pixelConstantData.eyePos;
-	m_pixelConstantData.light = curScene->m_pixelConstantData.light;
-	m_pixelConstantData.rim = curScene->m_pixelConstantData.rim;
-	m_pixelConstantData.useAlbedo = curScene->m_pixelConstantData.useAlbedo;
-	if (m_pixelConstantData.mat.selected)
-	{
-		m_pixelConstantData.useNormal = curScene->m_pixelConstantData.useNormal;
-		m_pixelConstantData.useAO = curScene->m_pixelConstantData.useAO;
-		m_pixelConstantData.useEmissive = curScene->m_pixelConstantData.useEmissive;
-		m_pixelConstantData.useMetallic = curScene->m_pixelConstantData.useMetallic;
-		m_pixelConstantData.useRoughness = curScene->m_pixelConstantData.useRoughness;
-	}
-	m_pixelConstantData.exposure = curScene->m_pixelConstantData.exposure;
-	m_pixelConstantData.gamma = curScene->m_pixelConstantData.gamma;
-	m_pixelConstantData.metallic = curScene->m_pixelConstantData.metallic;
-	m_pixelConstantData.roughness = curScene->m_pixelConstantData.roughness;
+	m_materialConstData = curScene->m_materialCD;
+	if (!m_arrSRV[(UINT)TEXTURE_TYPE::ALBEDO])
+		m_materialConstData.useAlbedo = false;
+	if(!m_arrSRV[(UINT)TEXTURE_TYPE::AO])
+		m_materialConstData.useAO = false;
+	if (!m_arrSRV[(UINT)TEXTURE_TYPE::EMISSIVE])
+		m_materialConstData.useEmissive = false;
+	if (!m_arrSRV[(UINT)TEXTURE_TYPE::METAL])
+		m_materialConstData.useMetallic = false;
+	if (!m_arrSRV[(UINT)TEXTURE_TYPE::ROUGHNESS])
+		m_materialConstData.useRoughness = false;
+	m_materialConstData.isLight = m_bIsLight;
 }
 
-void Mesh::Render(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
+void Mesh::UpdateCommonConstantData()
 {
-	ReadyToRender(context, viewProjBuffer);
-	context->DrawIndexed(m_indexCount, 0, 0);
+	m_commonConstData = GETCURSCENE()->m_commonCD;
+	if (!m_arrSRV[(UINT)TEXTURE_TYPE::HEIGHT])
+		m_commonConstData.useHeight = false;
+	if (!m_arrSRV[(UINT)TEXTURE_TYPE::NORMAL])
+		m_commonConstData.useNormal = false;
 }
 
-void Mesh::ReadyToRender(ComPtr<ID3D11DeviceContext>& context, const ComPtr<ID3D11Buffer>& viewProjBuffer)
+void Mesh::Render(ComPtr<ID3D11DeviceContext>& context)
 {
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	vector<ComPtr<ID3D11Buffer>> vertexCB =
-	{ m_vertexConstantBuffer , viewProjBuffer };
-	context->VSSetConstantBuffers(0, vertexCB.size(), vertexCB.data()->GetAddressOf());
+	context->VSSetConstantBuffers(1, 1, m_meshConstBuffer.GetAddressOf());
+	context->VSSetConstantBuffers(2, 1, m_commonConstBuffer.GetAddressOf());
 	context->VSSetShaderResources(0, 1, m_arrSRV[(UINT)TEXTURE_TYPE::HEIGHT].GetAddressOf());
-	context->VSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 
-	context->GSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
+	context->GSSetConstantBuffers(1, 1, m_meshConstBuffer.GetAddressOf());
 
-	context->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
-	static ID3D11SamplerState* samplerStates[2] = { m_samplerState.Get(),m_clampSampler.Get() };
-	context->PSSetSamplers(0, 2, samplerStates);
-	context->PSSetShaderResources(0, (UINT)TEXTURE_TYPE::HEIGHT, m_arrSRV[(UINT)TEXTURE_TYPE::SPECULAR].GetAddressOf());
+	context->PSSetConstantBuffers(1, 1, m_materialConstBuffer.GetAddressOf());
+	context->PSSetConstantBuffers(2, 1, m_commonConstBuffer.GetAddressOf());
+	context->PSSetShaderResources(0, (UINT)TEXTURE_TYPE::END - 1, m_arrSRV[(UINT)TEXTURE_TYPE::ALBEDO].GetAddressOf());
+	context->DrawIndexed(m_indexCount, 0, 0);
+
+	for (shared_ptr<Mesh>& childObj : m_vecObj)
+		childObj->Render(context);
 }
 
-
-
-void Mesh::CreateVertexShaderAndInputLayout(const wstring& hlslPrefix, ComPtr<ID3D11VertexShader>& vertexShader)
+void Mesh::DrawNormal(ComPtr<ID3D11DeviceContext>& context)
 {
-	vector<D3D11_INPUT_ELEMENT_DESC> inputElements =
-	{
-		{"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 3 + 4 * 3, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3 + 4 * 3 + 4 * 2, D3D11_INPUT_PER_VERTEX_DATA, 0}
-	};
-	D3DUtils::GetInst().CreateVertexShaderAndInputLayout(hlslPrefix, vertexShader, inputElements, m_inputLayout);
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
+	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+	context->VSSetConstantBuffers(1, 1, m_meshConstBuffer.GetAddressOf());
+	
+	context->GSSetShaderResources(0, 1, m_arrSRV[(UINT)TEXTURE_TYPE::NORMAL].GetAddressOf());
+	context->GSSetConstantBuffers(1, 1, m_meshConstBuffer.GetAddressOf());
+	context->GSSetConstantBuffers(2, 1, m_commonConstBuffer.GetAddressOf());
+
+	context->DrawIndexed(m_indexCount, 0, 0);
 }
 
-void Mesh::CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& pixelShader)
-{
-	D3DUtils::GetInst().CreatePixelShader(hlslPrefix, pixelShader);
-}
-
-void Mesh::CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11GeometryShader>& geometryShader)
-{
-	D3DUtils::GetInst().CreateGeometryShader(hlslPrefix, geometryShader);
-}
 
 void Mesh::ReadImage(const string& textureName, TEXTURE_TYPE textureType, bool useSRGB)
 {
@@ -149,15 +161,6 @@ void Mesh::ReadImage(const string& textureName, TEXTURE_TYPE textureType, bool u
 	m_arrSRV[(UINT)textureType] = shaderResourceView;
 }
 
-void Mesh::ReadCubeImage(const string& fileName, TEXTURE_TYPE textureType)
-{
-	ComPtr<ID3D11Texture2D> texture;
-	ComPtr<ID3D11ShaderResourceView> shaderResourceView;
-	D3DUtils::GetInst().ReadCubeImage(fileName, texture, shaderResourceView);
-
-	m_arrTexture[(UINT)textureType] = texture;
-	m_arrSRV[(UINT)textureType] = shaderResourceView;
-}
 
 float Mesh::GetTic(float dt)
 {
@@ -166,5 +169,27 @@ float Mesh::GetTic(float dt)
 	if (time < 0)
 		time = 0;
 	return time;
+}
+
+bool Mesh::AttachMesh(const string& meshName, shared_ptr<Mesh> childMesh)
+{
+	if (m_strName == meshName)
+	{
+		m_vecObj.push_back(childMesh);
+		childMesh->m_ownerObj = this;
+		return true;
+	}
+	else
+	{
+		bool findChild = false;
+		for (auto& mesh : m_vecObj)
+		{
+			findChild = mesh->AttachMesh(meshName, childMesh);
+			if (findChild)
+				break;
+		}
+		return findChild;
+	}
+
 }
 

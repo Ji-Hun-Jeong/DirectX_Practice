@@ -1,39 +1,36 @@
 #include "Header.hlsli"
-TextureCube g_specularTexture : register(t0);
-TextureCube g_irradianceTexture : register(t1);
-Texture2D g_lutTexture : register(t2);
-Texture2D g_albedoTexture : register(t3);
-Texture2D g_normalTexture : register(t4);
-Texture2D g_aoTexture : register(t5);
-Texture2D g_emissiveTexture : register(t6);
-Texture2D g_metallicTexture : register(t7);
-Texture2D g_roughnessTexture : register(t8);
 
-SamplerState g_sampler : register(s0);
-SamplerState g_clampSampler : register(s1);
-static const float pi = 3.141592f;
-cbuffer PixelConstant : register(b0)
+Texture2D g_albedoTexture : register(t0);
+Texture2D g_normalTexture : register(t1);
+Texture2D g_aoTexture : register(t2);
+Texture2D g_emissiveTexture : register(t3);
+Texture2D g_metallicTexture : register(t4);
+Texture2D g_roughnessTexture : register(t5);
+
+static const float PI = 3.141592f;
+cbuffer MaterialConstant : register(b1)
 {
-    float3 eyePos;
-    int isLight;
-    Light light;
-    Material mat;
-    Bloom bloom;
-    Rim rim;
-    
+    float3 albedoFactor;
+    float metallicFactor;
+    float3 emissionFactor;
+    float roughnessFactor;
+
     int useAlbedo;
-    int useNormal;
     int useAO;
+    int useEmissive;
     int useRoughness;
     
     int useMetallic;
-    float exposure;
-    float gamma;
-    float Metallic;
-    
-    int useEmissive;
-    float Roughness;
-    float dummy[2];
+    int isLight;
+    float Dummy[2];
+};
+
+cbuffer CommonConstant : register(b2)
+{
+    int useHeight = false;
+    float heightScale = 1.0f;
+    int useNormal = false;
+    float normalSize = 1.0f;
 };
 
 float CalcAttenuation(float dist)
@@ -43,7 +40,7 @@ float CalcAttenuation(float dist)
 
 float3 GetNormal(PSInput input)
 {
-    float3 normal = g_normalTexture.Sample(g_sampler, input.uv).xyz;
+    float3 normal = g_normalTexture.Sample(g_linearSampler, input.uv).xyz;
     normal = 2.0f * normal - 1.0f;
     float3 N = input.normal;
     float3 T = normalize(input.tangent - dot(input.tangent, N) * N);
@@ -63,7 +60,7 @@ float3 GetDiffuseByIBL(float3 albedo, float3 normal, float3 F)
 {
     // normal방향으로 한번만 샘플링 했을 경우 그 지점이 받을 수 있는 빛의 양을 계산해놓은 것이
     // irradiance map
-    float3 diffuseByIBL = g_irradianceTexture.Sample(g_sampler, normal).rgb;
+    float3 diffuseByIBL = g_irradianceTexture.Sample(g_linearSampler, normal).rgb;
     return F * diffuseByIBL * albedo;
 }
 
@@ -76,7 +73,7 @@ float3 GetSpecularByIBL(float3 albedo, float3 normal, float3 v, float3 F, float 
     float3 evBRDF = g_lutTexture.Sample(g_clampSampler, float2(dot(v, normal), 1 - roughness));
     
     // specular는 specular맵에서 완전반사방향으로 한번한 샘플링 하면된다. 정반사이기 때문에
-    float3 specularByIBL = g_specularTexture.SampleLevel(g_sampler, reflectDir, 5.0f * roughness);
+    float3 specularByIBL = g_specularTexture.SampleLevel(g_linearSampler, reflectDir, 5.0f * roughness);
     return specularByIBL * (F * evBRDF.r + evBRDF.g);
 }
 
@@ -99,7 +96,7 @@ float SpecularD(float ndoth,float roughness)
     float alpha = minRoughness * minRoughness;
     float alpha2 = alpha * alpha;
     float denom = ndoth * ndoth * (alpha2 - 1.0) + 1.0;
-    return alpha2 / (pi * denom * denom);
+    return alpha2 / (PI * denom * denom);
 }
 
 float G1(float ndotx, float roughness)
@@ -138,7 +135,7 @@ float3 DirectLight(float3 albedo, float3 normal, float3 l, float3 v, float3 h, f
     
     // 빛의 세기를 난반사와 정반사에 나눠서 주는 것
     // diffuse에는 1-F, specular에는 F
-    float3 diffuse = ((1.0f - F) * albedo) / pi;
+    float3 diffuse = ((1.0f - F) * albedo) / PI;
     float3 specular = (F * D * G) / max(1e-5, 4.0f * ndotl * ndotv);
     float distance = length(l);
     float3 lightStrength = light.lightStrength * CalcAttenuation(distance);
@@ -150,11 +147,11 @@ float4 main(PSInput input) : SV_TARGET
 {    
     if(isLight)
         return float4(1.0f, 1.0f, 0.0f, 1.0f);
-    float3 albedo = useAlbedo ? g_albedoTexture.SampleLevel(g_sampler, input.uv, 0) : 1.0f;
+    float3 albedo = useAlbedo ? g_albedoTexture.SampleLevel(g_linearSampler, input.uv, 0) : albedoFactor;
     float3 normal = useNormal ? GetNormal(input) : input.normal;
-    float3 ao = useAO ? g_aoTexture.SampleLevel(g_sampler, input.uv, 0) : 1.0f;
-    float metallic = useMetallic ? g_metallicTexture.Sample(g_sampler, input.uv).r : Metallic;
-    float roughness = useRoughness ? g_roughnessTexture.Sample(g_sampler, input.uv).r : Roughness;
+    float3 ao = useAO ? g_aoTexture.SampleLevel(g_linearSampler, input.uv, 0) : 1.0f;
+    float metallic = useMetallic ? g_metallicTexture.Sample(g_linearSampler, input.uv).r : metallicFactor;
+    float roughness = useRoughness ? g_roughnessTexture.Sample(g_linearSampler, input.uv).r : roughnessFactor;
     
     float3 l = normalize(light.lightPos - input.posWorld.xyz);
     float3 v = normalize(eyePos - input.posWorld.xyz);
@@ -164,7 +161,7 @@ float4 main(PSInput input) : SV_TARGET
     float3 ambientLight = AmbientLighting(albedo, ao, normal, v, h, metallic, roughness);
     float3 directLight = DirectLight(albedo, normal, l, v, h, roughness, metallic) * ndotl * light.lightStrength;
     
-    float3 emissive = useEmissive ? g_emissiveTexture.SampleLevel(g_sampler, input.uv, 0) : 0.0f;
+    float3 emissive = useEmissive ? g_emissiveTexture.SampleLevel(g_linearSampler, input.uv, 0) : emissionFactor;
     float3 color = (ambientLight + directLight) + emissive;
     
     

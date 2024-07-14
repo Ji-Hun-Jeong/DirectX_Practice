@@ -23,22 +23,6 @@ struct Light	// 32
 	Vector3 lightStrength = Vector3(1.0f);
 	float fallOfEnd = 10.0f;
 };
-struct Material	// 48
-{
-	Vector3 ambient = Vector3(0.1f);
-	float dummy1 = 0.0f;
-	Vector3 diffuse = Vector3(0.03f);
-	int selected = false;
-	Vector3 specular = Vector3(0.1f);
-	float	shiness = 10.0f;
-};
-struct Bloom
-{
-	float threshold = 0.1f;
-	float dx = 0.0f;
-	float dy = 0.0f;
-	float bloomStrength = 0.0f;
-};
 struct Rim
 {
 	float rimStrength = 13.0f;
@@ -47,45 +31,50 @@ struct Rim
 	int useRim = true;
 };
 
-struct VertexConstantData
+// 구조체 크기를 256바이트로 맞춤
+__declspec(align(256)) struct MeshConstData
 {
-	Matrix model;
-	Matrix invTranspose;
-	int useHeight = false;
-	float heightScale = 1.0f;
+	Matrix world;
+	Matrix worldIT;	// Inverse Transpose
+};
+
+__declspec(align(256)) struct MaterialConstData
+{
+	Vector3 albedoFactor = Vector3(1.0f);
+	float metallicFactor = 0.7f;
+	Vector3 emissionFactor = Vector3(0.0f);
+	float roughnessFactor = 0.5f;
+
+	int useAlbedo = true;
+	int useAO = true;
+	int useEmissive = true;
+	int useRoughness = true;
+
+	int useMetallic = true;
+	int isLight = false;
 	float dummy[2];
 };
 
-struct PixelConstantData	// 96
+__declspec(align(256)) struct CommonConstData
 {
+	int useHeight = true;
+	float heightScale = 1.0f;
+	int useNormal = true;
+	float normalSize = 1.0f;
+};
+
+__declspec(align(256)) struct GlobalConstData
+{
+	Matrix view;
+	Matrix proj;
+	Matrix viewProj;
+
 	Vector3 eyePos;
-	int isLight = 0;
+	float strengthIBL = 1.0f;
+
 	Light light;
-	Material mat;
-	Bloom bloom;
-	Rim rim;
-
-	int useAlbedo = false;
-	int useNormal = false;
-	int useAO = false;
-	int useRoughness = false;
-
-	int useMetallic = false;
 	float exposure = 1.0f;
 	float gamma = 1.0f;
-	float metallic = 0.0f;
-
-	int useEmissive = false;
-	float roughness = 0.1f;
-	float dummy[2];
-};
-
-struct NormalConstantData	// 48
-{
-	Matrix model;
-	Matrix invTranspose;
-	float normalSize = 1.0f;
-	int useNormal = false;
 	float dummy[2];
 };
 
@@ -102,7 +91,7 @@ struct DirArrowConstantData
 	Vector3 rightDir;
 	float dummy2 = 0.0f;
 };
-static_assert(sizeof(VertexConstantData) % 16 == 0, "VertexConstantData Size Check");
-static_assert(sizeof(PixelConstantData) % 16 == 0, "PixelConstantData Size Check");
-static_assert(sizeof(NormalConstantData) % 16 == 0, "NormalConstantData Size Check");
+static_assert(sizeof(MeshConstData) % 16 == 0, "MeshConstData Size Check");
+static_assert(sizeof(MaterialConstData) % 16 == 0, "MaterialConstData Size Check");
+static_assert(sizeof(GlobalConstData) % 16 == 0, "GlobalConstData Size Check");
 static_assert(sizeof(DirArrowConstantData) % 16 == 0, "DirArrowConstantData Size Check");

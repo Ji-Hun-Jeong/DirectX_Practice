@@ -2,7 +2,7 @@
 #include "ModelLoader.h"
 #include <filesystem>
 #include <DirectXMesh.h>
-#include "Object.h"
+#include "Mesh.h"
 ModelLoader ModelLoader::m_inst;
 ModelLoader::ModelLoader()
 {
@@ -90,8 +90,8 @@ void ModelLoader::ProcessNode(aiNode* node, const aiScene* scene, Matrix tr) {
 			v.position = DirectX::SimpleMath::Vector3::Transform(v.position, m);
 		}
 		UpdateTangents(newMesh);
-		resultMesh = make_shared<Object>("Character", Vector3(0.0f), Vector3(0.0f), Vector3(0.0f), Vector3(0.01f));
-		resultMesh->Init(newMesh, L"Basic", L"Basic");
+		resultMesh = make_shared<Mesh>("Character", Vector3(0.0f), Vector3(0.0f), Vector3(0.0f), Vector3(0.01f));
+		resultMesh->Init(newMesh);
 		string albedo =
 			ReadFilename(material, aiTextureType_BASE_COLOR);
 		string emissive =

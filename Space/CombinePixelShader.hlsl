@@ -1,26 +1,14 @@
 #include "Header.hlsli"
 Texture2D g_originalTexture : register(t0);
 Texture2D g_blurTexture : register(t1);
-SamplerState g_sampler : register(s0);
-cbuffer PixelConstant : register(b0)
-{
-    float3 eyePos;
-    int isSun;
-    Light light;
-    Material mat;
-    Bloom bloom;
-    Rim rim;
-    
-    int useAlbedo = false;
-    int useNormal = false;
-    int useAO = false;
-    int useRoughness = false;
 
-    int useMetallic = false;
-    float exposure = 1.0f;
-    float gamma = 1.0f;
-    float dummy;
-};
+cbuffer ImageFilterConst : register(b1)
+{
+    float dx;
+    float dy;
+    float threshold;
+    float strength;
+}
 
 float3 ToneMapping(float3 color)
 {
@@ -32,9 +20,9 @@ float3 ToneMapping(float3 color)
 
 float4 main(PSInput input) : SV_TARGET
 {
-    float3 color1 = g_originalTexture.Sample(g_sampler, input.uv);
-    float3 color2 = g_blurTexture.Sample(g_sampler, input.uv);
-    float3 color = (1.0f - bloom.bloomStrength) * color1 + color2 * bloom.bloomStrength;
+    float3 color1 = g_originalTexture.Sample(g_linearSampler, input.uv);
+    float3 color2 = g_blurTexture.Sample(g_linearSampler, input.uv);
+    float3 color = (1.0f - strength) * color1 + color2 * strength;
     color = ToneMapping(color);
     return float4(color, 1.0f);
 }

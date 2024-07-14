@@ -14,35 +14,37 @@ PostProcess::PostProcess(float width, float height, UINT bloomLevel,
 	, m_fHeight(height)
 {
 	MeshData squareData = GeometryGenerator::MakeSquare();
-	Mesh::Init(squareData, L"Copy", L"Copy");
-	D3DUtils& dx = D3DUtils::GetInst();
+	D3DUtils::GetInst().CreateVertexBuffer<Vertex>(squareData.vertices, m_vertexBuffer);
+	m_indexCount = squareData.indices.size();
+	D3DUtils::GetInst().CreateIndexBuffer<uint32_t>(squareData.indices, m_indexBuffer);
+
+	m_vertexShader = Graphics::g_basicVS;
 	m_blurShader = Graphics::g_blurPS;
 	m_combineShader = Graphics::g_combinePS;
-	m_pixelShader = Graphics::g_copyPS;
+	m_copyShader = Graphics::g_copyPS;
 
-	D3D11_RASTERIZER_DESC rastDesc;
-	ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC)); // Need this
-	rastDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
-	rastDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
-	rastDesc.FrontCounterClockwise = false;
-	rastDesc.DepthClipEnable = false;
+	m_constData.dx = 1.0f / (SceneMgr::GetInst().m_fWidth);
+	m_constData.dy = 1.0f / (SceneMgr::GetInst().m_fHeight);
+	m_constData.strength = 0.0f;
+	m_constData.threshold = 1.0f;
 
-	D3DUtils::GetInst().GetDevice()->CreateRasterizerState(&rastDesc, m_rss.GetAddressOf());
-
+	D3DUtils::GetInst().CreateConstantBuffer<ImageFilterConstData>(m_constData, m_constBuffer);
 	CreateFilters(bloomLevel);
 }
 
 void PostProcess::Update(float dt)
 {
-	for (auto& filter : m_filters)
-	{
-		if (filter)
-			filter->Update(dt);
-	}
+	D3DUtils::GetInst().UpdateBuffer<ImageFilterConstData>(m_constData, m_constBuffer);
 }
 
 void PostProcess::Render(ComPtr<ID3D11DeviceContext>& context)
 {
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
+	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	
+	context->PSSetConstantBuffers(1, 1, m_constBuffer.GetAddressOf());
 	for (auto& filter : m_filters)
 	{
 		if (filter)
@@ -52,10 +54,8 @@ void PostProcess::Render(ComPtr<ID3D11DeviceContext>& context)
 
 void PostProcess::CreateFilters(UINT bloomLevel)
 {
-	GETCURSCENE()->m_pixelConstantData.bloom.dx = 1.0f / m_fWidth;
-	GETCURSCENE()->m_pixelConstantData.bloom.dy = 1.0f / m_fHeight;
 	// imagefilter가 postprocess를 가지는형식으로
-	auto copyFilter = make_shared<ImageFilter>(this, m_vertexShader, m_pixelShader, m_fWidth, m_fHeight);
+	auto copyFilter = make_shared<ImageFilter>(this, m_copyShader, m_fWidth, m_fHeight);
 	copyFilter->SetShaderResourceViews({ m_originalSRV.Get() });
 	m_filters.push_back(copyFilter);
 
@@ -65,7 +65,7 @@ void PostProcess::CreateFilters(UINT bloomLevel)
 		const int width = int(m_fWidth) / divideValue;
 		const int height = int(m_fHeight) / divideValue;
 
-		auto blurXFilter = make_shared<ImageFilter>(this, m_vertexShader, m_blurShader, width, height);
+		auto blurXFilter = make_shared<ImageFilter>(this, m_blurShader, width, height);
 		blurXFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
 		m_filters.push_back(blurXFilter);
 	}
@@ -76,13 +76,13 @@ void PostProcess::CreateFilters(UINT bloomLevel)
 		const int width = int(m_fWidth) / divideValue;
 		const int height = int(m_fHeight) / divideValue;
 
-		auto blurXFilter = make_shared<ImageFilter>(this, m_vertexShader, m_blurShader, width, height);
+		auto blurXFilter = make_shared<ImageFilter>(this, m_blurShader, width, height);
 		blurXFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
 		m_filters.push_back(blurXFilter);
 
 	}
 
-	auto combineFilter = make_shared<ImageFilter>(this, m_vertexShader, m_combineShader, m_fWidth, m_fHeight);
+	auto combineFilter = make_shared<ImageFilter>(this, m_combineShader, m_fWidth, m_fHeight);
 	combineFilter->SetShaderResourceViews({ copyFilter->GetShaderResourceView().Get()
 		,m_filters.back()->GetShaderResourceView().Get() });
 	combineFilter->SetRenderTargetViews({ m_finalRTV.Get() });

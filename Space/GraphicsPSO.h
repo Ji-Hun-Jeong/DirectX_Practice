@@ -14,9 +14,9 @@ public:
 	void SetRS(ComPtr<ID3D11RasterizerState>& rs) { m_rasterizerState = rs; }
 	void SetDSS(ComPtr<ID3D11DepthStencilState>& dss) { m_depthStencilState = dss; }
 	void SetBS(ComPtr<ID3D11BlendState>& bs) { m_blendState = bs; }
-	void SetBlendFactor(const float blendFactor[4]);
-	void SetStencilRef(UINT ref) { m_stencilRef = ref; }
 	void SetTopology(D3D11_PRIMITIVE_TOPOLOGY topology) { m_primitiveTopology = topology; }
+	static void SetBlendFactor(const float blendFactor[4]);
+	static void SetStencilRef(UINT ref) { m_stencilRef = ref; }
 
 public:
 	ComPtr<ID3D11VertexShader>& GetVS() { return m_vertexShader; }
@@ -36,8 +36,8 @@ private:
 	ComPtr<ID3D11DepthStencilState> m_depthStencilState;
 	ComPtr<ID3D11BlendState> m_blendState;
 
-	float m_blendFactor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	UINT m_stencilRef = 0;
+	static float m_blendFactor[4];
+	static UINT m_stencilRef;
 
 	D3D11_PRIMITIVE_TOPOLOGY m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 };

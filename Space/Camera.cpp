@@ -16,8 +16,10 @@ void Camera::Update(float dt)
 	if (KEYCHECK(F, TAP))
 		m_bMoveDir = !m_bMoveDir;
 	if (m_bMoveDir)
+	{
 		CalDirection();
-	UpdatePos(dt);
+		UpdatePos(dt);
+	}
 	CalcViewRow();
 	CalcProjectionRow();
 }

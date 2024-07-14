@@ -2,13 +2,13 @@
 #include "TestScene.h"
 #include "GeometryGenerator.h"
 #include "Mesh.h"
-#include "Sphere.h"
 #include "Camera.h"
 #include "Scene.h"
 #include "SceneMgr.h"
-#include "CubeMap.h"
 #include "ModelLoader.h"
 #include "Mirror.h"
+#include "D3DUtils.h"
+#include "GraphicsCommons.h"
 
 TestScene::TestScene()
 	: Scene()
@@ -16,17 +16,21 @@ TestScene::TestScene()
 
 }
 
-void TestScene::Init()
-{
-	Scene::Init();
-	m_pixelConstantData.light.lightPos = Vector3{ 0.0f,2.0f,-1.0f };
-	m_pixelConstantData.rim.useRim = false;
-	GETCAMERA()->SetPos(Vector3(0.0f, 1.0f, -1.0f));
-	GETCAMERA()->SetSpeed(5.0f);
-}
-
 void TestScene::Enter()
 {
+	ComPtr<ID3D11DeviceContext>& context = D3DUtils::GetInst().GetContext();
+	context->VSSetSamplers(0, Graphics::g_vecSamplers.size(), Graphics::g_vecSamplers.data());
+	context->GSSetSamplers(0, Graphics::g_vecSamplers.size(), Graphics::g_vecSamplers.data());
+	context->PSSetSamplers(0, Graphics::g_vecSamplers.size(), Graphics::g_vecSamplers.data());
+
+	context->VSSetConstantBuffers(0, 1, m_globalConstBuffer.GetAddressOf());
+	context->GSSetConstantBuffers(0, 1, m_globalConstBuffer.GetAddressOf());
+	context->PSSetConstantBuffers(0, 1, m_globalConstBuffer.GetAddressOf());
+	context->PSSetShaderResources(10, (UINT)IBL_TYPE::END, m_iblSRV[(UINT)IBL_TYPE::SPECULAR].GetAddressOf());
+
+	m_globalCD.light.lightPos = Vector3{ 0.0f,2.0f,-1.0f };
+	GETCAMERA()->SetPos(Vector3(0.0f, 1.0f, -1.0f));
+	GETCAMERA()->SetSpeed(5.0f);
 }
 
 void TestScene::Exit()
@@ -35,103 +39,83 @@ void TestScene::Exit()
 
 void TestScene::InitIBL()
 {
-	ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", TEXTURE_TYPE::SPECULAR);
-	ReadCubeImage("Image/PBR/SkyBox/SampleDiffuseHDR.dds", TEXTURE_TYPE::IRRADIANCE);
-	ReadCubeImage("Image/PBR/SkyBox/SampleBrdf.dds", TEXTURE_TYPE::LUT);
+	ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", IBL_TYPE::SPECULAR);
+	ReadCubeImage("Image/PBR/SkyBox/SampleDiffuseHDR.dds", IBL_TYPE::IRRADIANCE);
+	ReadCubeImage("Image/PBR/SkyBox/SampleBrdf.dds", IBL_TYPE::LUT);
+
 }
 
 void TestScene::InitMesh()
 {
-	/*ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
+	ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
 	auto& obj = ModelLoader::GetInst().resultMesh;
 	obj->ReadImage("Image/Character/Sample/angel_armor_albedo.jpg", TEXTURE_TYPE::ALBEDO, true);
 	obj->ReadImage("Image/Character/Sample/angel_armor_metalness.jpg", TEXTURE_TYPE::METAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_normal.jpg", TEXTURE_TYPE::NORMAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_e.jpg", TEXTURE_TYPE::EMISSIVE);
 	obj->ReadImage("Image/Character/Sample/angel_armor_roughness.jpg", TEXTURE_TYPE::ROUGHNESS);
-	m_vecObj.push_back(obj);*/
+	m_vecMesh.push_back(obj);
 
 	MeshData md = GeometryGenerator::MakeSphere(0.1f, 30, 30);
-	auto light = make_shared<Sphere>();
-	light->Init(md, L"Basic", L"Basic");
-	light->GetPixelConstantData().isLight = true;
-	m_vecObj.push_back(light);
+	auto light = make_shared<Mesh>();
+	light->Init(md);
+	light->m_bIsLight = true;
+	m_vecMesh.push_back(light);
 
 	MeshData sq = GeometryGenerator::MakeSquare();
-	auto ground = make_shared<Object>();
-	ground->Init(sq, L"Basic", L"Basic");
+	auto ground = make_shared<Mesh>();
+	ground->Init(sq);
 	ground->ReadImage("Image/Ground.png", TEXTURE_TYPE::ALBEDO, true);
 	ground->m_rotation1 = Vector3(XM_PI / 2.0f, 0.0f, 0.0f);
 	ground->m_scale = Vector3(5.0f);
-	m_vecObj.push_back(ground);
+	m_vecMesh.push_back(ground);
 
 	auto mirror = make_shared<Mirror>("Mirror", Vector3(2.0f, 1.6f, 0.0f), Vector3(0.0f, 90.0f, 0.0f), Vector3(0.0f), Vector3(1.0f, 1.66f, 1.0f));
-	mirror->Init(sq, L"Basic", L"Basic");
+	mirror->Init(sq);
 	m_vecMirrors.push_back(mirror);
 
 	mirror = make_shared<Mirror>("Mirror2", Vector3(0.0f, 1.6f, 2.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f), Vector3(1.0f, 1.66f, 1.0f));
-	mirror->Init(sq, L"Basic", L"Basic");
+	mirror->Init(sq);
 	m_vecMirrors.push_back(mirror);
-	
-	m_focusObj = light;
-	m_focusObj->GetPixelConstantData().mat.selected = true;
+
+	m_focusObj = obj;
+
 }
 
-void TestScene::InitCubeMap()
+void TestScene::InitSkyBox()
 {
 	MeshData sphereData = GeometryGenerator::MakeSphere(30.0f, 100, 100);
 	std::reverse(sphereData.indices.begin(), sphereData.indices.end());
-	auto sphereCube = make_shared<CubeMap>();
-	sphereCube->Init(sphereData, L"SkyBox", L"CubeMap");
-	sphereCube->ReadCubeImage("Image/PBR/SkyBox/SampleSpecularHDR.dds", TEXTURE_TYPE::SPECULAR);
-	m_vecNonObj.push_back(sphereCube);
+	m_skybox = make_shared<Mesh>();
+	m_skybox->Init(sphereData);
 }
 
 void TestScene::UpdateGUI()
 {
 	ImGui::Checkbox("DrawWireFrame", &SceneMgr::GetInst().m_drawWireFrame);
+	ImGui::CheckboxFlags("Use Albedo", &m_materialCD.useAlbedo, 1);
+	ImGui::SliderFloat3("AlbedoFactor", &m_materialCD.albedoFactor.x, 0.0f, 1.0f);
 	ImGui::Checkbox("DrawNormal", &m_drawNormal);
-	ImGui::SliderFloat("NormalSize", &m_normalSize, 0.0f, 2.0f);
-	static bool useAlbedo = true;
-	static bool useNormal = false;
-	static bool useAO = false;
-	static bool useEmissive = false;
-	static bool useHeight = false;
-	static bool useMetallic = false;
-	static bool useRoughness = false;
-	ImGui::Checkbox("Use Albedo", &useAlbedo);
-	m_pixelConstantData.useAlbedo = useAlbedo;
-	ImGui::Checkbox("Use Normal", &useNormal);
-	m_pixelConstantData.useNormal = useNormal;
-	ImGui::Checkbox("Use AO", &useAO);
-	m_pixelConstantData.useAO = useAO;
-	ImGui::Checkbox("Use Emissive", &useEmissive);
-	m_pixelConstantData.useEmissive = useEmissive;
-	if (m_focusObj)
-	{
-		ImGui::Checkbox("Use Height", &useHeight);
-		m_useHeight = useHeight;
-		ImGui::SliderFloat("Height Scale", &m_heightScale, 0.0f, 2.0f);
-	}
-	ImGui::Checkbox("Use Metallic", &useMetallic);
-	m_pixelConstantData.useMetallic = useMetallic;
-	ImGui::Checkbox("Use Roughness", &useRoughness);
-	m_pixelConstantData.useRoughness = useRoughness;
+	ImGui::CheckboxFlags("Use Normal", &m_commonCD.useNormal, 1);
+	ImGui::SliderFloat("NormalSize", &m_commonCD.normalSize, 0.0f, 2.0f);
+	ImGui::CheckboxFlags("Use AO", &m_materialCD.useAO, 1);
+	ImGui::CheckboxFlags("Use Emissive", &m_materialCD.useEmissive, 1);
+	ImGui::SliderFloat3("EmissionFactor", &m_materialCD.emissionFactor.x, 0.0f, 1.0f);
+	ImGui::CheckboxFlags("Use Height", &m_commonCD.useHeight, 1);
+	ImGui::SliderFloat("Height Scale", &m_commonCD.heightScale, 0.0f, 2.0f);
+
+	ImGui::CheckboxFlags("Use Metallic", &m_materialCD.useMetallic, 1);
+	ImGui::SliderFloat("Metallic", &m_materialCD.metallicFactor, 0.0f, 1.0f);
+	ImGui::CheckboxFlags("Use Roughness", &m_materialCD.useRoughness, 1);
+	ImGui::SliderFloat("Roughness", &m_materialCD.roughnessFactor, 0.0f, 1.0f);
 
 	ImGui::SliderFloat("Alpha", &m_fAlpha, 0.0f, 1.0f);
-	ImGui::SliderFloat("Exposure", &m_pixelConstantData.exposure, 0.0f, 5.0f);
-	ImGui::SliderFloat("Gamma", &m_pixelConstantData.gamma, 0.0f, 5.0f);
-	ImGui::SliderFloat("BloomLightStrength", &m_pixelConstantData.bloom.bloomStrength, 0.0f, 1.0f);
-	// ImGui::SliderFloat("LightStrength", &m_pixelConstantData.light.lightStrength.x, 0.0f, 1.0f);
-	ImGui::SliderFloat3("LightPos", &m_pixelConstantData.light.lightPos.x, -5.0f, 5.0f);
-	ImGui::SliderFloat("Metallic", &m_pixelConstantData.metallic, 0.0f, 1.0f);
-	ImGui::SliderFloat("Roughness", &m_pixelConstantData.roughness, 0.0f, 1.0f);
+	ImGui::SliderFloat("Exposure", &m_globalCD.exposure, 0.0f, 5.0f);
+	ImGui::SliderFloat("Gamma", &m_globalCD.gamma, 0.0f, 5.0f);
+
+	ImGui::SliderFloat("LightStrength", &m_globalCD.light.lightStrength.x, 0.0f, 1.0f);
+	ImGui::SliderFloat3("LightPos", &m_globalCD.light.lightPos.x, -5.0f, 5.0f);
+
 	// ImGui::SliderFloat("fallOfStart", &m_pixelConstantData.light.fallOfStart, 0.0f, 5.0f);
 	// ImGui::SliderFloat("fallOfEnd", &m_pixelConstantData.light.fallOfEnd, 0.0f, 10.0f);
 }
-
-void TestScene::Update(float dt)
-{
-	Scene::Update(dt);
-}
-

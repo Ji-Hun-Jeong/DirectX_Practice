@@ -1,12 +1,8 @@
 #include "Header.hlsli"
-cbuffer CubeMapConstant : register(b0)
+cbuffer MeshConstant : register(b1)
 {
     matrix model;
     matrix invTranspose;
-}
-cbuffer ViewProj : register(b1)
-{
-    matrix viewProj;
 }
 PSInput main(VSInput input)
 {

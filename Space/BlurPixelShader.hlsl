@@ -1,21 +1,19 @@
 #include "Header.hlsli"
 Texture2D g_texture : register(t0);
-SamplerState g_sampler : register(s0);
-cbuffer PixelConstant : register(b0)
+cbuffer ImageFilterConst : register(b1)
 {
-    float3 eyePos;
-    int isSun;
-    Light light;
-    Material mat;
-    Bloom bloom;
-    Rim rim;
+    float dx;
+    float dy;
+    float threshold;
+    float strength;
+    
 }
 float4 main(PSInput input) : SV_TARGET
 {
     float3 color = 0.0f;
     float2 uv = input.uv;
-    float x = bloom.dx;
-    float y = bloom.dy;
+    float x = dx;
+    float y = dy;
 
     // Take 13 samples around current texel:
     // a - b - c
@@ -24,22 +22,22 @@ float4 main(PSInput input) : SV_TARGET
     // - l - m -
     // g - h - i
     // === ('e' is the current texel) ===
-    float3 a = g_texture.Sample(g_sampler, float2(uv.x - 2 * x, uv.y + 2 * y)).rgb;
-    float3 b = g_texture.Sample(g_sampler, float2(uv.x, uv.y + 2 * y)).rgb;
-    float3 c = g_texture.Sample(g_sampler, float2(uv.x + 2 * x, uv.y + 2 * y)).rgb;
-                                                  
-    float3 d = g_texture.Sample(g_sampler, float2(uv.x - 2 * x, uv.y)).rgb;
-    float3 e = g_texture.Sample(g_sampler, float2(uv.x, uv.y)).rgb;
-    float3 f = g_texture.Sample(g_sampler, float2(uv.x + 2 * x, uv.y)).rgb;
-                                                  
-    float3 g = g_texture.Sample(g_sampler, float2(uv.x - 2 * x, uv.y - 2 * y)).rgb;
-    float3 h = g_texture.Sample(g_sampler, float2(uv.x, uv.y - 2 * y)).rgb;
-    float3 i = g_texture.Sample(g_sampler, float2(uv.x + 2 * x, uv.y - 2 * y)).rgb;
-                                                  
-    float3 j = g_texture.Sample(g_sampler, float2(uv.x - x, uv.y + y)).rgb;
-    float3 k = g_texture.Sample(g_sampler, float2(uv.x + x, uv.y + y)).rgb;
-    float3 l = g_texture.Sample(g_sampler, float2(uv.x - x, uv.y - y)).rgb;
-    float3 m = g_texture.Sample(g_sampler, float2(uv.x + x, uv.y - y)).rgb;
+    float3 a = g_texture.Sample(g_linearSampler, float2(uv.x - 2 * x, uv.y + 2 * y)).rgb;
+    float3 b = g_texture.Sample(g_linearSampler, float2(uv.x, uv.y + 2 * y)).rgb;
+    float3 c = g_texture.Sample(g_linearSampler, float2(uv.x + 2 * x, uv.y + 2 * y)).rgb;
+                                         
+    float3 d = g_texture.Sample(g_linearSampler, float2(uv.x - 2 * x, uv.y)).rgb;
+    float3 e = g_texture.Sample(g_linearSampler, float2(uv.x, uv.y)).rgb;
+    float3 f = g_texture.Sample(g_linearSampler, float2(uv.x + 2 * x, uv.y)).rgb;
+                                         
+    float3 g = g_texture.Sample(g_linearSampler, float2(uv.x - 2 * x, uv.y - 2 * y)).rgb;
+    float3 h = g_texture.Sample(g_linearSampler, float2(uv.x, uv.y - 2 * y)).rgb;
+    float3 i = g_texture.Sample(g_linearSampler, float2(uv.x + 2 * x, uv.y - 2 * y)).rgb;
+                                         
+    float3 j = g_texture.Sample(g_linearSampler, float2(uv.x - x, uv.y + y)).rgb;
+    float3 k = g_texture.Sample(g_linearSampler, float2(uv.x + x, uv.y + y)).rgb;
+    float3 l = g_texture.Sample(g_linearSampler, float2(uv.x - x, uv.y - y)).rgb;
+    float3 m = g_texture.Sample(g_linearSampler, float2(uv.x + x, uv.y - y)).rgb;
 
     // Apply weighted distribution:
     // 0.5 + 0.125 + 0.125 + 0.125 + 0.125 = 1

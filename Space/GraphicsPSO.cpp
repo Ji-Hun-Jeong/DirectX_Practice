@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "GraphicsPSO.h"
 #include "D3DUtils.h"
+float GraphicsPSO::m_blendFactor[4];
+UINT GraphicsPSO::m_stencilRef = 0;
 
 GraphicsPSO& GraphicsPSO::operator=(const GraphicsPSO& other)
 {
@@ -13,7 +15,6 @@ GraphicsPSO& GraphicsPSO::operator=(const GraphicsPSO& other)
 	m_blendState = other.m_blendState;
 
 	SetBlendFactor(other.m_blendFactor);
-	m_stencilRef = other.m_stencilRef;
 	m_primitiveTopology = other.m_primitiveTopology;
 
 	return *this;
@@ -28,8 +29,8 @@ void GraphicsPSO::Setting()
 	context->GSSetShader(m_geometryShader.Get(), 0, 0);
 	context->PSSetShader(m_pixelShader.Get(), 0, 0);
 	context->RSSetState(m_rasterizerState.Get());
-	context->OMSetDepthStencilState(m_depthStencilState.Get(), m_stencilRef);
-	context->OMSetBlendState(m_blendState.Get(), m_blendFactor, 0xff);
+	context->OMSetDepthStencilState(m_depthStencilState.Get(), GraphicsPSO::m_stencilRef);
+	context->OMSetBlendState(m_blendState.Get(), GraphicsPSO::m_blendFactor, 0xff);
 }
 
 void GraphicsPSO::SetBlendFactor(const float blendFactor[4])

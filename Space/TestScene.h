@@ -6,15 +6,12 @@ class TestScene :
 public:
 	TestScene();
 public:
-	void Init() override;
 	void Enter() override;
 	void Exit() override;
-	void InitMesh() override;
-	void InitCubeMap() override;
 	void UpdateGUI() override;
-	void Update(float dt) override;
 protected:
-	
+	void InitMesh() override;
+	void InitSkyBox() override;
 	void InitIBL() override;
 
 private:

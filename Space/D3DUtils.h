@@ -128,7 +128,7 @@ public:
 	// UpdateDirect3D
 public:
 	template <typename T>
-	void UpdateBuffer(ComPtr<ID3D11Buffer>& buffer, const T& bufferData)
+	void UpdateBuffer(const T& bufferData, ComPtr<ID3D11Buffer>& buffer)
 	{
 		assert(buffer);
 		D3D11_MAPPED_SUBRESOURCE resourceData;

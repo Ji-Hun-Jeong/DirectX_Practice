@@ -1,18 +1,19 @@
 #include "Header.hlsli"
 Texture2D g_heightTexture : register(t0);
-SamplerState g_sampler : register(s0);
-cbuffer Constant : register(b0)
+cbuffer MeshConstant : register(b1)
 {
     matrix model;
     matrix invTranspose;
-    int useHeight;
-    float heightScale;
-    float2 dummy;
 };
-cbuffer ViewProj : register(b1)
+
+cbuffer CommonConstant : register(b2)
 {
-    matrix viewProj;
-}
+    int useHeight = false;
+    float heightScale = 1.0f;
+    int useNormal = false;
+    float normalSize = 1.0f;
+};
+
 PSInput main(VSInput input)
 {
     PSInput output;
@@ -27,7 +28,7 @@ PSInput main(VSInput input)
     if (useHeight)
     {
         // VS에서는 SampleLevel사용
-        float height = g_heightTexture.SampleLevel(g_sampler, input.uv, 0).r;
+        float height = g_heightTexture.SampleLevel(g_linearSampler, input.uv, 0).r;
         height = 2.0f * height - 1.0f;
         pos += float4(output.normal * height * heightScale, 0.0f);
     }

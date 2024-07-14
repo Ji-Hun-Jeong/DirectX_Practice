@@ -1,15 +1,27 @@
 #include "Header.hlsli"
-cbuffer NormalConstant : register(b0)
+Texture2D g_normalTexture : register(t0);
+cbuffer MeshConstant : register(b1)
 {
     matrix model;
     matrix invTranspose;
-    float normalSize;
-    bool useNormal;
-    float2 dummy;
-}
-cbuffer ViewProj : register(b1)
+};
+cbuffer CommonConstant : register(b2)
 {
-    matrix viewProj;
+    int useHeight = false;
+    float heightScale = 1.0f;
+    int useNormal = false;
+    float normalSize = 1.0f;
+};
+float3 GetNormal(GSInput input)
+{
+    float3 normal = g_normalTexture.SampleLevel(g_linearSampler, input.uv, 0).xyz;
+    normal = 2.0f * normal - 1.0f;
+    float3 N = input.normal;
+    float3 T = normalize(input.tangent - dot(input.tangent, N) * N);
+    float3 B = cross(N, T);
+    float3x3 TBN = float3x3(T, B, N);
+    normal = normalize(mul(normal, TBN));
+    return normal;
 }
 [maxvertexcount(2)]
 void main(
@@ -17,11 +29,12 @@ void main(
 	inout LineStream<PSInput> outputStream
 )
 {
+    
 	for (uint i = 0; i < 2; i++)
 	{
         PSInput output;
         float4 pos = float4(input[0].position, 1.0f);
-        float3 normal = input[0].normal;
+        float3 normal = useNormal ? GetNormal(input[0]) : input[0].normal;
         pos.xyz += normal * i * normalSize;
         output.posWorld = pos;
         pos = mul(pos, viewProj);

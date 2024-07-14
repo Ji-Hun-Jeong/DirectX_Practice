@@ -139,7 +139,6 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Core.h" />
-    <ClInclude Include="CubeMap.h" />
     <ClInclude Include="D3DUtils.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="DirArrow.h" />
@@ -153,8 +152,6 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Mirror.h" />
     <ClInclude Include="ModelLoader.h" />
-    <ClInclude Include="NonObject.h" />
-    <ClInclude Include="Object.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="Resource.h" />
@@ -162,7 +159,6 @@
     <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="Space.h" />
     <ClInclude Include="SpaceScene.h" />
-    <ClInclude Include="Sphere.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TestScene.h" />
@@ -170,7 +166,6 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Core.cpp" />
-    <ClCompile Include="CubeMap.cpp" />
     <ClCompile Include="D3DUtils.cpp" />
     <ClCompile Include="DirArrow.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
@@ -182,13 +177,10 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Mirror.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
-    <ClCompile Include="NonObject.cpp" />
-    <ClCompile Include="Object.cpp" />
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="SpaceScene.cpp" />
-    <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>

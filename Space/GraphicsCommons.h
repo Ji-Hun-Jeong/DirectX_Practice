@@ -52,7 +52,8 @@ namespace Graphics
 	extern GraphicsPSO g_skyBoxSolidPSO;
 	extern GraphicsPSO g_skyBoxWirePSO;
 	extern GraphicsPSO g_normalPSO;
-	extern GraphicsPSO g_stencilMaskPSO;
+	extern GraphicsPSO g_stencilMaskSolidPSO;
+	extern GraphicsPSO g_stencilMaskWirePSO;
 	extern GraphicsPSO g_drawMaskSolidPSO;
 	extern GraphicsPSO g_drawMaskWirePSO;
 	extern GraphicsPSO g_drawMaskSkyBoxSolidPSO;

@@ -19,11 +19,16 @@ enum class SCENE_TYPE
 	TEST,
 	END,
 };
-enum class TEXTURE_TYPE
+enum class IBL_TYPE
 {
 	SPECULAR,
 	IRRADIANCE,
 	LUT,
+	END,
+};
+
+enum class TEXTURE_TYPE
+{
 	ALBEDO,
 	NORMAL,
 	AO,

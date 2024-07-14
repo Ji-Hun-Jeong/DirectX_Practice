@@ -6,26 +6,19 @@
 #include "Scene.h"
 #include "SceneMgr.h"
 
-DirArrow::DirArrow(const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale, D3D11_PRIMITIVE_TOPOLOGY topology)
-	: NonObject(translation, rotation1, rotation2, scale, topology)
+DirArrow::DirArrow(const Vector3& translation, const Vector3& rotation1, const Vector3& rotation2, const Vector3& scale)
+	: Mesh("", translation, rotation1, rotation2, scale)
 {
 	
 }
 
-void DirArrow::Init(const MeshData& meshData, const wstring& vertexShaderPrefix, const wstring& pixelShaderPrefix)
+void DirArrow::Init(const MeshData& meshData)
 {
-	Mesh::Init(meshData,vertexShaderPrefix,pixelShaderPrefix);
-	CreateGeometryShader(L"DirArrow", m_geometryShader);
-	D3DUtils::GetInst().CreateConstantBuffer<DirArrowConstantData>(m_dirArrowConstantData, m_vertexConstantBuffer);
+	Mesh::Init(meshData);
+	D3DUtils::GetInst().CreateConstantBuffer<DirArrowConstantData>(m_dirArrowConstantData, m_meshConstBuffer);
 }
 
-void DirArrow::Update(float dt)
-{
-	this->UpdateVertexConstantData(dt);
-	D3DUtils::GetInst().UpdateBuffer<DirArrowConstantData>(m_vertexConstantBuffer, m_dirArrowConstantData);
-}
-
-void DirArrow::UpdateVertexConstantData(float dt)
+void DirArrow::UpdateMeshConstantData(float dt)
 {
 	//Mesh::UpdateVertexConstantData(dt);
 	Core& core = Core::GetInst();
@@ -55,7 +48,7 @@ void DirArrow::ReadyToRender(ComPtr<ID3D11DeviceContext>& context)
 	UINT offset = 0;
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	context->IASetPrimitiveTopology(m_topology);
+	/*context->IASetPrimitiveTopology(m_topology);
 	context->IASetInputLayout(m_inputLayout.Get());
 
 	context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
@@ -64,5 +57,5 @@ void DirArrow::ReadyToRender(ComPtr<ID3D11DeviceContext>& context)
 	context->GSSetShader(m_geometryShader.Get(), nullptr, 0);
 	context->GSSetConstantBuffers(0, 1, m_vertexConstantBuffer.GetAddressOf());
 
-	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
+	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);*/
 }

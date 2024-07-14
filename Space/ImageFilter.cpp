@@ -6,22 +6,13 @@
 #include "SceneMgr.h"
 #include "PostProcess.h"
 
-ImageFilter::ImageFilter(PostProcess* owner, ComPtr<ID3D11VertexShader>& vs, ComPtr<ID3D11PixelShader>& ps
+ImageFilter::ImageFilter(PostProcess* owner, ComPtr<ID3D11PixelShader>& ps
 	, float width, float height)
-	: NonObject()
+	: m_pOwner(owner)
 	, m_fWidth(width)
 	, m_fHeight(height)
 {
-	m_vertexShader = vs;
 	m_pixelShader = ps;
-	m_vertexBuffer = owner->m_vertexBuffer;
-	m_indexBuffer = owner->m_indexBuffer;
-	m_indexCount = owner->m_indexCount;
-	m_inputLayout = owner->m_inputLayout;
-	m_samplerState = owner->m_samplerState;
-	m_topology = owner->m_topology;
-	m_vertexBuffer = owner->m_vertexBuffer;
-	m_pixelConstantBuffer = owner->m_pixelConstantBuffer;
 
 	ComPtr<ID3D11Device> device = D3DUtils::GetInst().GetDevice();
 	D3D11_TEXTURE2D_DESC textureDesc;
@@ -54,16 +45,6 @@ ImageFilter::ImageFilter(PostProcess* owner, ComPtr<ID3D11VertexShader>& vs, Com
 	SetRenderTargetViews({ m_renderTargetView.Get() });
 }
 
-void ImageFilter::Update(float dt)
-{
-	this->UpdatePixelConstantData();
-	D3DUtils::GetInst().UpdateBuffer<PixelConstantData>(m_pixelConstantBuffer, m_pixelConstantData);
-}
-
-void ImageFilter::UpdatePixelConstantData()
-{
-	m_pixelConstantData = GETCURSCENE()->m_pixelConstantData;
-}
 
 void ImageFilter::Render(ComPtr<ID3D11DeviceContext>& context)
 {
@@ -71,17 +52,12 @@ void ImageFilter::Render(ComPtr<ID3D11DeviceContext>& context)
 	UINT offset = 0;
 	context->OMSetRenderTargets(UINT(m_anotherRTVs.size()), m_anotherRTVs.data(), nullptr);
 
-	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
-	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-
 	context->RSSetViewports(1, &m_viewPort);
 
 	context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
-	context->PSSetConstantBuffers(0, 1, m_pixelConstantBuffer.GetAddressOf());
 	context->PSSetShaderResources(0, UINT(m_anotherSRVs.size()), m_anotherSRVs.data());
-	context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 
-	context->DrawIndexed(m_indexCount, 0, 0);
+	context->DrawIndexed(m_pOwner->m_indexCount, 0, 0);
 }
 
 void ImageFilter::SetShaderResourceViews(const vector<ID3D11ShaderResourceView*>& srv)
