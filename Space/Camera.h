@@ -45,7 +45,7 @@ private:
 
 	float m_angleY = 70.0f;
 	float m_nearZ = 0.01f;
-	float m_farZ = 10000.0f;
+	float m_farZ = 100.0f;
 
 	bool m_bMoveDir = false;
 };

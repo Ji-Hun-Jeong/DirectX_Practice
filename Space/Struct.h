@@ -61,6 +61,11 @@ __declspec(align(256)) struct CommonConstData
 	float heightScale = 1.0f;
 	int useNormal = true;
 	float normalSize = 1.0f;
+
+	int mode = 0;
+	float depthStrength = 1.0f;
+	float fogStrength = 0.0f;
+	float dummy;
 };
 
 __declspec(align(256)) struct GlobalConstData
@@ -68,6 +73,7 @@ __declspec(align(256)) struct GlobalConstData
 	Matrix view;
 	Matrix proj;
 	Matrix viewProj;
+	Matrix invProj;
 
 	Vector3 eyePos;
 	float strengthIBL = 1.0f;

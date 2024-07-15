@@ -60,6 +60,8 @@ cbuffer GlobalConstData : register(b0)
     matrix view;
     matrix proj;
     matrix viewProj;
+    matrix invProj;
+    
     float3 eyePos;
     float strengthIBL;
 
@@ -69,6 +71,19 @@ cbuffer GlobalConstData : register(b0)
     float gamma;
     float2 dummy;
 }
+
+cbuffer CommonConstant : register(b1)
+{
+    int useHeight = false;
+    float heightScale = 1.0f;
+    int useNormal = false;
+    float normalSize = 1.0f;
+    
+    int mode;
+    float depthStrength = 1.0f;
+    float fogStrength = 0.0f;
+    float dummy1;
+};
 
 TextureCube g_specularTexture : register(t10);
 TextureCube g_irradianceTexture : register(t11);

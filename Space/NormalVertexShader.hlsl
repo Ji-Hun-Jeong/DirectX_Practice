@@ -1,5 +1,5 @@
 #include "Header.hlsli"
-cbuffer MeshConstant : register(b1)
+cbuffer MeshConstant : register(b2)
 {
     matrix model;
     matrix invTranspose;

@@ -29,6 +29,7 @@ namespace Graphics
 	extern ComPtr<ID3D11PixelShader> g_copyPS;
 	extern ComPtr<ID3D11PixelShader> g_blurPS;
 	extern ComPtr<ID3D11PixelShader> g_combinePS;
+	extern ComPtr<ID3D11PixelShader> g_postEffectsPS;
 	extern ComPtr<ID3D11PixelShader> g_dirArrowPS;
 
 	// RasterizerState
@@ -60,6 +61,7 @@ namespace Graphics
 	extern GraphicsPSO g_drawMaskSkyBoxWirePSO;
 	extern GraphicsPSO g_blendSolidPSO;
 	extern GraphicsPSO g_blendWirePSO;
+	extern GraphicsPSO g_postEffectsPSO;
 	extern GraphicsPSO g_postProcessPSO;
 	
 	void InitCommonStates();

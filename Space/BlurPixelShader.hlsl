@@ -1,6 +1,6 @@
 #include "Header.hlsli"
 Texture2D g_texture : register(t0);
-cbuffer ImageFilterConst : register(b1)
+cbuffer ImageFilterConst : register(b2)
 {
     float dx;
     float dy;

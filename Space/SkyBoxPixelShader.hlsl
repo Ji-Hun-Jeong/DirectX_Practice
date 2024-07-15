@@ -1,5 +1,5 @@
 #include "Header.hlsli"
-cbuffer MaterialConstant : register(b1)
+cbuffer MaterialConstant : register(b2)
 {
     float3 albedoFactor;
     float metallicFactor;

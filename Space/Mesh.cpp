@@ -117,14 +117,15 @@ void Mesh::Render(ComPtr<ID3D11DeviceContext>& context)
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	context->VSSetConstantBuffers(1, 1, m_meshConstBuffer.GetAddressOf());
-	context->VSSetConstantBuffers(2, 1, m_commonConstBuffer.GetAddressOf());
+	context->VSSetConstantBuffers(1, 1, m_commonConstBuffer.GetAddressOf());
+	context->VSSetConstantBuffers(2, 1, m_meshConstBuffer.GetAddressOf());
 	context->VSSetShaderResources(0, 1, m_arrSRV[(UINT)TEXTURE_TYPE::HEIGHT].GetAddressOf());
 
-	context->GSSetConstantBuffers(1, 1, m_meshConstBuffer.GetAddressOf());
+	context->GSSetConstantBuffers(1, 1, m_commonConstBuffer.GetAddressOf());
+	context->GSSetConstantBuffers(2, 1, m_meshConstBuffer.GetAddressOf());
 
-	context->PSSetConstantBuffers(1, 1, m_materialConstBuffer.GetAddressOf());
-	context->PSSetConstantBuffers(2, 1, m_commonConstBuffer.GetAddressOf());
+	context->PSSetConstantBuffers(1, 1, m_commonConstBuffer.GetAddressOf());
+	context->PSSetConstantBuffers(2, 1, m_materialConstBuffer.GetAddressOf());
 	context->PSSetShaderResources(0, (UINT)TEXTURE_TYPE::END - 1, m_arrSRV[(UINT)TEXTURE_TYPE::ALBEDO].GetAddressOf());
 	context->DrawIndexed(m_indexCount, 0, 0);
 
@@ -139,11 +140,12 @@ void Mesh::DrawNormal(ComPtr<ID3D11DeviceContext>& context)
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
-	context->VSSetConstantBuffers(1, 1, m_meshConstBuffer.GetAddressOf());
+	context->VSSetConstantBuffers(1, 1, m_commonConstBuffer.GetAddressOf());
+	context->VSSetConstantBuffers(2, 1, m_meshConstBuffer.GetAddressOf());
 	
 	context->GSSetShaderResources(0, 1, m_arrSRV[(UINT)TEXTURE_TYPE::NORMAL].GetAddressOf());
-	context->GSSetConstantBuffers(1, 1, m_meshConstBuffer.GetAddressOf());
-	context->GSSetConstantBuffers(2, 1, m_commonConstBuffer.GetAddressOf());
+	context->GSSetConstantBuffers(1, 1, m_commonConstBuffer.GetAddressOf());
+	context->GSSetConstantBuffers(2, 1, m_meshConstBuffer.GetAddressOf());
 
 	context->DrawIndexed(m_indexCount, 0, 0);
 }

@@ -1,7 +1,7 @@
 #pragma once
 class Scene;
-class ImageFilter;
 class PostProcess;
+class Mesh;
 class SceneMgr
 {
 public:
@@ -16,6 +16,7 @@ private:
 	shared_ptr<Scene> m_arrScene[(UINT)SCENE_TYPE::END];
 	shared_ptr<Scene> m_curScene;
 	shared_ptr<PostProcess> m_postProcess;
+	shared_ptr<Mesh> m_postEffects;
 	
 public:
 	float m_fWidth;
@@ -23,7 +24,7 @@ public:
 	bool m_drawWireFrame = false;
 
 public:
-	ComPtr<ID3D11DepthStencilView>& GetDepthStencilView() { return m_depthStencilView; }
+	ComPtr<ID3D11DepthStencilView>& GetDepthStencilView() { return m_DSV; }
 	ComPtr<ID3D11RenderTargetView>& GetRenderTargetView() { return m_renderTargetView; }
 	shared_ptr<Scene>& GetCurScene() { return m_curScene; }
 private:
@@ -46,10 +47,18 @@ private:
 	ComPtr<ID3D11ShaderResourceView> m_notMsaaSRV;
 	ComPtr<ID3D11RenderTargetView> m_notMsaaRTV;
 
+	ComPtr<ID3D11Texture2D> m_postEffectsTexture;
+	ComPtr<ID3D11ShaderResourceView> m_postEffectsSRV;
+	ComPtr<ID3D11RenderTargetView> m_postEffectsRTV;
+
 	D3D11_VIEWPORT m_viewPort;
 
 	ComPtr<ID3D11Texture2D> m_depthBuffer;
-	ComPtr<ID3D11DepthStencilView> m_depthStencilView;
+	ComPtr<ID3D11DepthStencilView> m_DSV;
+
+	ComPtr<ID3D11Texture2D> m_notMSDepthBuffer;
+	ComPtr<ID3D11DepthStencilView> m_notMSDSV;
+	ComPtr<ID3D11ShaderResourceView> m_depthSRV;
 
 	UINT m_iNumOfMultiSamplingLevel;
 // SingleTon

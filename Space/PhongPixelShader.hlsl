@@ -5,7 +5,7 @@ Texture2D g_aoTexture : register(t2);
 Texture2D g_emissiveTexture : register(t3);
 Texture2D g_metallicTexture : register(t4);
 Texture2D g_roughnessTexture : register(t5);
-cbuffer MaterialConstant : register(b1)
+cbuffer MaterialConstant : register(b2)
 {
     float3 albedoFactor;
     float metallicFactor;
@@ -20,14 +20,6 @@ cbuffer MaterialConstant : register(b1)
     int useMetallic;
     int isLight;
     float Dummy[2];
-};
-
-cbuffer CommonConstant : register(b2)
-{
-    int useHeight = false;
-    float heightScale = 1.0f;
-    int useNormal = false;
-    float normalSize = 1.0f;
 };
 
 float3 BlinnPhong(float3 normal, float3 toLightVec, float3 toEyeVec, float3 lightStrength)

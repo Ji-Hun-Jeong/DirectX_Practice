@@ -5,9 +5,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Trash">
-      <UniqueIdentifier>{147db4de-c64c-4d8b-b3d8-4f6ffd160a5c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Default">
       <UniqueIdentifier>{d15b5043-2ad4-44ea-8b69-28a14529b21c}</UniqueIdentifier>
     </Filter>
@@ -83,19 +80,22 @@
     <Filter Include="Engine\PostProcess\ImageFilter">
       <UniqueIdentifier>{f3c25483-e812-42b0-94ce-c2bdec7d6eb1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Another">
+      <UniqueIdentifier>{147db4de-c64c-4d8b-b3d8-4f6ffd160a5c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
-      <Filter>Trash</Filter>
+      <Filter>Another</Filter>
     </ClInclude>
     <ClInclude Include="Space.h">
-      <Filter>Trash</Filter>
+      <Filter>Another</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Trash</Filter>
+      <Filter>Another</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
-      <Filter>Trash</Filter>
+      <Filter>Another</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>Default</Filter>
@@ -278,6 +278,9 @@
     </FxCompile>
     <FxCompile Include="PhongPixelShader.hlsl">
       <Filter>Engine\Shader\BasicShader</Filter>
+    </FxCompile>
+    <FxCompile Include="PostEffectsPixelShader.hlsl">
+      <Filter>Engine\Shader\FilterShader</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

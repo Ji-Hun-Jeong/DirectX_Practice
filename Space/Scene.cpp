@@ -13,7 +13,7 @@
 Scene::Scene()
 	: m_camera(make_shared<Camera>())
 {
-	
+
 }
 
 void Scene::Init()
@@ -44,14 +44,15 @@ void Scene::Update(float dt)
 	m_globalCD.view = m_globalCD.view.Transpose();
 	m_globalCD.proj = m_globalCD.proj.Transpose();
 	m_globalCD.viewProj = m_globalCD.viewProj.Transpose();
+	m_globalCD.invProj = m_globalCD.invProj.Transpose();
 	D3DUtils::GetInst().UpdateBuffer<GlobalConstData>(m_globalCD, m_globalConstBuffer);
 }
 
-void Scene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
+void Scene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawMirror, bool drawWireFrame)
 {
 	drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
 	for (auto& mesh : m_vecMesh)
-		mesh->Render(context);	
+		mesh->Render(context);
 
 	drawWireFrame ? Graphics::g_skyBoxWirePSO.Setting() : Graphics::g_skyBoxSolidPSO.Setting();
 	m_skybox->Render(context);
@@ -64,19 +65,20 @@ void Scene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
 			mesh->DrawNormal(context);
 	}
 	drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
-
-	context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get(),
-		D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get(), D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (int i = 0; i < m_vecMirrors.size(); ++i)
 	{
 		GraphicsPSO::SetStencilRef(i + 1);
 		Graphics::g_stencilMaskSolidPSO.Setting();
 		m_vecMirrors[i]->Render(context);
 	}
-	for (int i = 0; i < m_vecMirrors.size(); ++i)
+	if (drawMirror)
 	{
-		GraphicsPSO::SetStencilRef(i + 1);
-		this->RenderMirrorWorld(context, m_vecMirrors[i], drawWireFrame);
+		for (int i = 0; i < m_vecMirrors.size(); ++i)
+		{
+			GraphicsPSO::SetStencilRef(i + 1);
+			this->RenderMirrorWorld(context, m_vecMirrors[i], drawWireFrame);
+		}
 	}
 }
 
@@ -92,11 +94,11 @@ void Scene::RenderMirrorWorld(ComPtr<ID3D11DeviceContext>& context, shared_ptr<M
 	context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get(),
 		D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-
+	Matrix basicViewProj = m_globalCD.viewProj;
 	drawWireFrame ? Graphics::g_drawMaskWirePSO.Setting() : Graphics::g_drawMaskSolidPSO.Setting();
 	this->UpdateGlobalBuffer(mirror->GetMirrorViewProj());
 	for (auto& mesh : m_vecMesh)
-		mesh->Render(context);		
+		mesh->Render(context);
 
 	drawWireFrame ? Graphics::g_drawMaskSkyBoxWirePSO.Setting() : Graphics::g_drawMaskSkyBoxSolidPSO.Setting();
 	m_skybox->Render(context);
@@ -106,9 +108,9 @@ void Scene::RenderMirrorWorld(ComPtr<ID3D11DeviceContext>& context, shared_ptr<M
 	drawWireFrame ? Graphics::g_blendWirePSO.Setting() : Graphics::g_blendSolidPSO.Setting();
 
 	// 거울을 그리면서 블랜딩을 해준다.
-	this->UpdateGlobalBuffer(m_globalCD.viewProj);
+	this->UpdateGlobalBuffer(basicViewProj);
 	for (auto& mirror : m_vecMirrors)
-		mirror->Render(context);		
+		mirror->Render(context);
 }
 
 void Scene::ReadCubeImage(const string& fileName, IBL_TYPE textureType)
@@ -157,6 +159,7 @@ void Scene::UpdateGlobalCD()
 	m_globalCD.eyePos = m_camera->GetPos();
 	m_globalCD.view = m_camera->m_view;
 	m_globalCD.proj = m_camera->m_projection;
+	m_globalCD.invProj = m_globalCD.proj.Invert();
 	m_globalCD.viewProj = m_globalCD.view * m_globalCD.proj;
 	m_globalCD.strengthIBL = 1.0f;
 }

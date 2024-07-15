@@ -1,16 +1,9 @@
 #include "Header.hlsli"
 Texture2D g_normalTexture : register(t0);
-cbuffer MeshConstant : register(b1)
+cbuffer MeshConstant : register(b2)
 {
     matrix model;
     matrix invTranspose;
-};
-cbuffer CommonConstant : register(b2)
-{
-    int useHeight = false;
-    float heightScale = 1.0f;
-    int useNormal = false;
-    float normalSize = 1.0f;
 };
 float3 GetNormal(GSInput input)
 {

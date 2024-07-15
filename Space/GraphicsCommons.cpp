@@ -32,6 +32,7 @@ namespace Graphics
 	ComPtr<ID3D11PixelShader> g_copyPS;
 	ComPtr<ID3D11PixelShader> g_blurPS;
 	ComPtr<ID3D11PixelShader> g_combinePS;
+	ComPtr<ID3D11PixelShader> g_postEffectsPS;
 	ComPtr<ID3D11PixelShader> g_dirArrowPS;
 
 	// RasterizerState
@@ -63,6 +64,7 @@ namespace Graphics
 	GraphicsPSO g_drawMaskSkyBoxWirePSO;
 	GraphicsPSO g_blendSolidPSO;
 	GraphicsPSO g_blendWirePSO;
+	GraphicsPSO g_postEffectsPSO;
 	GraphicsPSO g_postProcessPSO;
 
 	void InitCommonStates()
@@ -121,6 +123,7 @@ namespace Graphics
 		D3DUtils::GetInst().CreatePixelShader(L"Copy", g_copyPS);
 		D3DUtils::GetInst().CreatePixelShader(L"Blur", g_blurPS);
 		D3DUtils::GetInst().CreatePixelShader(L"Combine", g_combinePS);
+		D3DUtils::GetInst().CreatePixelShader(L"PostEffects", g_postEffectsPS);
 		D3DUtils::GetInst().CreatePixelShader(L"DirArrow", g_dirArrowPS);
 		
 		D3DUtils::GetInst().CreateGeometryShader(L"Basic", g_basicGS);
@@ -284,10 +287,13 @@ namespace Graphics
 		g_blendWirePSO = g_blendSolidPSO;
 		g_blendWirePSO.SetRS(g_wireCWRS);
 
+		// PostEffectsPSO
+		g_postEffectsPSO = g_defaultSolidPSO;
+		g_postEffectsPSO.SetVS(g_copyVS);
+		g_postEffectsPSO.SetPS(g_postEffectsPS);
+
 		// PostProcessPSO;
-		g_postProcessPSO = g_defaultSolidPSO;
-		g_postProcessPSO.SetVS(g_copyVS);
+		g_postProcessPSO = g_postEffectsPSO;
 		g_postProcessPSO.SetRS(g_postProcessRS);
 	}
-
 }

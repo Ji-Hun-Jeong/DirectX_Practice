@@ -47,14 +47,14 @@ void TestScene::InitIBL()
 
 void TestScene::InitMesh()
 {
-	ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
+	/*ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
 	auto& obj = ModelLoader::GetInst().resultMesh;
 	obj->ReadImage("Image/Character/Sample/angel_armor_albedo.jpg", TEXTURE_TYPE::ALBEDO, true);
 	obj->ReadImage("Image/Character/Sample/angel_armor_metalness.jpg", TEXTURE_TYPE::METAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_normal.jpg", TEXTURE_TYPE::NORMAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_e.jpg", TEXTURE_TYPE::EMISSIVE);
 	obj->ReadImage("Image/Character/Sample/angel_armor_roughness.jpg", TEXTURE_TYPE::ROUGHNESS);
-	m_vecMesh.push_back(obj);
+	m_vecMesh.push_back(obj);*/
 
 	MeshData md = GeometryGenerator::MakeSphere(0.1f, 30, 30);
 	auto light = make_shared<Mesh>();
@@ -78,7 +78,7 @@ void TestScene::InitMesh()
 	mirror->Init(sq);
 	m_vecMirrors.push_back(mirror);
 
-	m_focusObj = obj;
+	m_focusObj = light;
 
 }
 
@@ -93,6 +93,11 @@ void TestScene::InitSkyBox()
 void TestScene::UpdateGUI()
 {
 	ImGui::Checkbox("DrawWireFrame", &SceneMgr::GetInst().m_drawWireFrame);
+	ImGui::RadioButton("Render", &m_commonCD.mode, 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("Depth", &m_commonCD.mode, 1);
+	ImGui::SliderFloat("Depth Strength", &m_commonCD.depthStrength, 0.0f, 1.0f);
+	ImGui::SliderFloat("Fog Strength", &m_commonCD.fogStrength, 0.0f, 1.0f);
 	ImGui::CheckboxFlags("Use Albedo", &m_materialCD.useAlbedo, 1);
 	ImGui::SliderFloat3("AlbedoFactor", &m_materialCD.albedoFactor.x, 0.0f, 1.0f);
 	ImGui::Checkbox("DrawNormal", &m_drawNormal);

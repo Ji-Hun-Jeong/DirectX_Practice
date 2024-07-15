@@ -8,7 +8,7 @@ Texture2D g_metallicTexture : register(t4);
 Texture2D g_roughnessTexture : register(t5);
 
 static const float PI = 3.141592f;
-cbuffer MaterialConstant : register(b1)
+cbuffer MaterialConstant : register(b2)
 {
     float3 albedoFactor;
     float metallicFactor;
@@ -23,14 +23,6 @@ cbuffer MaterialConstant : register(b1)
     int useMetallic;
     int isLight;
     float Dummy[2];
-};
-
-cbuffer CommonConstant : register(b2)
-{
-    int useHeight = false;
-    float heightScale = 1.0f;
-    int useNormal = false;
-    float normalSize = 1.0f;
 };
 
 float CalcAttenuation(float dist)

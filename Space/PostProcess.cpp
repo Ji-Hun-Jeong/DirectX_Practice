@@ -44,7 +44,7 @@ void PostProcess::Render(ComPtr<ID3D11DeviceContext>& context)
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride, &offset);
 	context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	
-	context->PSSetConstantBuffers(1, 1, m_constBuffer.GetAddressOf());
+	context->PSSetConstantBuffers(2, 1, m_constBuffer.GetAddressOf());
 	for (auto& filter : m_filters)
 	{
 		if (filter)

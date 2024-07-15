@@ -1,14 +1,14 @@
 #include "Header.hlsli"
-cbuffer MeshConstant : register(b1)
+cbuffer MeshConstant : register(b2)
 {
     matrix model;
     matrix invTranspose;
     float3 viewDir;
     float arrowSize = 1.0f;
     float3 upDir;
-    float dummy1 = 0.0f;
+    float dummy3 = 0.0f;
     float3 rightDir;
-    float dummy2 = 0.0f;
+    float dummy4 = 0.0f;
 };
 GSInput main(VSInput input) 
 {

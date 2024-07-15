@@ -2,7 +2,7 @@
 Texture2D g_originalTexture : register(t0);
 Texture2D g_blurTexture : register(t1);
 
-cbuffer ImageFilterConst : register(b1)
+cbuffer ImageFilterConst : register(b2)
 {
     float dx;
     float dy;

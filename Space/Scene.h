@@ -13,7 +13,7 @@ public:
 	virtual void Exit() = 0;
 	virtual void Update(float dt);
 	virtual void UpdateGUI() = 0;
-	virtual void Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame);
+	virtual void Render(ComPtr<ID3D11DeviceContext>& context, bool drawMirror, bool drawWireFrame);
 	
 	shared_ptr<Camera>& GetCamera() { return m_camera; }
 	ComPtr<ID3D11ShaderResourceView>& GetIBLSRV(TEXTURE_TYPE textureType) { return m_iblSRV[(UINT)textureType]; }
