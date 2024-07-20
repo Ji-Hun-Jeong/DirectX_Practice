@@ -12,6 +12,7 @@ namespace Graphics
 	extern ComPtr<ID3D11VertexShader> g_skyboxVS;
 	extern ComPtr<ID3D11VertexShader> g_normalVS;
 	extern ComPtr<ID3D11VertexShader> g_copyVS;
+	extern ComPtr<ID3D11VertexShader> g_depthOnlyVS;
 	extern ComPtr<ID3D11VertexShader> g_dirArrowVS;
 
 	// InputLayout
@@ -29,6 +30,7 @@ namespace Graphics
 	extern ComPtr<ID3D11PixelShader> g_copyPS;
 	extern ComPtr<ID3D11PixelShader> g_blurPS;
 	extern ComPtr<ID3D11PixelShader> g_combinePS;
+	extern ComPtr<ID3D11PixelShader> g_depthOnlyPS;
 	extern ComPtr<ID3D11PixelShader> g_postEffectsPS;
 	extern ComPtr<ID3D11PixelShader> g_dirArrowPS;
 
@@ -61,6 +63,7 @@ namespace Graphics
 	extern GraphicsPSO g_drawMaskSkyBoxWirePSO;
 	extern GraphicsPSO g_blendSolidPSO;
 	extern GraphicsPSO g_blendWirePSO;
+	extern GraphicsPSO g_depthOnlyPSO;
 	extern GraphicsPSO g_postEffectsPSO;
 	extern GraphicsPSO g_postProcessPSO;
 	

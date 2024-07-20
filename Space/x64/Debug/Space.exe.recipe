@@ -28,6 +28,12 @@
       <FullPath>E:\source\repos\DX_Space\x64\Debug\CopyVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\DepthOnlyPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\DepthOnlyVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>E:\source\repos\DX_Space\x64\Debug\PostEffectsPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>

@@ -2,8 +2,8 @@
 Texture2D g_normalTexture : register(t0);
 cbuffer MeshConstant : register(b2)
 {
-    matrix model;
-    matrix invTranspose;
+    matrix world;
+    matrix worldIT;
 };
 float3 GetNormal(GSInput input)
 {

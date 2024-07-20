@@ -9,6 +9,7 @@
 #include "GraphicsCommons.h"
 #include "GraphicsPSO.h"
 #include "PostProcess.h"
+#include "Light.h"
 
 Scene::Scene()
 	: m_camera(make_shared<Camera>())
@@ -48,38 +49,73 @@ void Scene::Update(float dt)
 	D3DUtils::GetInst().UpdateBuffer<GlobalConstData>(m_globalCD, m_globalConstBuffer);
 }
 
-void Scene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawMirror, bool drawWireFrame)
+void Scene::RenderDepthOnly(ComPtr<ID3D11DeviceContext>& context, ComPtr<ID3D11DepthStencilView>& dsv)
 {
-	drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
+	Graphics::g_depthOnlyPSO.Setting();
+	context->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0.0f);
+	context->OMSetRenderTargets(0, nullptr, dsv.Get());
 	for (auto& mesh : m_vecMesh)
 		mesh->Render(context);
-
-	drawWireFrame ? Graphics::g_skyBoxWirePSO.Setting() : Graphics::g_skyBoxSolidPSO.Setting();
 	m_skybox->Render(context);
+	for (auto& mirror : m_vecMirrors)
+		mirror->Render(context);
+}
 
-	// 노말 그리기
-	if (GETCURSCENE()->m_drawNormal)
+void Scene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
+{
+	for (auto& light : m_vecLights)
 	{
-		Graphics::g_normalPSO.Setting();
+		m_globalCD.light.lightPos = light->m_translation;
+		m_globalCD.light.lightViewProj = light->GetViewProj();
+		D3DUtils::GetInst().UpdateBuffer<GlobalConstData>(m_globalCD, m_globalConstBuffer);
+
+		// 다시 바꿔야함, 모든걸 한번에 넣어야함
+		context->PSSetShaderResources(10 + (UINT)IBL_TYPE::END, 1, light->GetLightViewSRV().GetAddressOf());
+
+		drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
 		for (auto& mesh : m_vecMesh)
-			mesh->DrawNormal(context);
-	}
-	drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
-	context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get(), D3D11_CLEAR_STENCIL, 1.0f, 0);
-	for (int i = 0; i < m_vecMirrors.size(); ++i)
-	{
-		GraphicsPSO::SetStencilRef(i + 1);
-		Graphics::g_stencilMaskSolidPSO.Setting();
-		m_vecMirrors[i]->Render(context);
-	}
-	if (drawMirror)
-	{
+			mesh->Render(context);
+
+		drawWireFrame ? Graphics::g_skyBoxWirePSO.Setting() : Graphics::g_skyBoxSolidPSO.Setting();
+		m_skybox->Render(context);
+
+		// 노말 그리기
+		if (GETCURSCENE()->m_drawNormal)
+		{
+			Graphics::g_normalPSO.Setting();
+			for (auto& mesh : m_vecMesh)
+				mesh->DrawNormal(context);
+		}
+		drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
+		context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get(), D3D11_CLEAR_STENCIL, 1.0f, 0);
+		for (int i = 0; i < m_vecMirrors.size(); ++i)
+		{
+			GraphicsPSO::SetStencilRef(i + 1);
+			Graphics::g_stencilMaskSolidPSO.Setting();
+			m_vecMirrors[i]->Render(context);
+		}
 		for (int i = 0; i < m_vecMirrors.size(); ++i)
 		{
 			GraphicsPSO::SetStencilRef(i + 1);
 			this->RenderMirrorWorld(context, m_vecMirrors[i], drawWireFrame);
 		}
 	}
+}
+
+void Scene::RenderLightView(ComPtr<ID3D11DeviceContext>& context)
+{
+	GlobalConstData prevData = m_globalCD;
+	for (auto& light : m_vecLights)
+	{
+		m_globalCD.view = light->GetView();
+		m_globalCD.proj = light->GetProj();
+		m_globalCD.viewProj = light->GetViewProj();
+		D3DUtils::GetInst().UpdateBuffer<GlobalConstData>(m_globalCD, m_globalConstBuffer);
+		
+		RenderDepthOnly(context, light->GetLightViewDSV());
+	}
+	m_globalCD = prevData;
+	D3DUtils::GetInst().UpdateBuffer<GlobalConstData>(m_globalCD, m_globalConstBuffer);
 }
 
 void Scene::RenderMirrorWorld(ComPtr<ID3D11DeviceContext>& context, shared_ptr<Mirror>& mirror, bool drawWireFrame)

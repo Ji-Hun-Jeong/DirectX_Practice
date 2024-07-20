@@ -16,12 +16,13 @@ struct MyRay
 	Vector3 startPos;
 	Vector3 rayDir;
 };
-struct Light	// 32
+struct LightConst	// 32
 {
 	Vector3 lightPos = Vector3(0.0f);
 	float fallOfStart = 1.0f;
 	Vector3 lightStrength = Vector3(1.0f);
 	float fallOfEnd = 10.0f;
+	Matrix lightViewProj;
 };
 struct Rim
 {
@@ -52,7 +53,8 @@ __declspec(align(256)) struct MaterialConstData
 
 	int useMetallic = true;
 	int isLight = false;
-	float dummy[2];
+	float ambientFactor = 1.0f;
+	float dummy;
 };
 
 __declspec(align(256)) struct CommonConstData
@@ -78,7 +80,7 @@ __declspec(align(256)) struct GlobalConstData
 	Vector3 eyePos;
 	float strengthIBL = 1.0f;
 
-	Light light;
+	LightConst light;
 	float exposure = 1.0f;
 	float gamma = 1.0f;
 	float dummy[2];

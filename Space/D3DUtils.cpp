@@ -229,6 +229,41 @@ void D3DUtils::ReadCubeImage(const string& fileName, ComPtr<ID3D11Texture2D>& te
 		, shaderResourceView.GetAddressOf(), nullptr);
 }
 
+void D3DUtils::CreateDepthOnlyResources(float width, float height, ComPtr<ID3D11Texture2D>& buffer, ComPtr<ID3D11DepthStencilView>& dsv, ComPtr<ID3D11ShaderResourceView>& srv)
+{
+	// 여기서부터는 깊이버퍼를 SRV로 쓰기위한 것들을 만드는 작업
+	// Texture2DMS가 아닌 Texture2D로 만들어서 SRV로 사용
+	D3D11_TEXTURE2D_DESC depthBufferDesc;
+	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
+	depthBufferDesc.Width = UINT(width);
+	depthBufferDesc.Height = UINT(height);
+	depthBufferDesc.MipLevels = 1;
+	depthBufferDesc.ArraySize = 1;
+	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthBufferDesc.CPUAccessFlags = 0;
+	depthBufferDesc.MiscFlags = 0;
+	depthBufferDesc.Format = DXGI_FORMAT_R32_TYPELESS;	// 이 텍스쳐를 어떤 포맷으로 쓸지는 이 텍스쳐를 사용하는 view에서 정하게 해줌
+	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	depthBufferDesc.SampleDesc.Count = 1;
+	depthBufferDesc.SampleDesc.Quality = 0;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	ZeroMemory(&dsvDesc, sizeof(dsvDesc));
+	// 반드시 밑의 2가지를 depthBuffer와 특성을 맞춰줘야함
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;	// 깊이만을 위한 32비트 부동소수점 지원
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	CreateDepthStencilView(&depthBufferDesc, buffer, &dsvDesc, dsv);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;	// 깊이를 한가지 값으로만 쓸 것
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	CHECKRESULT(m_device->CreateShaderResourceView(buffer.Get(),
+		&srvDesc, srv.GetAddressOf()))
+}
+
 void D3DUtils::ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView)
 {
 	int width = 0;

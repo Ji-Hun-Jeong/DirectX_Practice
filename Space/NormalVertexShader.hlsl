@@ -1,8 +1,8 @@
 #include "Header.hlsli"
 cbuffer MeshConstant : register(b2)
 {
-    matrix model;
-    matrix invTranspose;
+    matrix world;
+    matrix worldIT;
 };
 
 GSInput main(VSInput input) 
@@ -10,9 +10,9 @@ GSInput main(VSInput input)
     GSInput output;
     float4 pos = float4(input.position, 1.0f);
     float4 normal = float4(input.normal, 0.0f);
-    pos = mul(pos, model);
+    pos = mul(pos, world);
    
-    normal = mul(normal, invTranspose);
+    normal = mul(normal, worldIT);
     normal = normalize(normal);
     
     output.position = pos.xyz;

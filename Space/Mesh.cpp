@@ -58,8 +58,6 @@ void Mesh::UpdateMeshConstantData(float dt)
 	Quaternion rotateX = Quaternion::CreateFromAxisAngle(Vector3{ 1.0f,0.0f,0.0f }, m_rotation1.x);
 	Quaternion rotateY = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,1.0f,0.0f }, m_rotation1.y);
 	Quaternion rotateZ = Quaternion::CreateFromAxisAngle(Vector3{ 0.0f,0.0f,1.0f }, m_rotation1.z);
-	if (m_bIsLight)
-		m_translation = GETCURSCENE()->m_globalCD.light.lightPos;
 
 	m_meshConstData.world =
 		Matrix::CreateScale(m_scale)
@@ -68,7 +66,7 @@ void Mesh::UpdateMeshConstantData(float dt)
 		* Matrix::CreateFromQuaternion(rotateZ)
 		* Matrix::CreateTranslation(m_translation)
 		* Matrix::CreateRotationX(m_rotation2.x)
-		* Matrix::CreateRotationY(m_rotation2.y)
+		* Matrix::CreateRotationY(m_rotation2.y * time)
 		* Matrix::CreateRotationZ(m_rotation2.z);
 
 	if (m_ownerObj)
@@ -98,7 +96,6 @@ void Mesh::UpdateMaterialConstantData()
 		m_materialConstData.useMetallic = false;
 	if (!m_arrSRV[(UINT)TEXTURE_TYPE::ROUGHNESS])
 		m_materialConstData.useRoughness = false;
-	m_materialConstData.isLight = m_bIsLight;
 }
 
 void Mesh::UpdateCommonConstantData()

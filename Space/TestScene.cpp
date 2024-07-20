@@ -9,6 +9,7 @@
 #include "Mirror.h"
 #include "D3DUtils.h"
 #include "GraphicsCommons.h"
+#include "Light.h"
 
 TestScene::TestScene()
 	: Scene()
@@ -28,7 +29,6 @@ void TestScene::Enter()
 	context->PSSetConstantBuffers(0, 1, m_globalConstBuffer.GetAddressOf());
 	context->PSSetShaderResources(10, (UINT)IBL_TYPE::END, m_iblSRV[(UINT)IBL_TYPE::SPECULAR].GetAddressOf());
 
-	m_globalCD.light.lightPos = Vector3{ 0.0f,2.0f,-1.0f };
 	GETCAMERA()->SetPos(Vector3(0.0f, 1.0f, -1.0f));
 	GETCAMERA()->SetSpeed(5.0f);
 }
@@ -47,20 +47,26 @@ void TestScene::InitIBL()
 
 void TestScene::InitMesh()
 {
-	/*ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
+	ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
 	auto& obj = ModelLoader::GetInst().resultMesh;
 	obj->ReadImage("Image/Character/Sample/angel_armor_albedo.jpg", TEXTURE_TYPE::ALBEDO, true);
 	obj->ReadImage("Image/Character/Sample/angel_armor_metalness.jpg", TEXTURE_TYPE::METAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_normal.jpg", TEXTURE_TYPE::NORMAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_e.jpg", TEXTURE_TYPE::EMISSIVE);
 	obj->ReadImage("Image/Character/Sample/angel_armor_roughness.jpg", TEXTURE_TYPE::ROUGHNESS);
-	m_vecMesh.push_back(obj);*/
+	m_vecMesh.push_back(obj);
 
 	MeshData md = GeometryGenerator::MakeSphere(0.1f, 30, 30);
-	auto light = make_shared<Mesh>();
+	auto light = make_shared<Light>();
 	light->Init(md);
-	light->m_bIsLight = true;
+	light->m_rotation2.y = 0.3f;
 	m_vecMesh.push_back(light);
+	m_vecLights.push_back(light);
+
+	/*auto l = make_shared<Mesh>();
+	l->Init(md);
+	l->m_translation.y = 0.5f;
+	m_vecMesh.push_back(l);*/
 
 	MeshData sq = GeometryGenerator::MakeSquare();
 	auto ground = make_shared<Mesh>();
@@ -69,6 +75,7 @@ void TestScene::InitMesh()
 	ground->m_rotation1 = Vector3(XM_PI / 2.0f, 0.0f, 0.0f);
 	ground->m_scale = Vector3(5.0f);
 	m_vecMesh.push_back(ground);
+
 
 	auto mirror = make_shared<Mirror>("Mirror", Vector3(2.0f, 1.6f, 0.0f), Vector3(0.0f, 90.0f, 0.0f), Vector3(0.0f), Vector3(1.0f, 1.66f, 1.0f));
 	mirror->Init(sq);
@@ -117,9 +124,11 @@ void TestScene::UpdateGUI()
 	ImGui::SliderFloat("Alpha", &m_fAlpha, 0.0f, 1.0f);
 	ImGui::SliderFloat("Exposure", &m_globalCD.exposure, 0.0f, 5.0f);
 	ImGui::SliderFloat("Gamma", &m_globalCD.gamma, 0.0f, 5.0f);
+	ImGui::SliderFloat("AmbientFactor", &m_materialCD.ambientFactor, 0.0f, 1.0f);
 
 	ImGui::SliderFloat("LightStrength", &m_globalCD.light.lightStrength.x, 0.0f, 1.0f);
-	ImGui::SliderFloat3("LightPos", &m_globalCD.light.lightPos.x, -5.0f, 5.0f);
+	if (m_vecLights[0])
+		ImGui::SliderFloat3("LightPos", &m_vecLights[0]->m_translation.x, -5.0f, 5.0f);
 
 	// ImGui::SliderFloat("fallOfStart", &m_pixelConstantData.light.fallOfStart, 0.0f, 5.0f);
 	// ImGui::SliderFloat("fallOfEnd", &m_pixelConstantData.light.fallOfEnd, 0.0f, 10.0f);

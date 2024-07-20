@@ -12,6 +12,7 @@
 #include "GraphicsPSO.h"
 #include "Mesh.h"
 #include "GeometryGenerator.h"
+#include "Light.h"
 SceneMgr SceneMgr::m_inst;
 SceneMgr::SceneMgr()
 	: m_arrScene{}
@@ -98,32 +99,36 @@ void SceneMgr::Render()
 	context->ClearRenderTargetView(m_msaaRTV.Get(), clearColor);
 	context->ClearRenderTargetView(m_notMsaaRTV.Get(), clearColor);
 
-	context->ClearDepthStencilView(m_notMSDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	context->OMSetRenderTargets(1, m_notMsaaRTV.GetAddressOf(), m_notMSDSV.Get());
-
 	context->RSSetViewports(1, &m_viewPort);
+	{
+		m_curScene->RenderDepthOnly(context, m_depthOnlyDSV);
+		m_curScene->RenderLightView(context);
+	}
 
-	m_curScene->Render(context, false, m_drawWireFrame);
+	{
+		context->ClearDepthStencilView(m_useMSAADSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		context->OMSetRenderTargets(1, m_msaaRTV.GetAddressOf(), m_useMSAADSV.Get());
 
-	context->ClearDepthStencilView(m_DSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	context->OMSetRenderTargets(1, m_msaaRTV.GetAddressOf(), m_DSV.Get());
-
-	m_curScene->Render(context, true, m_drawWireFrame);
+		m_curScene->Render(context, m_drawWireFrame);
+	}
 
 	// 현재까지는 MSAA가 지원되는 RTV에 렌더링하였고 이제는 그걸 MSAA지원 안되는 RTV에 복사
 	context->ResolveSubresource(m_notMsaaTexture.Get(), 0, m_msaaTexture.Get(), 0
 		, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
-	Graphics::g_postEffectsPSO.Setting();
-	vector<ID3D11ShaderResourceView*> srv =
-	{ m_notMsaaSRV.Get(), m_depthSRV.Get() };
-	context->PSSetShaderResources(20, srv.size(), srv.data());
-	context->OMSetRenderTargets(1, m_postEffectsRTV.GetAddressOf(), nullptr); // DSV를 왜 nullptr로 해야할까....
-	m_postEffects->Render(context);
+	{
+		Graphics::g_postEffectsPSO.Setting();
+		vector<ID3D11ShaderResourceView*> srv =
+		{ m_notMsaaSRV.Get(), /*m_depthOnlySRV.Get()*/GETCURSCENE()->m_vecLights[0]->GetLightViewSRV().Get()};
+		context->PSSetShaderResources(20, srv.size(), srv.data());
+		context->OMSetRenderTargets(1, m_postEffectsRTV.GetAddressOf(), nullptr); // DSV를 왜 nullptr로 해야할까....
+		m_postEffects->Render(context);
+	}
 
-	Graphics::g_postProcessPSO.Setting();
-	m_postProcess->Render(context);
+	{
+		Graphics::g_postProcessPSO.Setting();
+		m_postProcess->Render(context);
+	}
 }
 
 void SceneMgr::ChangeCurScene(SCENE_TYPE scene)
@@ -165,6 +170,7 @@ void SceneMgr::CreateViewPort()
 	m_viewPort.Height = m_fHeight;
 	m_viewPort.MinDepth = 0.0f;
 	m_viewPort.MaxDepth = 1.0f;
+
 }
 
 void SceneMgr::CreateRenderBuffer()
@@ -240,29 +246,9 @@ bool SceneMgr::CreateDepthStencilView()
 	depthBufferDesc.CPUAccessFlags = 0;
 	depthBufferDesc.MiscFlags = 0;
 
-	D3DUtils::GetInst().CreateDepthStencilView(&depthBufferDesc, m_depthBuffer, nullptr, m_DSV);
+	D3DUtils::GetInst().CreateDepthStencilView(&depthBufferDesc, m_useMSAADepthBuffer, nullptr, m_useMSAADSV);
 
-	// 여기서부터는 깊이버퍼를 SRV로 쓰기위한 것들을 만드는 작업
-	// Texture2DMS가 아닌 Texture2D로 만들어서 SRV로 사용
-	depthBufferDesc.Format = DXGI_FORMAT_R32_TYPELESS;	// 이 텍스쳐를 어떤 포맷으로 쓸지는 이 텍스쳐를 사용하는 view에서 정하게 해줌
-	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-	depthBufferDesc.SampleDesc.Count = 1;
-	depthBufferDesc.SampleDesc.Quality = 0;
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-	ZeroMemory(&dsvDesc, sizeof(dsvDesc));
-	// 반드시 밑의 2가지를 depthBuffer와 특성을 맞춰줘야함
-	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;	// 깊이만을 위한 32비트 부동소수점 지원
-	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	D3DUtils::GetInst().CreateDepthStencilView(&depthBufferDesc, m_notMSDepthBuffer, &dsvDesc, m_notMSDSV);
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(srvDesc));
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;	// 깊이를 한가지 값으로만 쓸 것
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-	D3DUtils::GetInst().GetDevice()->CreateShaderResourceView(m_notMSDepthBuffer.Get(),
-		&srvDesc, m_depthSRV.GetAddressOf());
+	D3DUtils::GetInst().CreateDepthOnlyResources(m_fWidth, m_fHeight, m_depthOnlyBuffer, m_depthOnlyDSV, m_depthOnlySRV);
 
 	return true;
 }

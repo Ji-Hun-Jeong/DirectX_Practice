@@ -15,7 +15,7 @@ float4 ToViewSpace(float2 uv)
 }
 float4 main(PSInput input) : SV_TARGET
 {
-    float3 depth = ToViewSpace(input.uv).z * depthStrength;
+    float3 depth = ToViewSpace(input.uv).z * depthStrength * 0.1f;
     float3 color = 1.0f;
     if (mode == 1)
         color = depth;

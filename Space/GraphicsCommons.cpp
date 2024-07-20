@@ -15,6 +15,7 @@ namespace Graphics
 	ComPtr<ID3D11VertexShader> g_skyboxVS;
 	ComPtr<ID3D11VertexShader> g_normalVS;
 	ComPtr<ID3D11VertexShader> g_copyVS;
+	ComPtr<ID3D11VertexShader> g_depthOnlyVS;
 	ComPtr<ID3D11VertexShader> g_dirArrowVS;
 
 	// InputLayout
@@ -32,6 +33,7 @@ namespace Graphics
 	ComPtr<ID3D11PixelShader> g_copyPS;
 	ComPtr<ID3D11PixelShader> g_blurPS;
 	ComPtr<ID3D11PixelShader> g_combinePS;
+	ComPtr<ID3D11PixelShader> g_depthOnlyPS;
 	ComPtr<ID3D11PixelShader> g_postEffectsPS;
 	ComPtr<ID3D11PixelShader> g_dirArrowPS;
 
@@ -64,6 +66,7 @@ namespace Graphics
 	GraphicsPSO g_drawMaskSkyBoxWirePSO;
 	GraphicsPSO g_blendSolidPSO;
 	GraphicsPSO g_blendWirePSO;
+	GraphicsPSO g_depthOnlyPSO;
 	GraphicsPSO g_postEffectsPSO;
 	GraphicsPSO g_postProcessPSO;
 
@@ -115,6 +118,7 @@ namespace Graphics
 		D3DUtils::GetInst().CreateVertexShaderAndInputLayout(L"SkyBox", g_skyboxVS, desc, g_basicInputLayout);
 		D3DUtils::GetInst().CreateVertexShaderAndInputLayout(L"Normal", g_normalVS, desc, g_basicInputLayout);
 		D3DUtils::GetInst().CreateVertexShaderAndInputLayout(L"Copy", g_copyVS, desc, g_basicInputLayout);
+		D3DUtils::GetInst().CreateVertexShaderAndInputLayout(L"DepthOnly", g_depthOnlyVS, desc, g_basicInputLayout);
 		D3DUtils::GetInst().CreateVertexShaderAndInputLayout(L"DirArrow", g_dirArrowVS, desc, g_basicInputLayout);
 
 		D3DUtils::GetInst().CreatePixelShader(L"Basic", g_basicPS);
@@ -123,6 +127,7 @@ namespace Graphics
 		D3DUtils::GetInst().CreatePixelShader(L"Copy", g_copyPS);
 		D3DUtils::GetInst().CreatePixelShader(L"Blur", g_blurPS);
 		D3DUtils::GetInst().CreatePixelShader(L"Combine", g_combinePS);
+		D3DUtils::GetInst().CreatePixelShader(L"DepthOnly", g_depthOnlyPS);
 		D3DUtils::GetInst().CreatePixelShader(L"PostEffects", g_postEffectsPS);
 		D3DUtils::GetInst().CreatePixelShader(L"DirArrow", g_dirArrowPS);
 		
@@ -286,6 +291,11 @@ namespace Graphics
 		// BlendWirePSO
 		g_blendWirePSO = g_blendSolidPSO;
 		g_blendWirePSO.SetRS(g_wireCWRS);
+
+		// DepthOnlyPSO
+		g_depthOnlyPSO = g_defaultSolidPSO;
+		g_depthOnlyPSO.SetVS(g_depthOnlyVS);
+		g_depthOnlyPSO.SetPS(g_depthOnlyPS);
 
 		// PostEffectsPSO
 		g_postEffectsPSO = g_defaultSolidPSO;

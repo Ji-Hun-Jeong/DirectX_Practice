@@ -27,6 +27,7 @@ struct Light	// 32
     float fallOfStart;
     float3 lightStrength;
     float fallOfEnd;
+    matrix lightViewProj;
 };
 
 struct Material	// 48
@@ -88,6 +89,7 @@ cbuffer CommonConstant : register(b1)
 TextureCube g_specularTexture : register(t10);
 TextureCube g_irradianceTexture : register(t11);
 Texture2D g_lutTexture : register(t12);
+Texture2D g_lightViewTexture : register(t13);
 
 SamplerState g_linearSampler : register(s0);
 SamplerState g_clampSampler : register(s1);

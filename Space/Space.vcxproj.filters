@@ -83,6 +83,9 @@
     <Filter Include="Another">
       <UniqueIdentifier>{147db4de-c64c-4d8b-b3d8-4f6ffd160a5c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Mesh\Light">
+      <UniqueIdentifier>{a51208d8-658a-4c0a-af60-f5ab37c4e878}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -160,6 +163,9 @@
     <ClInclude Include="GraphicsPSO.h">
       <Filter>Engine\GraphicsPSO</Filter>
     </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Engine\Mesh\Light</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -229,6 +235,9 @@
     <ClCompile Include="GraphicsPSO.cpp">
       <Filter>Engine\GraphicsPSO</Filter>
     </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Engine\Mesh\Light</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicVertexShader.hlsl">
@@ -280,6 +289,12 @@
       <Filter>Engine\Shader\BasicShader</Filter>
     </FxCompile>
     <FxCompile Include="PostEffectsPixelShader.hlsl">
+      <Filter>Engine\Shader\FilterShader</Filter>
+    </FxCompile>
+    <FxCompile Include="DepthOnlyVertexShader.hlsl">
+      <Filter>Engine\Shader\FilterShader</Filter>
+    </FxCompile>
+    <FxCompile Include="DepthOnlyPixelShader.hlsl">
       <Filter>Engine\Shader\FilterShader</Filter>
     </FxCompile>
   </ItemGroup>

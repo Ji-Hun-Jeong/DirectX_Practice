@@ -63,7 +63,5 @@ public:
 	Vector3 m_rotation1;
 	Vector3 m_rotation2;
 	Vector3 m_scale;
-
-	bool m_bIsLight = false;
 };
 

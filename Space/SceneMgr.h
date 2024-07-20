@@ -24,7 +24,7 @@ public:
 	bool m_drawWireFrame = false;
 
 public:
-	ComPtr<ID3D11DepthStencilView>& GetDepthStencilView() { return m_DSV; }
+	ComPtr<ID3D11DepthStencilView>& GetDepthStencilView() { return m_useMSAADSV; }
 	ComPtr<ID3D11RenderTargetView>& GetRenderTargetView() { return m_renderTargetView; }
 	shared_ptr<Scene>& GetCurScene() { return m_curScene; }
 private:
@@ -53,12 +53,12 @@ private:
 
 	D3D11_VIEWPORT m_viewPort;
 
-	ComPtr<ID3D11Texture2D> m_depthBuffer;
-	ComPtr<ID3D11DepthStencilView> m_DSV;
+	ComPtr<ID3D11Texture2D> m_useMSAADepthBuffer;
+	ComPtr<ID3D11DepthStencilView> m_useMSAADSV;
 
-	ComPtr<ID3D11Texture2D> m_notMSDepthBuffer;
-	ComPtr<ID3D11DepthStencilView> m_notMSDSV;
-	ComPtr<ID3D11ShaderResourceView> m_depthSRV;
+	ComPtr<ID3D11Texture2D> m_depthOnlyBuffer;
+	ComPtr<ID3D11DepthStencilView> m_depthOnlyDSV;
+	ComPtr<ID3D11ShaderResourceView> m_depthOnlySRV;
 
 	UINT m_iNumOfMultiSamplingLevel;
 // SingleTon

@@ -22,7 +22,8 @@ cbuffer MaterialConstant : register(b2)
     
     int useMetallic;
     int isLight;
-    float Dummy[2];
+    float ambientFactor;
+    float Dummy;
 };
 
 float CalcAttenuation(float dist)
@@ -78,11 +79,11 @@ float3 AmbientLighting(float3 albedo, float3 ao, float3 normal, float3 v
     float3 F = lerp(F0, albedo, metallic);
     float3 diffuse = GetDiffuseByIBL(albedo, normal, 1.0f - F); // 얘가 다른곳에서 오는 난반사
     float3 specular = GetSpecularByIBL(albedo, normal, v, F, roughness); // 얘는 다른곳에서 오는 정반사
-    return (diffuse + specular) * ao ; // 최종적으로 한 픽셀이 가지는 주변광 따라서 ao도 여기서만 곱하기
+    return (diffuse + specular) * ao; // 최종적으로 한 픽셀이 가지는 주변광 따라서 ao도 여기서만 곱하기
 }
 
 // Normal Distribution, 우리가 보는 방향이 미세표면의 노말인 표면의 비율 스페큘러에서 하이라이트를 결정
-float SpecularD(float ndoth,float roughness)
+float SpecularD(float ndoth, float roughness)
 {
     float minRoughness = max(roughness, 1e-5);
     float alpha = minRoughness * minRoughness;
@@ -103,10 +104,27 @@ float SpecularG(float ndotl, float ndotv, float roughness)
 {
     return G1(ndotl, roughness) * G1(ndotv, roughness);
 }
-
+float3 GetShadowFactor(float3 posWorld)
+{
+    float4 lightViewPos = float4(posWorld, 1.0f);
+    lightViewPos = mul(lightViewPos, light.lightViewProj);
+    lightViewPos.xyz /= lightViewPos.w;
+    if (lightViewPos.x < -1 || lightViewPos.x > 1 || lightViewPos.y < -1 || lightViewPos.y > 1)
+        return 1.0f;
+    
+    float2 lightViewScreen = lightViewPos.xy * float2(1.0f, -1.0f);
+    lightViewScreen = (lightViewScreen + 1.0f) * 0.5f;
+    
+    float lightViewDepth = g_lightViewTexture.Sample(g_linearSampler, lightViewScreen);
+    
+    if (lightViewDepth + 0.0001f < lightViewPos.z)
+        return 0.0f;
+    else
+        return 1.0f;
+}
 // 실제 광원에서 물체에 맞아 반사되는 빛의 양을 계산
 // 이것이 Shading Model에서의 PBR 위의 Image Based Lighting은 할지말지 결정할 수 있는 것
-float3 DirectLight(float3 albedo, float3 normal, float3 l, float3 v, float3 h, float roughness, float metallic)
+float3 DirectLight(float3 posWorld, float3 albedo, float3 normal, float3 l, float3 v, float3 h, float roughness, float metallic)
 {
     float ndotl = max(dot(normal, l), 0.0f);
     float ndoth = max(dot(normal, h), 0.0f);
@@ -131,13 +149,13 @@ float3 DirectLight(float3 albedo, float3 normal, float3 l, float3 v, float3 h, f
     float3 specular = (F * D * G) / max(1e-5, 4.0f * ndotl * ndotv);
     float distance = length(l);
     float3 lightStrength = light.lightStrength * CalcAttenuation(distance);
-
-    return (diffuse + specular) * lightStrength;
+    float3 shadowFactor = GetShadowFactor(posWorld);
+    return (diffuse + specular) * lightStrength * shadowFactor;
 }
 
 float4 main(PSInput input) : SV_TARGET
-{    
-    if(isLight)
+{
+    if (isLight)
         return float4(1.0f, 1.0f, 0.0f, 1.0f);
     float3 albedo = useAlbedo ? g_albedoTexture.SampleLevel(g_linearSampler, input.uv, 0) : albedoFactor;
     float3 normal = useNormal ? GetNormal(input) : input.normal;
@@ -150,12 +168,11 @@ float4 main(PSInput input) : SV_TARGET
     float3 h = normalize(l + v);
     float ndotl = max(0.0f, dot(l, normal));
     
-    float3 ambientLight = AmbientLighting(albedo, ao, normal, v, h, metallic, roughness);
-    float3 directLight = DirectLight(albedo, normal, l, v, h, roughness, metallic) * ndotl * light.lightStrength;
+    float3 ambientLight = AmbientLighting(albedo, ao, normal, v, h, metallic, roughness) * ambientFactor;
+    float3 directLight = DirectLight(input.posWorld.xyz, albedo, normal, l, v, h, roughness, metallic) * ndotl * light.lightStrength;
     
     float3 emissive = useEmissive ? g_emissiveTexture.SampleLevel(g_linearSampler, input.uv, 0) : emissionFactor;
     float3 color = (ambientLight + directLight) + emissive;
-    
     
     return float4(color, 1.0f);
 }
