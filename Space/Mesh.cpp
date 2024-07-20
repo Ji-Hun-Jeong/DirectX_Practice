@@ -66,7 +66,7 @@ void Mesh::UpdateMeshConstantData(float dt)
 		* Matrix::CreateFromQuaternion(rotateZ)
 		* Matrix::CreateTranslation(m_translation)
 		* Matrix::CreateRotationX(m_rotation2.x)
-		* Matrix::CreateRotationY(m_rotation2.y * time)
+		* Matrix::CreateRotationY(m_rotation2.y)
 		* Matrix::CreateRotationZ(m_rotation2.z);
 
 	if (m_ownerObj)

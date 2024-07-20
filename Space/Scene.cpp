@@ -66,7 +66,10 @@ void Scene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
 	for (auto& light : m_vecLights)
 	{
 		m_globalCD.light.lightPos = light->m_translation;
+		m_globalCD.light.lightDir = light->GetLightDir();
 		m_globalCD.light.lightViewProj = light->GetViewProj();
+		m_globalCD.light.spotFactor = light->m_fSpotFactor;
+		m_globalCD.light.radius = light->m_fRadius;
 		D3DUtils::GetInst().UpdateBuffer<GlobalConstData>(m_globalCD, m_globalConstBuffer);
 
 		// 다시 바꿔야함, 모든걸 한번에 넣어야함

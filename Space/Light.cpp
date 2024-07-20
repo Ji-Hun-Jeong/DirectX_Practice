@@ -2,6 +2,7 @@
 #include "Light.h"
 #include "D3DUtils.h"
 #include "Core.h"
+#include "KeyMgr.h"
 
 Light::Light()
 	: Light("", Vector3(0.0f, 2.0f, -2.0f), Vector3(0.0f), 1.0f)
@@ -29,8 +30,8 @@ void Light::UpdateMeshConstantData(float dt)
 	Mesh::UpdateMeshConstantData(dt);
 
 	Vector3 pos = m_translation;
-	pos = Vector3::Transform(pos, Matrix::CreateRotationY(m_rotation2.y * time));
 	m_viewDir = m_viewPos - pos;
+	m_viewDir.Normalize();
 	Vector3 firstViewDir = Vector3{ 0.0f,0.0f,1.0f };
 
 	Quaternion rotation = Quaternion::FromToRotation(firstViewDir, m_viewDir);
@@ -46,8 +47,6 @@ void Light::UpdateMeshConstantData(float dt)
 	m_view = m_view.Transpose();
 	m_proj = m_proj.Transpose();
 	m_viewProj = m_viewProj.Transpose();
-
-
 }
 
 void Light::UpdateMaterialConstantData()

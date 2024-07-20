@@ -47,25 +47,24 @@ void TestScene::InitIBL()
 
 void TestScene::InitMesh()
 {
-	ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
+	/*ModelLoader::GetInst().Load("Image/Character/Sample/", "angel_armor.fbx");
 	auto& obj = ModelLoader::GetInst().resultMesh;
 	obj->ReadImage("Image/Character/Sample/angel_armor_albedo.jpg", TEXTURE_TYPE::ALBEDO, true);
 	obj->ReadImage("Image/Character/Sample/angel_armor_metalness.jpg", TEXTURE_TYPE::METAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_normal.jpg", TEXTURE_TYPE::NORMAL);
 	obj->ReadImage("Image/Character/Sample/angel_armor_e.jpg", TEXTURE_TYPE::EMISSIVE);
 	obj->ReadImage("Image/Character/Sample/angel_armor_roughness.jpg", TEXTURE_TYPE::ROUGHNESS);
-	m_vecMesh.push_back(obj);
+	m_vecMesh.push_back(obj);*/
 
 	MeshData md = GeometryGenerator::MakeSphere(0.1f, 30, 30);
 	auto light = make_shared<Light>();
 	light->Init(md);
-	light->m_rotation2.y = 0.3f;
 	m_vecMesh.push_back(light);
 	m_vecLights.push_back(light);
 
 	/*auto l = make_shared<Mesh>();
 	l->Init(md);
-	l->m_translation.y = 0.5f;
+	l->m_translation = Vector3(0.0f, 2.0f, 4.0f);
 	m_vecMesh.push_back(l);*/
 
 	MeshData sq = GeometryGenerator::MakeSquare();
@@ -126,9 +125,15 @@ void TestScene::UpdateGUI()
 	ImGui::SliderFloat("Gamma", &m_globalCD.gamma, 0.0f, 5.0f);
 	ImGui::SliderFloat("AmbientFactor", &m_materialCD.ambientFactor, 0.0f, 1.0f);
 
-	ImGui::SliderFloat("LightStrength", &m_globalCD.light.lightStrength.x, 0.0f, 1.0f);
+	ImGui::SliderFloat3("LightStrength", &m_globalCD.light.lightStrength.x, 0.0f, 10.0f);
 	if (m_vecLights[0])
+	{
 		ImGui::SliderFloat3("LightPos", &m_vecLights[0]->m_translation.x, -5.0f, 5.0f);
+		ImGui::SliderFloat("SpotFactor", &m_vecLights[0]->m_fSpotFactor, 0.0f, 10.0f);
+		ImGui::SliderFloat("Light Radius", &m_vecLights[0]->m_fRadius, 0.0f, 10.0f);
+	}
+	ImGui::SliderFloat3("HaloFactor", &m_globalCD.light.haloFactor.x, 0.0f, 10.0f);
+	
 
 	// ImGui::SliderFloat("fallOfStart", &m_pixelConstantData.light.fallOfStart, 0.0f, 5.0f);
 	// ImGui::SliderFloat("fallOfEnd", &m_pixelConstantData.light.fallOfEnd, 0.0f, 10.0f);

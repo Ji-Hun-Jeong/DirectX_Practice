@@ -119,9 +119,9 @@ void SceneMgr::Render()
 	{
 		Graphics::g_postEffectsPSO.Setting();
 		vector<ID3D11ShaderResourceView*> srv =
-		{ m_notMsaaSRV.Get(), /*m_depthOnlySRV.Get()*/GETCURSCENE()->m_vecLights[0]->GetLightViewSRV().Get()};
+		{ m_notMsaaSRV.Get(), m_depthOnlySRV.Get()/*GETCURSCENE()->m_vecLights[0]->GetLightViewSRV().Get()*/};
 		context->PSSetShaderResources(20, srv.size(), srv.data());
-		context->OMSetRenderTargets(1, m_postEffectsRTV.GetAddressOf(), nullptr); // DSV를 왜 nullptr로 해야할까....
+		context->OMSetRenderTargets(1, m_postEffectsRTV.GetAddressOf(), nullptr); // DSV사용 x
 		m_postEffects->Render(context);
 	}
 

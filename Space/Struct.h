@@ -22,6 +22,10 @@ struct LightConst	// 32
 	float fallOfStart = 1.0f;
 	Vector3 lightStrength = Vector3(1.0f);
 	float fallOfEnd = 10.0f;
+	Vector3 lightDir = Vector3(0.0f);
+	float spotFactor = 1.0f;
+	Vector3 haloFactor = Vector3(1.0f);
+	float radius = 1.0f;
 	Matrix lightViewProj;
 };
 struct Rim

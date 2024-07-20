@@ -12,12 +12,16 @@ public:
     void UpdateMaterialConstantData() override;
 
     const Vector3& GetPos() { return m_translation; }
+    const Vector3& GetLightDir() { return m_viewDir; }
     const Matrix& GetView() { return m_view; }
     const Matrix& GetProj() { return m_proj; }
     const Matrix& GetViewProj() { return m_viewProj; }
+
     ComPtr<ID3D11DepthStencilView>& GetLightViewDSV() { return m_DSV; }
     ComPtr<ID3D11ShaderResourceView>& GetLightViewSRV() { return m_SRV; }
 
+    float m_fSpotFactor = 1.0f;
+    float m_fRadius;
 private:
     ComPtr<ID3D11Texture2D> m_depthBuffer;
     ComPtr<ID3D11DepthStencilView> m_DSV;
@@ -26,7 +30,6 @@ private:
 private:
     Vector3 m_viewPos = Vector3(0.0f);
     Vector3 m_viewDir;
-    float m_fRadius;
 
     Matrix m_view;
     Matrix m_proj;

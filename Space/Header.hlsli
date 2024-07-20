@@ -27,6 +27,10 @@ struct Light	// 32
     float fallOfStart;
     float3 lightStrength;
     float fallOfEnd;
+    float3 lightDir;
+    float spotFactor;
+    float3 haloFactor;
+    float radius;
     matrix lightViewProj;
 };
 

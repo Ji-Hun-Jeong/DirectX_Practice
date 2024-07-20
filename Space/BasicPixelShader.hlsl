@@ -148,7 +148,8 @@ float3 DirectLight(float3 posWorld, float3 albedo, float3 normal, float3 l, floa
     float3 diffuse = ((1.0f - F) * albedo) / PI;
     float3 specular = (F * D * G) / max(1e-5, 4.0f * ndotl * ndotv);
     float distance = length(l);
-    float3 lightStrength = light.lightStrength * CalcAttenuation(distance);
+    float3 lightStrength = light.lightStrength * pow(CalcAttenuation(distance)
+    * max(0.0f, dot(normalize(posWorld - light.lightPos), light.lightDir)), light.spotFactor);
     float3 shadowFactor = GetShadowFactor(posWorld);
     return (diffuse + specular) * lightStrength * shadowFactor;
 }

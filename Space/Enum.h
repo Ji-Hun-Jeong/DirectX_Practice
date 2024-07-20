@@ -1,9 +1,9 @@
 #pragma once
 enum class KEY_TYPE
 {
-	Q,W,E,A,S,D,F,
-	LBUTTON,RBUTTON,ESC,
-	B1,B2,
+	Q, W, E, A, S, D, F,
+	LBUTTON, RBUTTON, ESC,
+	B1, B2, SPACE,
 	END,
 };
 enum class KEY_STATE
