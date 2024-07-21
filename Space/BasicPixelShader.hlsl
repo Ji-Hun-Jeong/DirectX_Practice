@@ -139,7 +139,12 @@ float3 DirectLight(float3 posWorld, float3 albedo, float3 normal, float3 l, floa
     // metallic이 올라갈 수록 색이 어두워지는 이유는 albedo가 0인경우이다.
     F0 = lerp(F0, albedo, metallic);
     float3 F = SpecularF(F0, vdoth);
-    float D = SpecularD(ndoth, roughness);
+    
+    float alpha = roughness * roughness;
+    float alphaPrime = saturate(alpha + light.radius / (2 * length(l)));
+    float sphereNormalization = alpha * alpha / (alphaPrime * alphaPrime);
+    float D = SpecularD(ndoth, roughness) * sphereNormalization;
+    
     float G = SpecularG(ndotl, ndotv, roughness);
     // float3 kd = lerp(1.0f - F, 0.0f, metallic);
     
@@ -148,10 +153,24 @@ float3 DirectLight(float3 posWorld, float3 albedo, float3 normal, float3 l, floa
     float3 diffuse = ((1.0f - F) * albedo) / PI;
     float3 specular = (F * D * G) / max(1e-5, 4.0f * ndotl * ndotv);
     float distance = length(l);
-    float3 lightStrength = light.lightStrength * pow(CalcAttenuation(distance)
-    * max(0.0f, dot(normalize(posWorld - light.lightPos), light.lightDir)), light.spotFactor);
+    float spotTheta = max(0.0f, dot(normalize(posWorld - light.lightPos), light.lightDir));
+    float3 lightStrength = max(0.0f, light.lightStrength * pow(CalcAttenuation(distance)
+    * spotTheta, light.spotFactor));
     float3 shadowFactor = GetShadowFactor(posWorld);
-    return (diffuse + specular) * lightStrength * shadowFactor;
+    return (diffuse + specular) * lightStrength * shadowFactor * ndotl;
+}
+
+float3 GetLightPos(float3 center, float3 posWorld, float3 normal)
+{
+    float3 eyeToPixel = normalize(posWorld - eyePos);
+    float3 reflectVec = normalize(reflect(eyeToPixel, normal));
+    float3 pixelToLight = center - posWorld;
+    float3 centerToReflect = dot(pixelToLight, reflectVec) * reflectVec - pixelToLight;
+    float centerToReflectDist = length(centerToReflect);
+    if (centerToReflectDist > light.radius)
+        centerToReflectDist = light.radius;
+    centerToReflect = normalize(centerToReflect) * centerToReflectDist;
+    return center + centerToReflect;
 }
 
 float4 main(PSInput input) : SV_TARGET
@@ -164,13 +183,14 @@ float4 main(PSInput input) : SV_TARGET
     float metallic = useMetallic ? g_metallicTexture.Sample(g_linearSampler, input.uv).r : metallicFactor;
     float roughness = useRoughness ? g_roughnessTexture.Sample(g_linearSampler, input.uv).r : roughnessFactor;
     
-    float3 l = normalize(light.lightPos - input.posWorld.xyz);
+    float3 lightPos = GetLightPos(light.lightPos, input.posWorld.xyz, normal);
+    float3 l = normalize(lightPos - input.posWorld.xyz);
     float3 v = normalize(eyePos - input.posWorld.xyz);
     float3 h = normalize(l + v);
     float ndotl = max(0.0f, dot(l, normal));
     
     float3 ambientLight = AmbientLighting(albedo, ao, normal, v, h, metallic, roughness) * ambientFactor;
-    float3 directLight = DirectLight(input.posWorld.xyz, albedo, normal, l, v, h, roughness, metallic) * ndotl * light.lightStrength;
+    float3 directLight = DirectLight(input.posWorld.xyz, albedo, normal, l, v, h, roughness, metallic);
     
     float3 emissive = useEmissive ? g_emissiveTexture.SampleLevel(g_linearSampler, input.uv, 0) : emissionFactor;
     float3 color = (ambientLight + directLight) + emissive;

@@ -125,7 +125,7 @@ void TestScene::UpdateGUI()
 	ImGui::SliderFloat("Gamma", &m_globalCD.gamma, 0.0f, 5.0f);
 	ImGui::SliderFloat("AmbientFactor", &m_materialCD.ambientFactor, 0.0f, 1.0f);
 
-	ImGui::SliderFloat3("LightStrength", &m_globalCD.light.lightStrength.x, 0.0f, 10.0f);
+	ImGui::SliderFloat3("LightStrength", &m_globalCD.light.lightStrength.x, 0.0f, 20.0f);
 	if (m_vecLights[0])
 	{
 		ImGui::SliderFloat3("LightPos", &m_vecLights[0]->m_translation.x, -5.0f, 5.0f);

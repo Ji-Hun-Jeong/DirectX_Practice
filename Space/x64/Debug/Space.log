@@ -1,2 +1,10 @@
-﻿  compilation object save succeeded; see E:\source\repos\DX_Space\x64\Debug\PostEffectsPixelShader.cso
+﻿E:\source\repos\DX_Space\Space\BasicPixelShader.hlsl(66,12-94): warning X3206: implicit truncation of vector type
+E:\source\repos\DX_Space\Space\BasicPixelShader.hlsl(69,12-103): warning X3206: implicit truncation of vector type
+E:\source\repos\DX_Space\Space\BasicPixelShader.hlsl(118,11-86): warning X3206: implicit truncation of vector type
+E:\source\repos\DX_Space\Space\BasicPixelShader.hlsl(180,21-104): warning X3206: implicit truncation of vector type
+E:\source\repos\DX_Space\Space\BasicPixelShader.hlsl(182,12-84): warning X3206: implicit truncation of vector type
+E:\source\repos\DX_Space\Space\BasicPixelShader.hlsl(195,23-112): warning X3206: implicit truncation of vector type
+E:\source\repos\DX_Space\Space\BasicPixelShader.hlsl(113,20): warning X4000: use of potentially uninitialized variable (GetShadowFactor)
+  
+  compilation object save succeeded; see E:\source\repos\DX_Space\x64\Debug\BasicPixelShader.cso
   Space.vcxproj -> E:\source\repos\DX_Space\x64\Debug\Space.exe
