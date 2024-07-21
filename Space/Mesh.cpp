@@ -19,6 +19,7 @@ Mesh::Mesh(const string& strName, const Vector3& translation, const Vector3& rot
 	, m_rotation2(rotation2* XM_PI / 180.0f)
 	, m_scale(scale)
 {
+	m_collider = make_shared<BoundingSphere>(m_translation, m_scale.x);
 }
 void Mesh::Init(const MeshData& meshData)
 {
@@ -36,6 +37,8 @@ void Mesh::Update(float dt)
 	this->UpdateMeshConstantData(dt);
 	this->UpdateMaterialConstantData();
 	this->UpdateCommonConstantData();
+	m_collider->Center = m_translation;
+	m_collider->Radius = m_scale.x;
 	D3DUtils::GetInst().UpdateBuffer<MeshConstData>(m_meshConstData, m_meshConstBuffer);
 	D3DUtils::GetInst().UpdateBuffer<MaterialConstData>(m_materialConstData, m_materialConstBuffer);
 	D3DUtils::GetInst().UpdateBuffer<CommonConstData>(m_commonConstData, m_commonConstBuffer);
@@ -46,8 +49,10 @@ void Mesh::Update(float dt)
 	}
 }
 
-bool Mesh::IsCollision(MyRay ray)
+bool Mesh::IsCollision(MyRay ray, float& dist)
 {
+	if (m_collider->Intersects(ray.startPos, ray.rayDir, dist))
+		return true;
 	return false;
 }
 
@@ -64,6 +69,7 @@ void Mesh::UpdateMeshConstantData(float dt)
 		* Matrix::CreateFromQuaternion(rotateY)
 		* Matrix::CreateFromQuaternion(rotateX)
 		* Matrix::CreateFromQuaternion(rotateZ)
+		* m_collisionRotationMatrix
 		* Matrix::CreateTranslation(m_translation)
 		* Matrix::CreateRotationX(m_rotation2.x)
 		* Matrix::CreateRotationY(m_rotation2.y)

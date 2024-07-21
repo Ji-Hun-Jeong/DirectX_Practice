@@ -72,7 +72,7 @@ float4 main(PSInput input) : SV_TARGET
         float4 posView = UVToView(input.uv);
         float dist = length(posView.xyz); // 눈의 위치가 원점인 좌표계
         float3 haloColor = float3(0.96, 0.94, 0.82);
-        color += GetHaloFactor(posView.xyz) * haloColor * light.haloFactor;
+        //color += GetHaloFactor(posView.xyz) * haloColor * light.haloFactor;
         
         float3 fogColor = float3(1.0f, 1.0f, 1.0f);
         float fogMin = 1.0f;

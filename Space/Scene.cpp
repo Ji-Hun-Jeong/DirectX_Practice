@@ -31,8 +31,7 @@ void Scene::Update(float dt)
 
 	UpdateGlobalCD();
 
-	if (KEYCHECK(LBUTTON, TAP))
-		CalcPickingObject();
+	CalcPickingObject();
 
 	for (auto& mirror : m_vecMirrors)
 		mirror->Update(dt);
@@ -114,7 +113,7 @@ void Scene::RenderLightView(ComPtr<ID3D11DeviceContext>& context)
 		m_globalCD.proj = light->GetProj();
 		m_globalCD.viewProj = light->GetViewProj();
 		D3DUtils::GetInst().UpdateBuffer<GlobalConstData>(m_globalCD, m_globalConstBuffer);
-		
+
 		RenderDepthOnly(context, light->GetLightViewDSV());
 	}
 	m_globalCD = prevData;
@@ -169,6 +168,8 @@ void Scene::CalcPickingObject()
 {
 	if (!m_focusObj)
 		return;
+	if (!((KEYCHECK(LBUTTON, TAP) || KEYCHECK(LBUTTON, HOLD) || KEYCHECK(RBUTTON, TAP) || KEYCHECK(RBUTTON, HOLD))))
+		return;
 	Vector2 mouseNDCPos = KeyMgr::GetInst().GetMouseNDCPos();
 	Vector3 nearPlane = Vector3(mouseNDCPos.x, mouseNDCPos.y, 0.0f);
 	Vector3 farPlane = Vector3(mouseNDCPos.x, mouseNDCPos.y, 1.0f);
@@ -180,15 +181,45 @@ void Scene::CalcPickingObject()
 	Vector3 rayDir = rayFinishPos - rayStartPos;
 	rayDir.Normalize();
 	MyRay ray{ rayStartPos,rayDir };
+	float dist = -1.0f;
+	bool isCollision = false;
 	for (auto& obj : m_vecMesh)
 	{
-		bool isCollision = false;
-		isCollision = obj->IsCollision(ray);
+		isCollision = obj->IsCollision(ray, dist);
 		if (isCollision)
 		{
-			// m_focusObj->GetPixelConstantData().mat.selected = false;
-			// obj->GetPixelConstantData().mat.selected = true;
 			m_focusObj = obj;
+			break;
+		}
+	}
+	if (isCollision)
+	{
+		Vector3 collisionPos = rayStartPos + dist * rayDir;
+		Vector3 center = m_focusObj->m_translation;
+		static Vector3 prevPos = collisionPos;
+
+		if (KEYCHECK(LBUTTON, HOLD))
+		{
+			Quaternion q = Quaternion::FromToRotation(prevPos - center, collisionPos - center);
+			m_focusObj->m_collisionRotationMatrix *= Matrix::CreateFromQuaternion(q);
+			prevPos = collisionPos;
+		}
+		else if (KEYCHECK(LBUTTON, TAP) || KEYCHECK(RBUTTON, TAP))
+		{
+			prevPos = collisionPos;
+		}
+		else if (KEYCHECK(RBUTTON, HOLD))
+		{
+			center = Vector3::Transform(center, m_globalCD.view);
+			collisionPos = Vector3::Transform(collisionPos, m_globalCD.view);
+			prevPos = Vector3::Transform(prevPos, m_globalCD.view);
+			Vector3 dir = collisionPos - prevPos;
+			dir.z = 0.0f;
+			center += dir;
+			center = Vector3::Transform(center, m_globalCD.view.Invert());
+			m_focusObj->m_translation = center;
+			collisionPos = Vector3::Transform(collisionPos, m_globalCD.view.Invert());
+			prevPos = collisionPos;
 		}
 	}
 }

@@ -175,8 +175,8 @@ float3 GetLightPos(float3 center, float3 posWorld, float3 normal)
 
 float4 main(PSInput input) : SV_TARGET
 {
-    if (isLight)
-        return float4(1.0f, 1.0f, 0.0f, 1.0f);
+    // if (isLight)
+    //     return float4(1.0f, 1.0f, 0.0f, 1.0f);
     float3 albedo = useAlbedo ? g_albedoTexture.SampleLevel(g_linearSampler, input.uv, 0) : albedoFactor;
     float3 normal = useNormal ? GetNormal(input) : input.normal;
     float3 ao = useAO ? g_aoTexture.SampleLevel(g_linearSampler, input.uv, 0) : 1.0f;

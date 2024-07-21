@@ -56,8 +56,9 @@ void TestScene::InitMesh()
 	obj->ReadImage("Image/Character/Sample/angel_armor_roughness.jpg", TEXTURE_TYPE::ROUGHNESS);
 	m_vecMesh.push_back(obj);*/
 
-	MeshData md = GeometryGenerator::MakeSphere(0.1f, 30, 30);
+	MeshData md = GeometryGenerator::MakeSphere(1.0f, 30, 30);
 	auto light = make_shared<Light>();
+	light->ReadImage("image/earth.jpg", TEXTURE_TYPE::ALBEDO, true);
 	light->Init(md);
 	m_vecMesh.push_back(light);
 	m_vecLights.push_back(light);
@@ -68,12 +69,12 @@ void TestScene::InitMesh()
 	m_vecMesh.push_back(l);*/
 
 	MeshData sq = GeometryGenerator::MakeSquare();
-	auto ground = make_shared<Mesh>();
+	/*auto ground = make_shared<Mesh>();
 	ground->Init(sq);
 	ground->ReadImage("Image/Ground.png", TEXTURE_TYPE::ALBEDO, true);
 	ground->m_rotation1 = Vector3(XM_PI / 2.0f, 0.0f, 0.0f);
 	ground->m_scale = Vector3(5.0f);
-	m_vecMesh.push_back(ground);
+	m_vecMesh.push_back(ground);*/
 
 
 	auto mirror = make_shared<Mirror>("Mirror", Vector3(2.0f, 1.6f, 0.0f), Vector3(0.0f, 90.0f, 0.0f), Vector3(0.0f), Vector3(1.0f, 1.66f, 1.0f));

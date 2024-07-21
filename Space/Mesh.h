@@ -10,7 +10,7 @@ public:
 	virtual void Render(ComPtr<ID3D11DeviceContext>& context);
 	virtual void DrawNormal(ComPtr<ID3D11DeviceContext>& context);
 	virtual void ReadImage(const string& textureName, TEXTURE_TYPE textureType, bool useSRGB = false);
-	bool IsCollision(MyRay ray);
+	bool IsCollision(MyRay ray, float& dist);
 
 protected:
 	virtual void UpdateMeshConstantData(float dt);
@@ -50,6 +50,8 @@ protected:
 	MeshConstData		m_meshConstData;
 	MaterialConstData	 m_materialConstData;
 	CommonConstData		m_commonConstData;
+
+	shared_ptr<BoundingSphere> m_collider;
 	
 public:
 	string  m_strName;
@@ -58,6 +60,7 @@ public:
 	Mesh* m_ownerObj;
 
 	Matrix m_prevTransformModel;
+	Matrix m_collisionRotationMatrix;
 
 	Vector3 m_translation;
 	Vector3 m_rotation1;
