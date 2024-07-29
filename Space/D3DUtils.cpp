@@ -49,6 +49,8 @@ bool D3DUtils::CreateDeviceAndSwapChain()
 		, D3D11_SDK_VERSION, &swapChainDesc
 		, m_swapChain.GetAddressOf(), m_device.GetAddressOf()
 		, &outputLevel, m_context.GetAddressOf());
+
+
 	if (FAILED(result))
 		return false;
 	return true;

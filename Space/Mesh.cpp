@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Scene.h"
 #include "SceneMgr.h"
+#include "RenderScene.h"
 
 Mesh::Mesh()
 	: Mesh("", Vector3(0.0f), Vector3(0.0f), Vector3(0.0f), Vector3(1.0f))
@@ -90,7 +91,7 @@ void Mesh::UpdateMeshConstantData(float dt)
 
 void Mesh::UpdateMaterialConstantData()
 {
-	shared_ptr<Scene>& curScene = GETCURSCENE();
+	RenderScene* curScene = (RenderScene*)GETCURSCENE().get();
 	m_materialConstData = curScene->m_materialCD;
 	if (!m_arrSRV[(UINT)TEXTURE_TYPE::ALBEDO])
 		m_materialConstData.useAlbedo = false;
@@ -106,7 +107,7 @@ void Mesh::UpdateMaterialConstantData()
 
 void Mesh::UpdateCommonConstantData()
 {
-	m_commonConstData = GETCURSCENE()->m_commonCD;
+	m_commonConstData = ((RenderScene*)GETCURSCENE().get())->m_commonCD;
 	if (!m_arrSRV[(UINT)TEXTURE_TYPE::HEIGHT])
 		m_commonConstData.useHeight = false;
 	if (!m_arrSRV[(UINT)TEXTURE_TYPE::NORMAL])

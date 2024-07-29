@@ -16,7 +16,8 @@ enum class KEY_STATE
 enum class SCENE_TYPE
 {
 	SPACE,
-	TEST,
+	RENDER,
+	ANIMATE,
 	END,
 };
 enum class IBL_TYPE

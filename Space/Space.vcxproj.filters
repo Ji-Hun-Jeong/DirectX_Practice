@@ -50,9 +50,6 @@
     <Filter Include="Engine\SceneMgr">
       <UniqueIdentifier>{9eb56536-9cf6-4b2d-865d-4061ff3b02bf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Scene\TestScene">
-      <UniqueIdentifier>{88dc4598-e65f-4c12-8b2b-c19c5193f507}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Scene\SpaceScene">
       <UniqueIdentifier>{44a5bf8b-6a05-4955-9502-cbfe038c2ca7}</UniqueIdentifier>
     </Filter>
@@ -85,6 +82,15 @@
     </Filter>
     <Filter Include="Engine\Mesh\Light">
       <UniqueIdentifier>{a51208d8-658a-4c0a-af60-f5ab37c4e878}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Scene\RenderScene">
+      <UniqueIdentifier>{88dc4598-e65f-4c12-8b2b-c19c5193f507}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Texture2D">
+      <UniqueIdentifier>{5d643512-2482-4123-b8e8-ec27402abcd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Scene\AnimateScene">
+      <UniqueIdentifier>{7835a91c-783b-4467-951a-35767ccd7b7c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -142,8 +148,8 @@
     <ClInclude Include="SceneMgr.h">
       <Filter>Engine\SceneMgr</Filter>
     </ClInclude>
-    <ClInclude Include="TestScene.h">
-      <Filter>Engine\Scene\TestScene</Filter>
+    <ClInclude Include="RenderScene.h">
+      <Filter>Engine\Scene\RenderScene</Filter>
     </ClInclude>
     <ClInclude Include="SpaceScene.h">
       <Filter>Engine\Scene\SpaceScene</Filter>
@@ -165,6 +171,12 @@
     </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Engine\Mesh\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>Engine\Texture2D</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimateScene.h">
+      <Filter>Engine\Scene\AnimateScene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -214,8 +226,8 @@
     <ClCompile Include="SceneMgr.cpp">
       <Filter>Engine\SceneMgr</Filter>
     </ClCompile>
-    <ClCompile Include="TestScene.cpp">
-      <Filter>Engine\Scene\TestScene</Filter>
+    <ClCompile Include="RenderScene.cpp">
+      <Filter>Engine\Scene\RenderScene</Filter>
     </ClCompile>
     <ClCompile Include="SpaceScene.cpp">
       <Filter>Engine\Scene\SpaceScene</Filter>
@@ -237,6 +249,12 @@
     </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>Engine\Mesh\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Engine\Texture2D</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimateScene.cpp">
+      <Filter>Engine\Scene\AnimateScene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "SceneMgr.h"
 #include "D3DUtils.h"
+#include "RenderScene.h"
 
 Mirror::Mirror()
 {
@@ -28,7 +29,7 @@ void Mirror::UpdateMeshConstantData(float dt)
 	m_mirrorPlane = DirectX::SimpleMath::Plane(m_translation, m_normalDir);
 
 	Matrix reflection = Matrix::CreateReflection(m_mirrorPlane);
-	m_mirrorViewProj = reflection * GETCURSCENE()->m_globalCD.viewProj;
+	m_mirrorViewProj = reflection * ((RenderScene*)GETCURSCENE().get())->m_globalCD.viewProj;
 	m_mirrorViewProj = m_mirrorViewProj.Transpose();
 }
 

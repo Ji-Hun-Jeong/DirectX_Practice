@@ -1,8 +1,10 @@
 #pragma once
-#include "Scene.h"
+#include "RenderScene.h"
 class SpaceScene :
-    public Scene
+    public RenderScene
 {
+public:
+	SpaceScene(SceneMgr* owner);
 public:
 	void InitMesh() override;
 	void InitIBL() override;

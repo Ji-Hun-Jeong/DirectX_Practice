@@ -58,7 +58,7 @@ __declspec(align(256)) struct MaterialConstData
 	int useMetallic = true;
 	int isLight = false;
 	float ambientFactor = 1.0f;
-	float dummy;
+	float dummy = 0.0f;
 };
 
 __declspec(align(256)) struct CommonConstData
@@ -71,7 +71,7 @@ __declspec(align(256)) struct CommonConstData
 	int mode = 0;
 	float depthStrength = 1.0f;
 	float fogStrength = 0.0f;
-	float dummy;
+	float dummy = 0.0f;
 };
 
 __declspec(align(256)) struct GlobalConstData
@@ -87,7 +87,7 @@ __declspec(align(256)) struct GlobalConstData
 	LightConst light;
 	float exposure = 1.0f;
 	float gamma = 1.0f;
-	float dummy[2];
+	float dummy[2] = { 0.0f };
 };
 
 struct DirArrowConstantData 

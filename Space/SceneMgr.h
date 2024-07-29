@@ -15,8 +15,6 @@ public:
 private:
 	shared_ptr<Scene> m_arrScene[(UINT)SCENE_TYPE::END];
 	shared_ptr<Scene> m_curScene;
-	shared_ptr<PostProcess> m_postProcess;
-	shared_ptr<Mesh> m_postEffects;
 	
 public:
 	float m_fWidth;
@@ -30,7 +28,6 @@ public:
 private:
 	bool CreateRenderTargetView();
 	void CreateViewPort();
-	void CreateRenderBuffer();
 	void SetViewPort();
 	bool CreateDepthStencilView();
 
@@ -39,28 +36,13 @@ private:
 	ComPtr<ID3D11ShaderResourceView> m_shaderResourceView;
 	ComPtr<ID3D11RenderTargetView> m_renderTargetView;
 
-	ComPtr<ID3D11Texture2D> m_msaaTexture;
-	ComPtr<ID3D11ShaderResourceView> m_msaaSRV;
-	ComPtr<ID3D11RenderTargetView> m_msaaRTV;
-
-	ComPtr<ID3D11Texture2D> m_notMsaaTexture;
-	ComPtr<ID3D11ShaderResourceView> m_notMsaaSRV;
-	ComPtr<ID3D11RenderTargetView> m_notMsaaRTV;
-
-	ComPtr<ID3D11Texture2D> m_postEffectsTexture;
-	ComPtr<ID3D11ShaderResourceView> m_postEffectsSRV;
-	ComPtr<ID3D11RenderTargetView> m_postEffectsRTV;
-
-	D3D11_VIEWPORT m_viewPort;
-
 	ComPtr<ID3D11Texture2D> m_useMSAADepthBuffer;
 	ComPtr<ID3D11DepthStencilView> m_useMSAADSV;
 
-	ComPtr<ID3D11Texture2D> m_depthOnlyBuffer;
-	ComPtr<ID3D11DepthStencilView> m_depthOnlyDSV;
-	ComPtr<ID3D11ShaderResourceView> m_depthOnlySRV;
+	D3D11_VIEWPORT m_viewPort;
 
 	UINT m_iNumOfMultiSamplingLevel;
+	friend class RenderScene;
 // SingleTon
 	SINGLE(SceneMgr)
 };

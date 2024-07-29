@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AnimateScene.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="D3DUtils.h" />
@@ -162,9 +163,11 @@
     <ClInclude Include="SpaceScene.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TestScene.h" />
+    <ClInclude Include="RenderScene.h" />
+    <ClInclude Include="Texture2D.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimateScene.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="D3DUtils.cpp" />
@@ -183,7 +186,8 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="SpaceScene.cpp" />
-    <ClCompile Include="TestScene.cpp" />
+    <ClCompile Include="RenderScene.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc" />

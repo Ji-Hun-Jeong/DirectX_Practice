@@ -3,6 +3,11 @@
 #include "GeometryGenerator.h"
 #include "DirArrow.h"
 
+SpaceScene::SpaceScene(SceneMgr* owner)
+	: RenderScene(owner)
+{
+}
+
 void SpaceScene::Enter()
 {
 
@@ -15,12 +20,14 @@ void SpaceScene::Exit()
 
 void SpaceScene::Update(float dt)
 {
-	Scene::Update(dt);
+	RenderScene::Update(dt);
 }
 
 void SpaceScene::UpdateGUI()
 {
 }
+
+
 
 void SpaceScene::InitMesh()
 {

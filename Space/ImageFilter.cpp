@@ -17,8 +17,8 @@ ImageFilter::ImageFilter(PostProcess* owner, ComPtr<ID3D11PixelShader>& ps
 	ComPtr<ID3D11Device> device = D3DUtils::GetInst().GetDevice();
 	D3D11_TEXTURE2D_DESC textureDesc;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
-	textureDesc.Width = m_fWidth;
-	textureDesc.Height = m_fHeight;
+	textureDesc.Width = UINT(m_fWidth);
+	textureDesc.Height = UINT(m_fHeight);
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
 	textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;

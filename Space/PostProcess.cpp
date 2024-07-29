@@ -15,7 +15,7 @@ PostProcess::PostProcess(float width, float height, UINT bloomLevel,
 {
 	MeshData squareData = GeometryGenerator::MakeSquare();
 	D3DUtils::GetInst().CreateVertexBuffer<Vertex>(squareData.vertices, m_vertexBuffer);
-	m_indexCount = squareData.indices.size();
+	m_indexCount = UINT(squareData.indices.size());
 	D3DUtils::GetInst().CreateIndexBuffer<uint32_t>(squareData.indices, m_indexBuffer);
 
 	m_vertexShader = Graphics::g_basicVS;
@@ -59,24 +59,24 @@ void PostProcess::CreateFilters(UINT bloomLevel)
 	copyFilter->SetShaderResourceViews({ m_originalSRV.Get() });
 	m_filters.push_back(copyFilter);
 
-	for (int i = 1; i <= bloomLevel; ++i)
+	for (UINT i = 1; i <= bloomLevel; ++i)
 	{
-		const int divideValue = pow(2, i);
+		const int divideValue = int(pow(2, i));
 		const int width = int(m_fWidth) / divideValue;
 		const int height = int(m_fHeight) / divideValue;
 
-		auto blurXFilter = make_shared<ImageFilter>(this, m_blurShader, width, height);
+		auto blurXFilter = make_shared<ImageFilter>(this, m_blurShader, float(width), float(height));
 		blurXFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
 		m_filters.push_back(blurXFilter);
 	}
 
 	for (int i = bloomLevel - 1; i >= 0; --i)
 	{
-		const int divideValue = pow(2, i);
+		const int divideValue = int(pow(2, i));
 		const int width = int(m_fWidth) / divideValue;
 		const int height = int(m_fHeight) / divideValue;
 
-		auto blurXFilter = make_shared<ImageFilter>(this, m_blurShader, width, height);
+		auto blurXFilter = make_shared<ImageFilter>(this, m_blurShader, float(width), float(height));
 		blurXFilter->SetShaderResourceViews({ m_filters.back()->GetShaderResourceView().Get() });
 		m_filters.push_back(blurXFilter);
 
