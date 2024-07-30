@@ -103,6 +103,13 @@ struct DirArrowConstantData
 	Vector3 rightDir;
 	float dummy2 = 0.0f;
 };
+
+struct Particle
+{
+	Vector3 pos;
+	Vector3 color;
+};
+
 static_assert(sizeof(MeshConstData) % 16 == 0, "MeshConstData Size Check");
 static_assert(sizeof(MaterialConstData) % 16 == 0, "MaterialConstData Size Check");
 static_assert(sizeof(GlobalConstData) % 16 == 0, "GlobalConstData Size Check");

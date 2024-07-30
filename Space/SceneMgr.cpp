@@ -3,17 +3,12 @@
 #include "Scene.h"
 #include "D3DUtils.h"
 #include "Core.h"
-#include "ImageFilter.h"
 #include "SpaceScene.h"
 #include "RenderScene.h"
-#include "KeyMgr.h"
-#include "PostProcess.h"
-#include "GraphicsCommons.h"
-#include "GraphicsPSO.h"
-#include "Mesh.h"
-#include "GeometryGenerator.h"
 #include "AnimateScene.h"
+#include "GraphicsCommons.h"
 #include "Light.h"
+#include "KeyMgr.h"
 SceneMgr SceneMgr::m_inst;
 SceneMgr::SceneMgr()
 	: m_arrScene{}
@@ -26,7 +21,7 @@ SceneMgr::SceneMgr()
 	m_arrScene[(UINT)SCENE_TYPE::SPACE] = make_shared<SpaceScene>(this);
 	m_arrScene[(UINT)SCENE_TYPE::RENDER] = make_shared<RenderScene>(this);
 	m_arrScene[(UINT)SCENE_TYPE::ANIMATE] = make_shared<AnimateScene>(this);
-	m_curScene = m_arrScene[(UINT)SCENE_TYPE::RENDER];
+	m_curScene = m_arrScene[(UINT)SCENE_TYPE::ANIMATE];
 }
 
 bool SceneMgr::Init(float width, float height)
@@ -121,12 +116,17 @@ bool SceneMgr::CreateRenderTargetView()
 {
 	ComPtr<IDXGISwapChain>& swapChain = D3DUtils::GetInst().GetSwapChain();
 	ComPtr<ID3D11Device>& device = D3DUtils::GetInst().GetDevice();
+
 	CHECKRESULT(device
 		->CheckMultisampleQualityLevels(DXGI_FORMAT_R16G16B16A16_FLOAT, 4, &m_iNumOfMultiSamplingLevel));
-	swapChain->GetBuffer(0, IID_PPV_ARGS(m_swapChainBackBuffer.GetAddressOf()));
-	HRESULT result = device->CreateShaderResourceView(m_swapChainBackBuffer.Get(), nullptr, m_shaderResourceView.GetAddressOf());
+
+	swapChain->GetBuffer(0, IID_PPV_ARGS(m_swapChainBackBuffer.GetTexture().GetAddressOf()));
+	HRESULT result = device->CreateShaderResourceView(m_swapChainBackBuffer.GetTexture().Get(), nullptr, m_swapChainBackBuffer.GetSRV().GetAddressOf());
 	CHECKRESULT(result);
-	return D3DUtils::GetInst().CreateRenderTargetView(m_swapChainBackBuffer.Get(), nullptr, m_renderTargetView);
+	D3DUtils::GetInst().CreateRenderTargetView(m_swapChainBackBuffer.GetTexture().Get(), nullptr, m_swapChainBackBuffer.GetRTV());
+
+	device->CreateUnorderedAccessView(m_swapChainBackBuffer.GetTexture().Get(), nullptr, m_swapChainBackBuffer.GetUAV().GetAddressOf());
+	return true;
 }
 
 void SceneMgr::CreateViewPort()

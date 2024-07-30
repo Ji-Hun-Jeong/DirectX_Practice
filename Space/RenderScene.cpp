@@ -14,11 +14,14 @@
 #include "GraphicsPSO.h"
 #include "KeyMgr.h"
 #include "PostProcess.h"
+#include "Texture2D.h"
 
 RenderScene::RenderScene(SceneMgr* owner)
 	: Scene(owner)
+	, m_msaaTexture(make_shared<Texture2D>())
+	, m_notMsaaTexture(make_shared<Texture2D>())
+	, m_postEffectsTexture(make_shared<Texture2D>())
 {
-	
 }
 
 void RenderScene::Init()
@@ -28,7 +31,7 @@ void RenderScene::Init()
 	D3DUtils::GetInst().CreateConstantBuffer<GlobalConstData>(m_globalCD, m_globalConstBuffer);
 	Scene::Init();
 
-	m_postProcess = make_shared<PostProcess>(m_pOwner->m_fWidth, m_pOwner->m_fHeight, 2, m_postEffectsSRV, m_pOwner->m_renderTargetView);
+	m_postProcess = make_shared<PostProcess>(m_pOwner->m_fWidth, m_pOwner->m_fHeight, 2, m_postEffectsTexture->GetSRV(), m_pOwner->GetBackBufferRTV());
 	MeshData squareData = GeometryGenerator::MakeSquare();
 	m_postEffects = make_shared<Mesh>();
 	m_postEffects->Init(squareData);
@@ -197,71 +200,32 @@ void RenderScene::RenderDepthOnly(ComPtr<ID3D11DeviceContext>& context, ComPtr<I
 void RenderScene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
 {
 	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
-	context->ClearRenderTargetView(m_msaaRTV.Get(), clearColor);
-	context->ClearRenderTargetView(m_notMsaaRTV.Get(), clearColor);
+	context->ClearRenderTargetView(m_msaaTexture->GetRTV().Get(), clearColor);
+	context->ClearRenderTargetView(m_notMsaaTexture->GetRTV().Get(), clearColor);
 
 	context->RSSetViewports(1, &m_pOwner->m_viewPort);
 	{
-		RenderDepthOnly(context, m_depthOnlyDSV);
-		RenderLightView(context);
+		this->RenderDepthOnly(context, m_depthOnlyDSV);
+		this->RenderLightView(context);
 	}
 
 	{
 		context->ClearDepthStencilView(m_pOwner->m_useMSAADSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		context->OMSetRenderTargets(1, m_msaaRTV.GetAddressOf(), m_pOwner->m_useMSAADSV.Get());
+		context->OMSetRenderTargets(1, m_msaaTexture->GetRTV().GetAddressOf(), m_pOwner->m_useMSAADSV.Get());
 
-		for (auto& light : m_vecLights)
-		{
-			m_globalCD.light.lightPos = light->m_translation;
-			m_globalCD.light.lightDir = light->GetLightDir();
-			m_globalCD.light.lightViewProj = light->GetViewProj();
-			m_globalCD.light.spotFactor = light->m_fSpotFactor;
-			m_globalCD.light.radius = light->m_fRadius;
-			D3DUtils::GetInst().UpdateBuffer<GlobalConstData>(m_globalCD, m_globalConstBuffer);
-
-			// 다시 바꿔야함, 모든걸 한번에 넣어야함
-			context->PSSetShaderResources(10 + (UINT)IBL_TYPE::END, 1, light->GetLightViewSRV().GetAddressOf());
-
-			drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
-			for (auto& mesh : m_vecMesh)
-				mesh->Render(context);
-
-			drawWireFrame ? Graphics::g_skyBoxWirePSO.Setting() : Graphics::g_skyBoxSolidPSO.Setting();
-			m_skybox->Render(context);
-
-			// 노말 그리기
-			if (m_drawNormal)
-			{
-				Graphics::g_normalPSO.Setting();
-				for (auto& mesh : m_vecMesh)
-					mesh->DrawNormal(context);
-			}
-			drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
-			context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get(), D3D11_CLEAR_STENCIL, 1.0f, 0);
-			for (int i = 0; i < m_vecMirrors.size(); ++i)
-			{
-				GraphicsPSO::SetStencilRef(i + 1);
-				Graphics::g_stencilMaskSolidPSO.Setting();
-				m_vecMirrors[i]->Render(context);
-			}
-			for (int i = 0; i < m_vecMirrors.size(); ++i)
-			{
-				GraphicsPSO::SetStencilRef(i + 1);
-				this->RenderMirrorWorld(context, m_vecMirrors[i], drawWireFrame);
-			}
-		}
+		this->RenderObject(context, drawWireFrame);
 	}
 
 	// 현재까지는 MSAA가 지원되는 RTV에 렌더링하였고 이제는 그걸 MSAA지원 안되는 RTV에 복사
-	context->ResolveSubresource(m_notMsaaTexture.Get(), 0, m_msaaTexture.Get(), 0
+	context->ResolveSubresource(m_notMsaaTexture->GetTexture().Get(), 0, m_msaaTexture->GetTexture().Get(), 0
 		, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 	{
 		Graphics::g_postEffectsPSO.Setting();
 		vector<ID3D11ShaderResourceView*> srv =
-		{ m_notMsaaSRV.Get(), m_depthOnlySRV.Get()/*GETCURSCENE()->m_vecLights[0]->GetLightViewSRV().Get()*/ };
+		{ m_notMsaaTexture->GetSRV().Get(), m_depthOnlySRV.Get()/*GETCURSCENE()->m_vecLights[0]->GetLightViewSRV().Get()*/};
 		context->PSSetShaderResources(20, UINT(srv.size()), srv.data());
-		context->OMSetRenderTargets(1, m_postEffectsRTV.GetAddressOf(), nullptr); // DSV사용 x
+		context->OMSetRenderTargets(1, m_postEffectsTexture->GetRTV().GetAddressOf(), nullptr); // DSV사용 x
 		m_postEffects->Render(context);
 	}
 
@@ -270,6 +234,50 @@ void RenderScene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFram
 		m_postProcess->Render(context);
 	}
 	
+}
+
+void RenderScene::RenderObject(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
+{
+	for (auto& light : m_vecLights)
+	{
+		m_globalCD.light.lightPos = light->m_translation;
+		m_globalCD.light.lightDir = light->GetLightDir();
+		m_globalCD.light.lightViewProj = light->GetViewProj();
+		m_globalCD.light.spotFactor = light->m_fSpotFactor;
+		m_globalCD.light.radius = light->m_fRadius;
+		D3DUtils::GetInst().UpdateBuffer<GlobalConstData>(m_globalCD, m_globalConstBuffer);
+
+		// 다시 바꿔야함, 모든걸 한번에 넣어야함
+		context->PSSetShaderResources(10 + (UINT)IBL_TYPE::END, 1, light->GetLightViewSRV().GetAddressOf());
+
+		drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
+		for (auto& mesh : m_vecMesh)
+			mesh->Render(context);
+
+		drawWireFrame ? Graphics::g_skyBoxWirePSO.Setting() : Graphics::g_skyBoxSolidPSO.Setting();
+		m_skybox->Render(context);
+
+		// 노말 그리기
+		if (m_drawNormal)
+		{
+			Graphics::g_normalPSO.Setting();
+			for (auto& mesh : m_vecMesh)
+				mesh->DrawNormal(context);
+		}
+		drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
+		context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get(), D3D11_CLEAR_STENCIL, 1.0f, 0);
+		for (int i = 0; i < m_vecMirrors.size(); ++i)
+		{
+			GraphicsPSO::SetStencilRef(i + 1);
+			Graphics::g_stencilMaskSolidPSO.Setting();
+			m_vecMirrors[i]->Render(context);
+		}
+		for (int i = 0; i < m_vecMirrors.size(); ++i)
+		{
+			GraphicsPSO::SetStencilRef(i + 1);
+			this->RenderMirrorWorld(context, m_vecMirrors[i], drawWireFrame);
+		}
+	}
 }
 
 void RenderScene::RenderLightView(ComPtr<ID3D11DeviceContext>& context)
@@ -397,10 +405,6 @@ void RenderScene::UpdateGlobalBuffer(const Matrix& viewProj)
 
 void RenderScene::CreateRenderBuffer()
 {
-	ComPtr<ID3D11Device>& device = D3DUtils::GetInst().GetDevice();
-	CHECKRESULT(device
-		->CheckMultisampleQualityLevels(DXGI_FORMAT_R16G16B16A16_FLOAT, 4, &m_pOwner->m_iNumOfMultiSamplingLevel));
-
 	D3D11_TEXTURE2D_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
 	desc.Width = UINT(m_pOwner->m_fWidth);
@@ -418,20 +422,15 @@ void RenderScene::CreateRenderBuffer()
 		desc.SampleDesc.Quality = 0;
 	}
 	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
-	CHECKRESULT(device->CreateTexture2D(&desc, nullptr, m_msaaTexture.GetAddressOf()));
-	CHECKRESULT(device->CreateShaderResourceView(m_msaaTexture.Get(), nullptr, m_msaaSRV.GetAddressOf()));
-	CHECKRESULT(device->CreateRenderTargetView(m_msaaTexture.Get(), nullptr, m_msaaRTV.GetAddressOf()));
+	m_msaaTexture->Init(desc);
 
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
-	CHECKRESULT(device->CreateTexture2D(&desc, nullptr, m_notMsaaTexture.GetAddressOf()));
-	CHECKRESULT(device->CreateShaderResourceView(m_notMsaaTexture.Get(), nullptr, m_notMsaaSRV.GetAddressOf()));
-	CHECKRESULT(device->CreateRenderTargetView(m_notMsaaTexture.Get(), nullptr, m_notMsaaRTV.GetAddressOf()));
+	desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+	m_notMsaaTexture->Init(desc);
 
-	CHECKRESULT(device->CreateTexture2D(&desc, nullptr, m_postEffectsTexture.GetAddressOf()));
-	CHECKRESULT(device->CreateShaderResourceView(m_postEffectsTexture.Get(), nullptr, m_postEffectsSRV.GetAddressOf()));
-	CHECKRESULT(device->CreateRenderTargetView(m_postEffectsTexture.Get(), nullptr, m_postEffectsRTV.GetAddressOf()));
+	m_postEffectsTexture->Init(desc);
 }

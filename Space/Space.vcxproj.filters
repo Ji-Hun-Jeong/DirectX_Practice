@@ -92,6 +92,12 @@
     <Filter Include="Engine\Scene\AnimateScene">
       <UniqueIdentifier>{7835a91c-783b-4467-951a-35767ccd7b7c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Shader\ComputeShader">
+      <UniqueIdentifier>{3cfb958e-deaf-429d-96cd-9d304e88f1d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\StructuredBufer">
+      <UniqueIdentifier>{4caa7e5c-a8ba-418e-811d-fd1c5ac69903}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -178,6 +184,9 @@
     <ClInclude Include="AnimateScene.h">
       <Filter>Engine\Scene\AnimateScene</Filter>
     </ClInclude>
+    <ClInclude Include="StructuredBuffer.h">
+      <Filter>Engine\StructuredBufer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -256,6 +265,9 @@
     <ClCompile Include="AnimateScene.cpp">
       <Filter>Engine\Scene\AnimateScene</Filter>
     </ClCompile>
+    <ClCompile Include="StructuredBuffer.cpp">
+      <Filter>Engine\StructuredBufer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicVertexShader.hlsl">
@@ -314,6 +326,9 @@
     </FxCompile>
     <FxCompile Include="DepthOnlyPixelShader.hlsl">
       <Filter>Engine\Shader\FilterShader</Filter>
+    </FxCompile>
+    <FxCompile Include="BasicComputeShader.hlsl">
+      <Filter>Engine\Shader\ComputeShader</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

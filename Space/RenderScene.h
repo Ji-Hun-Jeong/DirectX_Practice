@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+class Texture2D;
 class RenderScene :
     public Scene
 {
@@ -11,10 +12,12 @@ public:
 	void Enter() override;
 	void Exit() override;
 	void UpdateGUI() override;
-	virtual void RenderDepthOnly(ComPtr<ID3D11DeviceContext>& context, ComPtr<ID3D11DepthStencilView>& dsv);
 	virtual void Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame);
-	virtual void RenderLightView(ComPtr<ID3D11DeviceContext>& context);
+	void RenderLightView(ComPtr<ID3D11DeviceContext>& context);
+	void RenderDepthOnly(ComPtr<ID3D11DeviceContext>& context, ComPtr<ID3D11DepthStencilView>& dsv);
+	void RenderObject(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame);
 	void RenderMirrorWorld(ComPtr<ID3D11DeviceContext>& context, shared_ptr<Mirror>& mirror, bool drawWireFrame);
+
 protected:
 	void InitMesh() override;
 	void InitSkyBox() override;
@@ -24,6 +27,7 @@ protected:
 	void UpdateGlobalCD();
 	void UpdateGlobalBuffer(const Matrix& viewProj);
 	void CreateRenderBuffer();
+
 public:
 	GlobalConstData m_globalCD;
 	ComPtr<ID3D11Buffer> m_globalConstBuffer;
@@ -36,20 +40,13 @@ public:
 private:
 	vector<shared_ptr<Mirror>> m_vecMirrors;
 
-	ComPtr<ID3D11Texture2D> m_msaaTexture;
-	ComPtr<ID3D11ShaderResourceView> m_msaaSRV;
-	ComPtr<ID3D11RenderTargetView> m_msaaRTV;
-
-	ComPtr<ID3D11Texture2D> m_notMsaaTexture;
-	ComPtr<ID3D11ShaderResourceView> m_notMsaaSRV;
-	ComPtr<ID3D11RenderTargetView> m_notMsaaRTV;
-
-	ComPtr<ID3D11Texture2D> m_postEffectsTexture;
-	ComPtr<ID3D11ShaderResourceView> m_postEffectsSRV;
-	ComPtr<ID3D11RenderTargetView> m_postEffectsRTV;
+	shared_ptr<Texture2D> m_msaaTexture;
+	shared_ptr<Texture2D> m_notMsaaTexture;
+	shared_ptr<Texture2D> m_postEffectsTexture;
 
 	ComPtr<ID3D11Texture2D> m_depthOnlyBuffer;
 	ComPtr<ID3D11DepthStencilView> m_depthOnlyDSV;
 	ComPtr<ID3D11ShaderResourceView> m_depthOnlySRV;
+
 };
 

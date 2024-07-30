@@ -27,6 +27,7 @@ void GraphicsPSO::Setting()
 	context->IASetPrimitiveTopology(m_primitiveTopology);
 	context->VSSetShader(m_vertexShader.Get(),0,0);
 	context->GSSetShader(m_geometryShader.Get(), 0, 0);
+	context->CSSetShader(m_computeShader.Get(), 0, 0);
 	context->PSSetShader(m_pixelShader.Get(), 0, 0);
 	context->RSSetState(m_rasterizerState.Get());
 	context->OMSetDepthStencilState(m_depthStencilState.Get(), GraphicsPSO::m_stencilRef);

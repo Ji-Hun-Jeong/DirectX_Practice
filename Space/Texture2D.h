@@ -4,7 +4,9 @@ class Texture2D
 public:
 	Texture2D();
 public:
+	void Init(const D3D11_TEXTURE2D_DESC& desc);
 	void Init(const vector<uint8_t>& vec, UINT width, UINT height, DXGI_FORMAT pixelFormat);
+
 public:
 	ComPtr<ID3D11Texture2D>& GetTexture() { return m_texture; }
 	ComPtr<ID3D11ShaderResourceView>& GetSRV() { return m_srv; }

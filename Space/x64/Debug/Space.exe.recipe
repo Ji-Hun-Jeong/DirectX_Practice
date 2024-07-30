@@ -7,6 +7,9 @@
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\BasicComputeShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>E:\source\repos\DX_Space\x64\Debug\BasicGeometryShader.cso</FullPath>
     </ContentFile>
     <ContentFile>

@@ -3,6 +3,7 @@
 #include "Core.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
 D3DUtils D3DUtils::m_inst;
 D3DUtils::D3DUtils()
 {
@@ -30,11 +31,12 @@ bool D3DUtils::CreateDeviceAndSwapChain()
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 	swapChainDesc.BufferDesc.Width = UINT(Core::GetInst().m_fWidth);
 	swapChainDesc.BufferDesc.Height = UINT(Core::GetInst().m_fHeight);
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	swapChainDesc.BufferCount = 2;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	swapChainDesc.BufferUsage = DXGI_USAGE_SHADER_INPUT | DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferUsage = DXGI_USAGE_SHADER_INPUT | DXGI_USAGE_RENDER_TARGET_OUTPUT
+		| DXGI_USAGE_UNORDERED_ACCESS;
 	swapChainDesc.OutputWindow = Core::GetInst().GetMainWindow();
 	swapChainDesc.Windowed = TRUE;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
@@ -160,6 +162,22 @@ void D3DUtils::CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelSh
 		assert(0);
 }
 
+void D3DUtils::CreateComputeShader(const wstring& hlslPrefix, ComPtr<ID3D11ComputeShader>& cs)
+{
+	ComPtr<ID3DBlob> shaderBlob;
+	ComPtr<ID3DBlob> errorBlob;
+	wstring fileName = hlslPrefix + L"ComputeShader.hlsl";
+	UINT compileFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)
+	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+	CHECKRESULT(D3DCompileFromFile(fileName.c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE
+		, "main", "cs_5_0", compileFlags, 0, shaderBlob.GetAddressOf(), errorBlob.GetAddressOf()));
+
+	CHECKRESULT(m_device->CreateComputeShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize()
+		, nullptr, cs.GetAddressOf()));
+}
+
 void D3DUtils::CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState, const D3D11_SAMPLER_DESC& desc)
 {
 	CHECKRESULT(m_device->CreateSamplerState(&desc, samplerState.GetAddressOf()));
@@ -174,16 +192,9 @@ void D3DUtils::ReadImage(const string& fileName, bool useSRGB,
 	vector<uint8_t> image;
 	DXGI_FORMAT format;
 	string fileFormat = fileName.substr(fileName.size() - 3);
-	if (fileFormat == "exr")
-	{
-		format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		ReadHDRImage(fileName, format, image, width, height);
-	}
-	else
-	{
-		format = useSRGB ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM;
-		ReadLDRImage(fileName, format, image, width, height);
-	}
+
+	format = useSRGB ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM;
+	ReadLDRImage(fileName, format, image, width, height);
 
 	this->CreateSRVByStaging(image, width, height, format, texture, shaderResourceView);
 }
@@ -220,6 +231,46 @@ void D3DUtils::ReadHDRImage(const string& fileName, DXGI_FORMAT pixelFormat, vec
 		assert(0);
 	image.resize(img.GetPixelsSize());	// 그냥 메모리 통째로 복사 그럼 gpu내부에서 알아서 16비트 단위로 읽어들임
 	memcpy(image.data(), img.GetPixels(), image.size());
+}
+
+void D3DUtils::CreateStructuredBuffer(UINT sizeStruct, UINT numOfElement, ComPtr<ID3D11Buffer>& buffer, ComPtr<ID3D11ShaderResourceView>& srv, ComPtr<ID3D11UnorderedAccessView>& uav)
+{
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.ByteWidth = sizeStruct * numOfElement;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	desc.StructureByteStride = sizeStruct;
+
+	CHECKRESULT(m_device->CreateBuffer(&desc, nullptr, buffer.GetAddressOf()));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer.NumElements = numOfElement;
+	CHECKRESULT(m_device->CreateShaderResourceView(buffer.Get(), &srvDesc, srv.GetAddressOf()));
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	ZeroMemory(&uavDesc, sizeof(uavDesc));
+	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	uavDesc.Buffer.NumElements = numOfElement;
+	CHECKRESULT(m_device->CreateUnorderedAccessView(buffer.Get(), &uavDesc, uav.GetAddressOf()));
+}
+
+void D3DUtils::CreateStagingBuffer(UINT sizeStruct, UINT numOfElement, ComPtr<ID3D11Buffer>& buffer)
+{
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.ByteWidth = sizeStruct * numOfElement;
+	desc.Usage = D3D11_USAGE_STAGING;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+	desc.StructureByteStride = sizeStruct;
+
+	CHECKRESULT(m_device->CreateBuffer(&desc, nullptr, buffer.GetAddressOf()));
 }
 
 void D3DUtils::ReadCubeImage(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView)

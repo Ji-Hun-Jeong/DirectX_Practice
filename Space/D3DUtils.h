@@ -18,11 +18,16 @@ public:
 		, const vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc, ComPtr<ID3D11InputLayout>& inputLayout);
 	void CreateGeometryShader(const wstring& hlslPrefix, ComPtr<ID3D11GeometryShader>& gs);
 	void CreatePixelShader(const wstring& hlslPrefix, ComPtr<ID3D11PixelShader>& ps);
+	void CreateComputeShader(const wstring& hlslPrefix, ComPtr<ID3D11ComputeShader>& cs);
 	void CreateSamplerState(ComPtr<ID3D11SamplerState>& samplerState, const D3D11_SAMPLER_DESC& desc);
 	void ReadImage(const string& fileName, bool useSRGB,  ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
 	void ReadImage1(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
 	void ReadCubeImage(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView);
 	void CreateDepthOnlyResources(float width, float height, ComPtr<ID3D11Texture2D>& buffer, ComPtr<ID3D11DepthStencilView>& dsv, ComPtr<ID3D11ShaderResourceView>& srv);
+	void CreateStructuredBuffer(UINT sizeStruct, UINT numOfElement, ComPtr<ID3D11Buffer>& buffer
+		, ComPtr<ID3D11ShaderResourceView>& srv, ComPtr<ID3D11UnorderedAccessView>& uav);
+
+	void CreateStagingBuffer(UINT sizeStruct, UINT numOfElement, ComPtr<ID3D11Buffer>& buffer);
 
 private:
 	void ReadLDRImage(const string& fileName, DXGI_FORMAT pixelFormat, vector<uint8_t>& image, int& width, int& height);
@@ -135,6 +140,16 @@ public:
 		D3D11_MAPPED_SUBRESOURCE resourceData;
 		m_context->Map(buffer.Get(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &resourceData);
 		memcpy(resourceData.pData, &bufferData, sizeof(bufferData));
+		m_context->Unmap(buffer.Get(), NULL);
+	}
+
+	template <typename T_Struct>
+	void UpdateBuffer(const vector<T_Struct>& vec, ComPtr<ID3D11Buffer>& buffer)
+	{
+		assert(buffer);
+		D3D11_MAPPED_SUBRESOURCE ms;
+		m_context->Map(buffer.Get(), NULL, D3D11_MAP_WRITE, NULL, &ms);
+		memcpy(ms.pData, vec.data(), sizeof(T_Struct) * vec.size());
 		m_context->Unmap(buffer.Get(), NULL);
 	}
 

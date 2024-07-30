@@ -34,6 +34,9 @@ namespace Graphics
 	extern ComPtr<ID3D11PixelShader> g_postEffectsPS;
 	extern ComPtr<ID3D11PixelShader> g_dirArrowPS;
 
+	// ComputeShader
+	extern ComPtr<ID3D11ComputeShader> g_basicCS;
+
 	// RasterizerState
 	extern ComPtr<ID3D11RasterizerState> g_solidCWRS;
 	extern ComPtr<ID3D11RasterizerState> g_solidCCWRS;
@@ -66,6 +69,7 @@ namespace Graphics
 	extern GraphicsPSO g_depthOnlyPSO;
 	extern GraphicsPSO g_postEffectsPSO;
 	extern GraphicsPSO g_postProcessPSO;
+	extern GraphicsPSO g_basicComputePSO;
 	
 	void InitCommonStates();
 	void InitSamplers();

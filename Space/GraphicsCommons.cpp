@@ -37,6 +37,9 @@ namespace Graphics
 	ComPtr<ID3D11PixelShader> g_postEffectsPS;
 	ComPtr<ID3D11PixelShader> g_dirArrowPS;
 
+	// ComputeShader
+	ComPtr<ID3D11ComputeShader> g_basicCS;
+
 	// RasterizerState
 	ComPtr<ID3D11RasterizerState> g_solidCWRS;
 	ComPtr<ID3D11RasterizerState> g_solidCCWRS;
@@ -69,6 +72,7 @@ namespace Graphics
 	GraphicsPSO g_depthOnlyPSO;
 	GraphicsPSO g_postEffectsPSO;
 	GraphicsPSO g_postProcessPSO;
+	GraphicsPSO g_basicComputePSO;
 
 	void InitCommonStates()
 	{
@@ -134,6 +138,8 @@ namespace Graphics
 		D3DUtils::GetInst().CreateGeometryShader(L"Basic", g_basicGS);
 		D3DUtils::GetInst().CreateGeometryShader(L"Normal", g_normalGS);
 		D3DUtils::GetInst().CreateGeometryShader(L"DirArrow", g_dirArrowGS);
+
+		D3DUtils::GetInst().CreateComputeShader(L"Basic", g_basicCS);
 	}
 
 	void InitRasterizerState()
@@ -305,5 +311,8 @@ namespace Graphics
 		// PostProcessPSO;
 		g_postProcessPSO = g_postEffectsPSO;
 		g_postProcessPSO.SetRS(g_postProcessRS);
+
+		// BasicComputePSO
+		g_basicComputePSO.SetCS(g_basicCS);
 	}
 }
