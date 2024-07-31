@@ -239,7 +239,7 @@ void D3DUtils::CreateStructuredBuffer(UINT sizeStruct, UINT numOfElement, ComPtr
 	desc.ByteWidth = sizeStruct * numOfElement;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	desc.StructureByteStride = sizeStruct;
 
@@ -270,6 +270,28 @@ void D3DUtils::CreateStagingBuffer(UINT sizeStruct, UINT numOfElement, ComPtr<ID
 	desc.StructureByteStride = sizeStruct;
 
 	CHECKRESULT(m_device->CreateBuffer(&desc, nullptr, buffer.GetAddressOf()));
+}
+
+void D3DUtils::CreateIndirectArgsBuffer(UINT numOfElement, ComPtr<ID3D11Buffer>& buffer, ComPtr<ID3D11UnorderedAccessView>& uav)
+{
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.ByteWidth = sizeof(IndirectArgs) * numOfElement;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+	desc.CPUAccessFlags = 0;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
+	desc.StructureByteStride = sizeof(IndirectArgs);
+
+	m_device->CreateBuffer(&desc, nullptr, buffer.GetAddressOf());
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	ZeroMemory(&uavDesc, sizeof(uavDesc));
+	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	uavDesc.Buffer.NumElements = numOfElement;
+
+	m_device->CreateUnorderedAccessView(buffer.Get(), &uavDesc, uav.GetAddressOf());
 }
 
 void D3DUtils::ReadCubeImage(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView)

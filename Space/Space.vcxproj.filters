@@ -92,11 +92,17 @@
     <Filter Include="Engine\Scene\AnimateScene">
       <UniqueIdentifier>{7835a91c-783b-4467-951a-35767ccd7b7c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\StructuredBufer">
-      <UniqueIdentifier>{4caa7e5c-a8ba-418e-811d-fd1c5ac69903}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Shader\ParticleShader">
       <UniqueIdentifier>{bd01cf06-877b-4c1b-8fda-5bf5822fbf56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Buffer">
+      <UniqueIdentifier>{ff474ffd-e04f-4ab0-aa8b-9b8f714a2e61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Buffer\StructuredBufer">
+      <UniqueIdentifier>{4caa7e5c-a8ba-418e-811d-fd1c5ac69903}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Buffer\IndirectArgsBuffer">
+      <UniqueIdentifier>{9cac10a3-0d21-452e-9a7a-50814ac43302}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -182,10 +188,16 @@
       <Filter>Engine\Scene\AnimateScene</Filter>
     </ClInclude>
     <ClInclude Include="StructuredBuffer.h">
-      <Filter>Engine\StructuredBufer</Filter>
+      <Filter>Engine\Buffer\StructuredBufer</Filter>
     </ClInclude>
     <ClInclude Include="Texture2D.h">
       <Filter>Engine\Texture2D</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Engine\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="IndirectArgsBuffer.h">
+      <Filter>Engine\Buffer\IndirectArgsBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -266,7 +278,13 @@
       <Filter>Engine\Scene\AnimateScene</Filter>
     </ClCompile>
     <ClCompile Include="StructuredBuffer.cpp">
-      <Filter>Engine\StructuredBufer</Filter>
+      <Filter>Engine\Buffer\StructuredBufer</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>Engine\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="IndirectArgsBuffer.cpp">
+      <Filter>Engine\Buffer\IndirectArgsBuffer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

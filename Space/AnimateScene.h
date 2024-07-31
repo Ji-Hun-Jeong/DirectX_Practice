@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene.h"
 template <typename Particle> class StructuredBuffer;
+template <typename IndirectArgs> class IndirectArgsBuffer;
 class Texture2D;
 class AnimateScene :
     public Scene
@@ -20,13 +21,16 @@ protected:
     virtual void InitSkyBox();
 
 private:
+    void CreateIndirectArgsBuffer();
     void ComputeShaderBarrier(ComPtr<ID3D11DeviceContext>& context);
     void DissipateDensity(ComPtr<ID3D11DeviceContext>& context);
     void AdvectParticles(ComPtr<ID3D11DeviceContext>& context);
     void DrawSprites(ComPtr<ID3D11DeviceContext>& context);
 
 private:
+    shared_ptr<IndirectArgsBuffer<IndirectArgs>> m_indirectArgsBuffer;
     shared_ptr<StructuredBuffer<Particle>> m_particle;
     shared_ptr<Texture2D> m_stagingBuffer;
+
 };
 

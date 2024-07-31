@@ -110,6 +110,14 @@ struct Particle
 	Vector3 color;
 };
 
+struct IndirectArgs
+{
+	UINT vertexCountPerInstance;
+	UINT instanceCount;
+	UINT startVertexLocation;
+	UINT startInstanceLocation;
+};
+
 static_assert(sizeof(MeshConstData) % 16 == 0, "MeshConstData Size Check");
 static_assert(sizeof(MaterialConstData) % 16 == 0, "MaterialConstData Size Check");
 static_assert(sizeof(GlobalConstData) % 16 == 0, "GlobalConstData Size Check");

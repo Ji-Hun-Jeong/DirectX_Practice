@@ -4,6 +4,7 @@
 #include "GraphicsCommons.h"
 #include "GraphicsPSO.h"
 #include "StructuredBuffer.h"
+#include "IndirectArgsBuffer.h"
 #include "Texture2D.h"
 
 AnimateScene::AnimateScene(SceneMgr* owner)
@@ -22,7 +23,9 @@ void AnimateScene::Enter()
 	vector<Particle> vec;
 	vec.resize(256);
 
-	vector<Vector3> rainbow = 
+	CreateIndirectArgsBuffer();
+
+	vector<Vector3> rainbow =
 	{
 		{1.0f, 0.0f, 0.0f},  // Red
 		{1.0f, 0.65f, 0.0f}, // Orange
@@ -60,7 +63,7 @@ void AnimateScene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFra
 	this->DissipateDensity(context);
 
 	this->AdvectParticles(context);
-	
+
 	this->DrawSprites(context);
 
 	context->CopyResource(m_pOwner->GetBackBufferTexture().Get(), m_stagingBuffer->GetTexture().Get());
@@ -80,6 +83,16 @@ void AnimateScene::InitIBL()
 
 void AnimateScene::InitSkyBox()
 {
+}
+
+void AnimateScene::CreateIndirectArgsBuffer()
+{
+	m_indirectArgsBuffer = make_shared<IndirectArgsBuffer<IndirectArgs>>();
+	vector<IndirectArgs> vec =
+	{
+		{32,1,0,0}, {128,1,0,0}, {256,1,0,0}
+	};
+	m_indirectArgsBuffer->Init(vec);
 }
 
 void AnimateScene::ComputeShaderBarrier(ComPtr<ID3D11DeviceContext>& context)
@@ -121,5 +134,6 @@ void AnimateScene::DrawSprites(ComPtr<ID3D11DeviceContext>& context)
 	const float blendFactor[4] = { factor ,factor ,factor ,factor };
 	GraphicsPSO::SetBlendFactor(blendFactor);
 
-	context->Draw(m_particle->GetBufferSize(), 0);
+	//context->Draw(m_particle->GetBufferSize(), 0);
+	context->DrawInstancedIndirect(m_indirectArgsBuffer->GetBuffer().Get(), sizeof(IndirectArgs) * 2);
 }

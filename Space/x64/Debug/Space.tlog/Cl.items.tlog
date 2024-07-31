@@ -1,4 +1,5 @@
 E:\source\repos\DX_Space\Space\AnimateScene.cpp;E:\source\repos\DX_Space\Space\x64\Debug\AnimateScene.obj
+E:\source\repos\DX_Space\Space\Buffer.cpp;E:\source\repos\DX_Space\Space\x64\Debug\Buffer.obj
 E:\source\repos\DX_Space\Space\Camera.cpp;E:\source\repos\DX_Space\Space\x64\Debug\Camera.obj
 E:\source\repos\DX_Space\Space\Core.cpp;E:\source\repos\DX_Space\Space\x64\Debug\Core.obj
 E:\source\repos\DX_Space\Space\D3DUtils.cpp;E:\source\repos\DX_Space\Space\x64\Debug\D3DUtils.obj
@@ -7,6 +8,7 @@ E:\source\repos\DX_Space\Space\GeometryGenerator.cpp;E:\source\repos\DX_Space\Sp
 E:\source\repos\DX_Space\Space\GraphicsCommons.cpp;E:\source\repos\DX_Space\Space\x64\Debug\GraphicsCommons.obj
 E:\source\repos\DX_Space\Space\GraphicsPSO.cpp;E:\source\repos\DX_Space\Space\x64\Debug\GraphicsPSO.obj
 E:\source\repos\DX_Space\Space\ImageFilter.cpp;E:\source\repos\DX_Space\Space\x64\Debug\ImageFilter.obj
+E:\source\repos\DX_Space\Space\IndirectArgsBuffer.cpp;E:\source\repos\DX_Space\Space\x64\Debug\IndirectArgsBuffer.obj
 E:\source\repos\DX_Space\Space\KeyMgr.cpp;E:\source\repos\DX_Space\Space\x64\Debug\KeyMgr.obj
 E:\source\repos\DX_Space\Space\Light.cpp;E:\source\repos\DX_Space\Space\x64\Debug\Light.obj
 E:\source\repos\DX_Space\Space\Main.cpp;E:\source\repos\DX_Space\Space\x64\Debug\Main.obj

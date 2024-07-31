@@ -28,6 +28,7 @@ public:
 		, ComPtr<ID3D11ShaderResourceView>& srv, ComPtr<ID3D11UnorderedAccessView>& uav);
 
 	void CreateStagingBuffer(UINT sizeStruct, UINT numOfElement, ComPtr<ID3D11Buffer>& buffer);
+	void CreateIndirectArgsBuffer(UINT numOfElement, ComPtr<ID3D11Buffer>& buffer, ComPtr<ID3D11UnorderedAccessView>& uav);
 
 private:
 	void ReadLDRImage(const string& fileName, DXGI_FORMAT pixelFormat, vector<uint8_t>& image, int& width, int& height);
