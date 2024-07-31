@@ -10,18 +10,18 @@ public:
     AnimateScene(SceneMgr* owner);
 public:
     virtual void Enter();
-    virtual void Exit();
+    virtual void Exit() {}
     virtual void Update(float dt);
     virtual void Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame);
-    virtual void UpdateGUI();
+    virtual void UpdateGUI() {}
 
 protected:
-    virtual void InitMesh();
-    virtual void InitIBL();
-    virtual void InitSkyBox();
+    virtual void InitMesh() {}
+    virtual void InitIBL() {}
+    virtual void InitSkyBox() {}
 
 private:
-    void CreateIndirectArgsBuffer();
+    void CreateIndirectArgsBuffer(UINT count);
     void ComputeShaderBarrier(ComPtr<ID3D11DeviceContext>& context);
     void DissipateDensity(ComPtr<ID3D11DeviceContext>& context);
     void AdvectParticles(ComPtr<ID3D11DeviceContext>& context);
@@ -32,5 +32,7 @@ private:
     shared_ptr<StructuredBuffer<Particle>> m_particle;
     shared_ptr<Texture2D> m_stagingBuffer;
 
+    ComPtr<ID3D11Buffer> m_constBuffer;
+    AnimateConstData m_constData;
 };
 

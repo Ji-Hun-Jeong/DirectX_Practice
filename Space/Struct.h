@@ -108,6 +108,9 @@ struct Particle
 {
 	Vector3 pos;
 	Vector3 color;
+	Vector3 velocity;
+	float lifeTime = -1.0f;
+	float radius = 1.0f;
 };
 
 struct IndirectArgs
@@ -116,6 +119,13 @@ struct IndirectArgs
 	UINT instanceCount;
 	UINT startVertexLocation;
 	UINT startInstanceLocation;
+};
+
+struct AnimateConstData
+{
+	Vector2 mousePos;
+	float dt;
+	float dummy;
 };
 
 static_assert(sizeof(MeshConstData) % 16 == 0, "MeshConstData Size Check");

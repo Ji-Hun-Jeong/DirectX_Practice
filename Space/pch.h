@@ -32,8 +32,9 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <map>
 #include <algorithm>
+#include <random>
+#include <numeric>
 
 // using
 using std::cout;
@@ -42,10 +43,12 @@ using std::vector;
 using std::wstring;
 using std::string;
 using std::vector;
-using std::map;
 using std::shared_ptr;
 using std::make_shared;
 using std::reverse;
+using std::random_device;
+using std::mt19937;
+using std::uniform_real_distribution;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;

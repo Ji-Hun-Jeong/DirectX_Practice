@@ -4,8 +4,8 @@ template <typename T_Struct>
 class Buffer
 {
 public:
-	virtual void Init(const vector<T_Struct>& vec) = 0;
-	void UploadToBuffer(const vector<T_Struct>& vec);
+	virtual void Init() = 0;
+	void UploadToBuffer();
 
 public:
 	auto GetBuffer() { return m_buffer; }
@@ -14,6 +14,7 @@ public:
 	auto GetUAV() { return m_uav.Get(); }
 	auto GetAddressSRV() { return m_srv.GetAddressOf(); }
 	auto GetAddressUAV() { return m_uav.GetAddressOf(); }
+	auto& GetVec() { return m_vec; }
 
 protected:
 	vector<T_Struct> m_vec;
@@ -26,9 +27,8 @@ protected:
 };
 
 template<typename T_Struct>
-inline void Buffer<T_Struct>::UploadToBuffer(const vector<T_Struct>& vec)
+inline void Buffer<T_Struct>::UploadToBuffer()
 {
-	m_vec = vec;
 	D3DUtils::GetInst().UpdateBuffer(m_vec, m_stagingBuffer);
 	D3DUtils::GetInst().GetContext()->CopyResource(m_buffer.Get(), m_stagingBuffer.Get());
 }
