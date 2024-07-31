@@ -5,3 +5,5 @@ PBR
 ![image](https://github.com/Ji-Hun-Jeong/DX_Space/assets/147147285/13352308-d8c9-441d-b9bd-c585f300b370)
 Mirror
 ![image](https://github.com/Ji-Hun-Jeong/DX_Space/assets/147147285/1e468a5b-d655-4698-b4fc-ba755651d6c5)
+Use Compute Shader 
+![image](https://github.com/user-attachments/assets/1bc12f37-9c7f-4d73-ac40-caf16ea01398)
