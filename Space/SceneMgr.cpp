@@ -124,8 +124,6 @@ bool SceneMgr::CreateRenderTargetView()
 	HRESULT result = device->CreateShaderResourceView(m_swapChainBackBuffer.GetTexture().Get(), nullptr, m_swapChainBackBuffer.GetSRV().GetAddressOf());
 	CHECKRESULT(result);
 	D3DUtils::GetInst().CreateRenderTargetView(m_swapChainBackBuffer.GetTexture().Get(), nullptr, m_swapChainBackBuffer.GetRTV());
-
-	device->CreateUnorderedAccessView(m_swapChainBackBuffer.GetTexture().Get(), nullptr, m_swapChainBackBuffer.GetUAV().GetAddressOf());
 	return true;
 }
 

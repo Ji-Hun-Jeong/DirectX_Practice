@@ -16,14 +16,17 @@ namespace Graphics
 	ComPtr<ID3D11VertexShader> g_normalVS;
 	ComPtr<ID3D11VertexShader> g_copyVS;
 	ComPtr<ID3D11VertexShader> g_depthOnlyVS;
+	ComPtr<ID3D11VertexShader> g_particleVS;
 	ComPtr<ID3D11VertexShader> g_dirArrowVS;
 
 	// InputLayout
 	ComPtr<ID3D11InputLayout> g_basicInputLayout;
+	ComPtr<ID3D11InputLayout> g_particleInputLayout;
 
 	// GeometryShader
 	ComPtr<ID3D11GeometryShader> g_basicGS;
 	ComPtr<ID3D11GeometryShader> g_normalGS;
+	ComPtr<ID3D11GeometryShader> g_particleGS;
 	ComPtr<ID3D11GeometryShader> g_dirArrowGS;
 
 	// PixelShader
@@ -35,10 +38,12 @@ namespace Graphics
 	ComPtr<ID3D11PixelShader> g_combinePS;
 	ComPtr<ID3D11PixelShader> g_depthOnlyPS;
 	ComPtr<ID3D11PixelShader> g_postEffectsPS;
+	ComPtr<ID3D11PixelShader> g_particlePS;
 	ComPtr<ID3D11PixelShader> g_dirArrowPS;
 
 	// ComputeShader
-	ComPtr<ID3D11ComputeShader> g_basicCS;
+	ComPtr<ID3D11ComputeShader> g_particleCS;
+	ComPtr<ID3D11ComputeShader> g_densityCS;
 
 	// RasterizerState
 	ComPtr<ID3D11RasterizerState> g_solidCWRS;
@@ -54,6 +59,7 @@ namespace Graphics
 
 	// BlendState
 	ComPtr<ID3D11BlendState> g_basicBS;
+	ComPtr<ID3D11BlendState> g_accumulateBS;
 
 	// PSO
 	GraphicsPSO g_defaultSolidPSO;
@@ -72,7 +78,7 @@ namespace Graphics
 	GraphicsPSO g_depthOnlyPSO;
 	GraphicsPSO g_postEffectsPSO;
 	GraphicsPSO g_postProcessPSO;
-	GraphicsPSO g_basicComputePSO;
+	GraphicsPSO g_particlePSO;
 
 	void InitCommonStates()
 	{
@@ -125,6 +131,12 @@ namespace Graphics
 		D3DUtils::GetInst().CreateVertexShaderAndInputLayout(L"DepthOnly", g_depthOnlyVS, desc, g_basicInputLayout);
 		D3DUtils::GetInst().CreateVertexShaderAndInputLayout(L"DirArrow", g_dirArrowVS, desc, g_basicInputLayout);
 
+		desc =
+		{
+			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		};
+		D3DUtils::GetInst().CreateVertexShaderAndInputLayout(L"Particle", g_particleVS, desc, g_particleInputLayout);
+
 		D3DUtils::GetInst().CreatePixelShader(L"Basic", g_basicPS);
 		D3DUtils::GetInst().CreatePixelShader(L"SkyBox", g_skyboxPS);
 		D3DUtils::GetInst().CreatePixelShader(L"Normal", g_normalPS);
@@ -133,13 +145,16 @@ namespace Graphics
 		D3DUtils::GetInst().CreatePixelShader(L"Combine", g_combinePS);
 		D3DUtils::GetInst().CreatePixelShader(L"DepthOnly", g_depthOnlyPS);
 		D3DUtils::GetInst().CreatePixelShader(L"PostEffects", g_postEffectsPS);
+		D3DUtils::GetInst().CreatePixelShader(L"Particle", g_particlePS);
 		D3DUtils::GetInst().CreatePixelShader(L"DirArrow", g_dirArrowPS);
 		
 		D3DUtils::GetInst().CreateGeometryShader(L"Basic", g_basicGS);
 		D3DUtils::GetInst().CreateGeometryShader(L"Normal", g_normalGS);
+		D3DUtils::GetInst().CreateGeometryShader(L"Particle", g_particleGS);
 		D3DUtils::GetInst().CreateGeometryShader(L"DirArrow", g_dirArrowGS);
 
-		D3DUtils::GetInst().CreateComputeShader(L"Basic", g_basicCS);
+		D3DUtils::GetInst().CreateComputeShader(L"Particle", g_particleCS);
+		D3DUtils::GetInst().CreateComputeShader(L"Density", g_densityCS);
 	}
 
 	void InitRasterizerState()
@@ -232,6 +247,22 @@ namespace Graphics
 			D3D11_COLOR_WRITE_ENABLE_ALL;
 
 		D3DUtils::GetInst().CreateBlendState(&desc, g_basicBS);
+
+		// 두 색을 전부 써버림
+		D3D11_BLEND_DESC blendDesc;
+		ZeroMemory(&blendDesc, sizeof(blendDesc));
+		blendDesc.AlphaToCoverageEnable = true; // MSAA
+		blendDesc.IndependentBlendEnable = false;
+		blendDesc.RenderTarget[0].BlendEnable = true;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_BLEND_FACTOR;	// <- 두 색을 전부 씀
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR; // INV 아님
+		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].RenderTargetWriteMask =
+			D3D11_COLOR_WRITE_ENABLE_ALL;
+		D3DUtils::GetInst().CreateBlendState(&blendDesc, g_accumulateBS);
 	}
 
 	void InitGraphicsPSO()
@@ -312,7 +343,14 @@ namespace Graphics
 		g_postProcessPSO = g_postEffectsPSO;
 		g_postProcessPSO.SetRS(g_postProcessRS);
 
-		// BasicComputePSO
-		g_basicComputePSO.SetCS(g_basicCS);
+		// ParticlePSO
+		g_particlePSO.SetVS(g_particleVS);
+		g_particlePSO.SetInputLayout(g_particleInputLayout);
+		g_particlePSO.SetGS(g_particleGS);
+		g_particlePSO.SetPS(g_particlePS);
+		g_particlePSO.SetCS(g_particleCS);
+		g_particlePSO.SetRS(g_solidCWRS);
+		g_particlePSO.SetTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+		g_particlePSO.SetBS(g_accumulateBS);
 	}
 }

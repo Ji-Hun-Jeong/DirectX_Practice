@@ -20,8 +20,11 @@ public:
 	}
 
 public:
-	auto& GetSRV() { return m_srv; }
-	auto& GetUAV() { return m_uav; }
+	auto GetSRV() { return m_srv.Get(); }
+	auto GetUAV() { return m_uav.Get(); }
+	auto GetAddressSRV() { return m_srv.GetAddressOf(); }
+	auto GetAddressUAV() { return m_uav.GetAddressOf(); }
+	auto GetBufferSize() { return m_vec.size(); }
 
 private:
 	vector<T_Struct> m_vec;

@@ -92,11 +92,11 @@
     <Filter Include="Engine\Scene\AnimateScene">
       <UniqueIdentifier>{7835a91c-783b-4467-951a-35767ccd7b7c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Shader\ComputeShader">
-      <UniqueIdentifier>{3cfb958e-deaf-429d-96cd-9d304e88f1d7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\StructuredBufer">
       <UniqueIdentifier>{4caa7e5c-a8ba-418e-811d-fd1c5ac69903}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Shader\ParticleShader">
+      <UniqueIdentifier>{bd01cf06-877b-4c1b-8fda-5bf5822fbf56}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -178,14 +178,14 @@
     <ClInclude Include="Light.h">
       <Filter>Engine\Mesh\Light</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2D.h">
-      <Filter>Engine\Texture2D</Filter>
-    </ClInclude>
     <ClInclude Include="AnimateScene.h">
       <Filter>Engine\Scene\AnimateScene</Filter>
     </ClInclude>
     <ClInclude Include="StructuredBuffer.h">
       <Filter>Engine\StructuredBufer</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>Engine\Texture2D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -327,8 +327,20 @@
     <FxCompile Include="DepthOnlyPixelShader.hlsl">
       <Filter>Engine\Shader\FilterShader</Filter>
     </FxCompile>
-    <FxCompile Include="BasicComputeShader.hlsl">
-      <Filter>Engine\Shader\ComputeShader</Filter>
+    <FxCompile Include="ParticleVertexShader.hlsl">
+      <Filter>Engine\Shader\ParticleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticlePixelShader.hlsl">
+      <Filter>Engine\Shader\ParticleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticleComputeShader.hlsl">
+      <Filter>Engine\Shader\ParticleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticleGeometryShader.hlsl">
+      <Filter>Engine\Shader\ParticleShader</Filter>
+    </FxCompile>
+    <FxCompile Include="DensityComputeShader.hlsl">
+      <Filter>Engine\Shader\ParticleShader</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

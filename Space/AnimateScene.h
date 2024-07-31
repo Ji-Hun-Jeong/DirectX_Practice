@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene.h"
 template <typename Particle> class StructuredBuffer;
+class Texture2D;
 class AnimateScene :
     public Scene
 {
@@ -19,6 +20,13 @@ protected:
     virtual void InitSkyBox();
 
 private:
+    void ComputeShaderBarrier(ComPtr<ID3D11DeviceContext>& context);
+    void DissipateDensity(ComPtr<ID3D11DeviceContext>& context);
+    void AdvectParticles(ComPtr<ID3D11DeviceContext>& context);
+    void DrawSprites(ComPtr<ID3D11DeviceContext>& context);
+
+private:
     shared_ptr<StructuredBuffer<Particle>> m_particle;
+    shared_ptr<Texture2D> m_stagingBuffer;
 };
 

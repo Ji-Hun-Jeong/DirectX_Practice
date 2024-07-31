@@ -7,7 +7,10 @@
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>E:\source\repos\DX_Space\x64\Debug\BasicComputeShader.cso</FullPath>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\DensityComputeShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\ParticleComputeShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
       <FullPath>E:\source\repos\DX_Space\x64\Debug\BasicGeometryShader.cso</FullPath>
@@ -35,6 +38,15 @@
     </ContentFile>
     <ContentFile>
       <FullPath>E:\source\repos\DX_Space\x64\Debug\DepthOnlyVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\ParticleGeometryShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\ParticlePixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>E:\source\repos\DX_Space\x64\Debug\ParticleVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
       <FullPath>E:\source\repos\DX_Space\x64\Debug\PostEffectsPixelShader.cso</FullPath>

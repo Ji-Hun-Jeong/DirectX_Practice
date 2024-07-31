@@ -5,7 +5,7 @@ public:
 	Texture2D();
 public:
 	void Init(const D3D11_TEXTURE2D_DESC& desc);
-	void Init(const vector<uint8_t>& vec, UINT width, UINT height, DXGI_FORMAT pixelFormat);
+	void Init(UINT width, UINT height, DXGI_FORMAT pixelFormat);
 
 public:
 	ComPtr<ID3D11Texture2D>& GetTexture() { return m_texture; }
@@ -13,9 +13,10 @@ public:
 	ComPtr<ID3D11RenderTargetView>& GetRTV() { return m_rtv; }
 	ComPtr<ID3D11UnorderedAccessView>& GetUAV() { return m_uav; }
 
-private:
 	UINT m_iWidth;
 	UINT m_iHeight;
+private:
+	
 
 	ComPtr<ID3D11Texture2D> m_texture;
 	ComPtr<ID3D11Texture2D> m_stagingTexture;

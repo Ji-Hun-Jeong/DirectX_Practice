@@ -13,14 +13,17 @@ namespace Graphics
 	extern ComPtr<ID3D11VertexShader> g_normalVS;
 	extern ComPtr<ID3D11VertexShader> g_copyVS;
 	extern ComPtr<ID3D11VertexShader> g_depthOnlyVS;
+	extern ComPtr<ID3D11VertexShader> g_particleVS;
 	extern ComPtr<ID3D11VertexShader> g_dirArrowVS;
 
 	// InputLayout
 	extern ComPtr<ID3D11InputLayout> g_basicInputLayout;
+	extern ComPtr<ID3D11InputLayout> g_particleInputLayout;
 
 	// GeometryShader
 	extern ComPtr<ID3D11GeometryShader> g_basicGS;
 	extern ComPtr<ID3D11GeometryShader> g_normalGS;
+	extern ComPtr<ID3D11GeometryShader> g_particleGS;
 	extern ComPtr<ID3D11GeometryShader> g_dirArrowGS;
 
 	// PixelShader
@@ -32,10 +35,12 @@ namespace Graphics
 	extern ComPtr<ID3D11PixelShader> g_combinePS;
 	extern ComPtr<ID3D11PixelShader> g_depthOnlyPS;
 	extern ComPtr<ID3D11PixelShader> g_postEffectsPS;
+	extern ComPtr<ID3D11PixelShader> g_particlePS;
 	extern ComPtr<ID3D11PixelShader> g_dirArrowPS;
 
 	// ComputeShader
-	extern ComPtr<ID3D11ComputeShader> g_basicCS;
+	extern ComPtr<ID3D11ComputeShader> g_particleCS;
+	extern ComPtr<ID3D11ComputeShader> g_densityCS;
 
 	// RasterizerState
 	extern ComPtr<ID3D11RasterizerState> g_solidCWRS;
@@ -51,6 +56,7 @@ namespace Graphics
 
 	// BlendState
 	extern ComPtr<ID3D11BlendState> g_basicBS;
+	extern ComPtr<ID3D11BlendState> g_accumulateBS;
 
 	// PSO
 	extern GraphicsPSO g_defaultSolidPSO;
@@ -69,7 +75,7 @@ namespace Graphics
 	extern GraphicsPSO g_depthOnlyPSO;
 	extern GraphicsPSO g_postEffectsPSO;
 	extern GraphicsPSO g_postProcessPSO;
-	extern GraphicsPSO g_basicComputePSO;
+	extern GraphicsPSO g_particlePSO;
 	
 	void InitCommonStates();
 	void InitSamplers();

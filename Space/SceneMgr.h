@@ -16,7 +16,7 @@ public:
 private:
 	shared_ptr<Scene> m_arrScene[(UINT)SCENE_TYPE::END];
 	shared_ptr<Scene> m_curScene;
-	
+
 public:
 	float m_fWidth;
 	float m_fHeight;
@@ -24,9 +24,11 @@ public:
 
 public:
 	ComPtr<ID3D11DepthStencilView>& GetDepthStencilView() { return m_useMSAADSV; }
+	ComPtr<ID3D11Texture2D>& GetBackBufferTexture() { return m_swapChainBackBuffer.GetTexture(); }
 	ComPtr<ID3D11ShaderResourceView>& GetBackBufferSRV() { return m_swapChainBackBuffer.GetSRV(); }
 	ComPtr<ID3D11RenderTargetView>& GetBackBufferRTV() { return m_swapChainBackBuffer.GetRTV(); }
 	ComPtr<ID3D11UnorderedAccessView>& GetBackBufferUAV() { return m_swapChainBackBuffer.GetUAV(); }
+	const D3D11_VIEWPORT& GetViewPort() { return m_viewPort; }
 	shared_ptr<Scene>& GetCurScene() { return m_curScene; }
 
 private:
@@ -45,7 +47,7 @@ private:
 
 	UINT m_iNumOfMultiSamplingLevel;
 	friend class RenderScene;
-// SingleTon
+	// SingleTon
 	SINGLE(SceneMgr)
 };
 

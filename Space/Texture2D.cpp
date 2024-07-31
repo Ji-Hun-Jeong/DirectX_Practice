@@ -24,8 +24,10 @@ void Texture2D::Init(const D3D11_TEXTURE2D_DESC& desc)
 }
 
 
-void Texture2D::Init(const vector<uint8_t>& vec, UINT width, UINT height, DXGI_FORMAT pixelFormat)
+void Texture2D::Init(UINT width, UINT height, DXGI_FORMAT pixelFormat)
 {
+	m_iWidth = width;
+	m_iHeight = height;
 	auto& context = D3DUtils::GetInst().GetContext();
 	auto& device = D3DUtils::GetInst().GetDevice();
 
@@ -43,30 +45,12 @@ void Texture2D::Init(const vector<uint8_t>& vec, UINT width, UINT height, DXGI_F
 
 	device->CreateTexture2D(&texDesc, nullptr, m_stagingTexture.GetAddressOf());
 
-	D3D11_MAPPED_SUBRESOURCE ms;
-	context->Map(m_stagingTexture.Get(), NULL, D3D11_MAP_WRITE, NULL, &ms);
-
-	UINT pixelSize = sizeof(float);
-	if (pixelFormat == DXGI_FORMAT_R16G16B16A16_FLOAT)
-		pixelSize *= 2;
-	else if (pixelFormat == DXGI_FORMAT_R32G32B32A32_FLOAT)
-		pixelSize *= 4;
-
-	uint8_t* dst = (uint8_t*)vec.data();
-	uint8_t* src = (uint8_t*)ms.pData;
-	for (UINT i = 0; i < height; ++i)
-		memcpy(&dst[i * width], &src[i * width * pixelSize], width * pixelSize);
-
-	context->Unmap(m_stagingTexture.Get(), NULL);
-
 	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET
 		| D3D11_BIND_UNORDERED_ACCESS;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.CPUAccessFlags = 0;
 
 	device->CreateTexture2D(&texDesc, nullptr, m_texture.GetAddressOf());
-
-	context->CopyResource(m_texture.Get(), m_stagingTexture.Get());
 
 	CHECKRESULT(device->CreateShaderResourceView(m_texture.Get(), nullptr, m_srv.GetAddressOf()));
 	CHECKRESULT(device->CreateRenderTargetView(m_texture.Get(), nullptr, m_rtv.GetAddressOf()));
