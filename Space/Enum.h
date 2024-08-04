@@ -17,7 +17,7 @@ enum class SCENE_TYPE
 {
 	SPACE,
 	RENDER,
-	ANIMATE,
+	SPRITE,
 	END,
 };
 enum class IBL_TYPE

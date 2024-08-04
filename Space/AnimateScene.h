@@ -1,7 +1,8 @@
 #pragma once
 #include "Scene.h"
-template <typename Particle> class StructuredBuffer;
-template <typename IndirectArgs> class IndirectArgsBuffer;
+#include "IndirectArgsBuffer.h"
+#include "Texture2D.h"
+#include "StructuredBuffer.h"
 class Texture2D;
 class AnimateScene :
     public Scene
@@ -11,28 +12,22 @@ public:
 public:
     virtual void Enter();
     virtual void Exit() {}
-    virtual void Update(float dt);
-    virtual void Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame);
+    virtual void Update(float dt) = 0;
+    virtual void Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame) = 0;
     virtual void UpdateGUI() {}
 
 protected:
     virtual void InitMesh() {}
     virtual void InitIBL() {}
     virtual void InitSkyBox() {}
-
-private:
     void CreateIndirectArgsBuffer(UINT count);
     void ComputeShaderBarrier(ComPtr<ID3D11DeviceContext>& context);
-    void DissipateDensity(ComPtr<ID3D11DeviceContext>& context);
-    void AdvectParticles(ComPtr<ID3D11DeviceContext>& context);
     void DrawSprites(ComPtr<ID3D11DeviceContext>& context);
 
-private:
+protected:
     shared_ptr<IndirectArgsBuffer<IndirectArgs>> m_indirectArgsBuffer;
     shared_ptr<StructuredBuffer<Particle>> m_particle;
     shared_ptr<Texture2D> m_stagingBuffer;
 
-    ComPtr<ID3D11Buffer> m_constBuffer;
-    AnimateConstData m_constData;
 };
 

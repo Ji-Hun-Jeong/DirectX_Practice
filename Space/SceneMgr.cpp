@@ -7,6 +7,7 @@
 #include "RenderScene.h"
 #include "AnimateScene.h"
 #include "GraphicsCommons.h"
+#include "SpriteScene.h"
 #include "Light.h"
 #include "KeyMgr.h"
 SceneMgr SceneMgr::m_inst;
@@ -20,8 +21,8 @@ SceneMgr::SceneMgr()
 {
 	m_arrScene[(UINT)SCENE_TYPE::SPACE] = make_shared<SpaceScene>(this);
 	m_arrScene[(UINT)SCENE_TYPE::RENDER] = make_shared<RenderScene>(this);
-	m_arrScene[(UINT)SCENE_TYPE::ANIMATE] = make_shared<AnimateScene>(this);
-	m_curScene = m_arrScene[(UINT)SCENE_TYPE::ANIMATE];
+	m_arrScene[(UINT)SCENE_TYPE::SPRITE] = make_shared<SpriteScene>(this);
+	m_curScene = m_arrScene[(UINT)SCENE_TYPE::SPRITE];
 }
 
 bool SceneMgr::Init(float width, float height)

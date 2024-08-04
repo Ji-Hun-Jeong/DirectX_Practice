@@ -4,7 +4,9 @@ class Mirror;
 class Mesh;
 class PostProcess;
 class Light;
-class SceneMgr;
+#include "GraphicsPSO.h"
+#include "GraphicsCommons.h"
+#include "SceneMgr.h"
 class Scene
 {
 public:

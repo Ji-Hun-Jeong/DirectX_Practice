@@ -104,6 +104,9 @@
     <Filter Include="Engine\Buffer\IndirectArgsBuffer">
       <UniqueIdentifier>{9cac10a3-0d21-452e-9a7a-50814ac43302}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Scene\AnimateScene\SpriteScene">
+      <UniqueIdentifier>{071d8eb2-8632-4f3a-a440-2c3a52a52a82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -199,6 +202,9 @@
     <ClInclude Include="IndirectArgsBuffer.h">
       <Filter>Engine\Buffer\IndirectArgsBuffer</Filter>
     </ClInclude>
+    <ClInclude Include="SpriteScene.h">
+      <Filter>Engine\Scene\AnimateScene\SpriteScene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -285,6 +291,9 @@
     </ClCompile>
     <ClCompile Include="IndirectArgsBuffer.cpp">
       <Filter>Engine\Buffer\IndirectArgsBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteScene.cpp">
+      <Filter>Engine\Scene\AnimateScene\SpriteScene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

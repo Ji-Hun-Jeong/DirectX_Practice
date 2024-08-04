@@ -163,6 +163,7 @@
     <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="Space.h" />
     <ClInclude Include="SpaceScene.h" />
+    <ClInclude Include="SpriteScene.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="StructuredBuffer.h" />
     <ClInclude Include="targetver.h" />
@@ -192,6 +193,7 @@
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="SpaceScene.cpp" />
     <ClCompile Include="RenderScene.cpp" />
+    <ClCompile Include="SpriteScene.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />
     <ClCompile Include="Texture2D.cpp" />
   </ItemGroup>

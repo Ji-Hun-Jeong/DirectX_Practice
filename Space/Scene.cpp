@@ -6,8 +6,6 @@
 #include "KeyMgr.h"
 #include "SceneMgr.h"
 #include "Mirror.h"
-#include "GraphicsCommons.h"
-#include "GraphicsPSO.h"
 #include "PostProcess.h"
 #include "Light.h"
 
