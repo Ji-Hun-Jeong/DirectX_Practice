@@ -109,8 +109,12 @@ struct Particle
 	Vector3 pos;
 	Vector3 color;
 	Vector3 velocity;
+	Vector3 force;
 	float lifeTime = -1.0f;
 	float radius = 1.0f;
+	float density = 0.0f;
+	float pressure = 0.0f;
+	float size = 1.0f;
 };
 
 struct IndirectArgs

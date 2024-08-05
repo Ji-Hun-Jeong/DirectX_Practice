@@ -29,5 +29,6 @@ protected:
     shared_ptr<StructuredBuffer<Particle>> m_particle;
     shared_ptr<Texture2D> m_stagingBuffer;
 
+    const Vector3 m_gravity = Vector3(0.0f, -9.8f, 0.0f);
 };
 

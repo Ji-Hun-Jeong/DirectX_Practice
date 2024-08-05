@@ -18,6 +18,7 @@ enum class SCENE_TYPE
 	SPACE,
 	RENDER,
 	SPRITE,
+	SPH,
 	END,
 };
 enum class IBL_TYPE

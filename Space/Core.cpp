@@ -57,6 +57,7 @@ int Core::Progress()
 			this->Update(ImGui::GetIO().DeltaTime);
 			this->Render();
 
+			D3DUtils::GetInst().GetContext()->OMSetRenderTargets(1, SceneMgr::GetInst().GetBackBufferRTV().GetAddressOf(), nullptr);
 			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // GUI ·»´õ¸µ
 			D3DUtils::GetInst().GetSwapChain()->Present(1, 0);
 		}

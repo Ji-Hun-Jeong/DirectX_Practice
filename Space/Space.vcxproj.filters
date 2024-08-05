@@ -107,6 +107,9 @@
     <Filter Include="Engine\Scene\AnimateScene\SpriteScene">
       <UniqueIdentifier>{071d8eb2-8632-4f3a-a440-2c3a52a52a82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Scene\AnimateScene\SPHScene">
+      <UniqueIdentifier>{d548819e-c726-4909-b801-7c9ce7fad530}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -205,6 +208,12 @@
     <ClInclude Include="SpriteScene.h">
       <Filter>Engine\Scene\AnimateScene\SpriteScene</Filter>
     </ClInclude>
+    <ClInclude Include="SPHScene.h">
+      <Filter>Engine\Scene\AnimateScene\SPHScene</Filter>
+    </ClInclude>
+    <ClInclude Include="SPHKernels.h">
+      <Filter>Engine\Scene\AnimateScene\SPHScene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -294,6 +303,12 @@
     </ClCompile>
     <ClCompile Include="SpriteScene.cpp">
       <Filter>Engine\Scene\AnimateScene\SpriteScene</Filter>
+    </ClCompile>
+    <ClCompile Include="SPHScene.cpp">
+      <Filter>Engine\Scene\AnimateScene\SPHScene</Filter>
+    </ClCompile>
+    <ClCompile Include="SPHKernels.cpp">
+      <Filter>Engine\Scene\AnimateScene\SPHScene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

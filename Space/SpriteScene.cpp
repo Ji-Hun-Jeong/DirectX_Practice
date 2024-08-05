@@ -58,12 +58,12 @@ void SpriteScene::Update(float dt)
 	const float aspect = Core::GetInst().GetAspect();
 	const float ground = -0.8f;
 	const float cor = 0.5f;
-	const Vector3 gravity = Vector3(0.0f, -9.8f, 0.0f);
-	for (auto& p : vec)
+
+	for (auto& p : m_particle->GetVec())
 	{
 		if (p.lifeTime < 0)
 			continue;
-		p.velocity += gravity * dt;
+		p.velocity += m_gravity * dt;
 		p.pos += p.velocity * dt;
 		p.lifeTime -= dt;
 		if (p.pos.y < ground && p.velocity.y < 0.0f)
@@ -81,6 +81,7 @@ void SpriteScene::Update(float dt)
 			p.lifeTime = -1.0f;
 		}
 	}
+
 	m_particle->UploadToBuffer();
 }
 void SpriteScene::DissipateDensity(ComPtr<ID3D11DeviceContext>& context)

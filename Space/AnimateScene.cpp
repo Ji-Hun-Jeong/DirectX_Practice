@@ -11,8 +11,6 @@ AnimateScene::AnimateScene(SceneMgr* owner)
 
 void AnimateScene::Enter()
 {
-	srand(time(NULL));
-	
 	m_particle = make_shared<StructuredBuffer<Particle>>();
 
 	m_stagingBuffer = make_shared<Texture2D>();
@@ -21,7 +19,7 @@ void AnimateScene::Enter()
 
 	random_device rd;
 	mt19937 gen(rd());
-	uniform_real_distribution<float> randomColor(0.0f, 6.0f);
+	uniform_int_distribution<uint32_t> randomColor(0, 6);
 	vector<Vector3> rainbow =
 	{
 		{1.0f, 0.0f, 0.0f},  // Red
@@ -34,10 +32,10 @@ void AnimateScene::Enter()
 	};
 
 	auto& vec = m_particle->GetVec();
-	vec.resize(2560);
+	vec.resize(2048);
 
 	for (auto& p : vec)
-		p.color = rainbow[UINT(randomColor(gen))];
+		p.color = rainbow[randomColor(gen)];
 
 	m_particle->Init();
 
@@ -82,3 +80,4 @@ void AnimateScene::DrawSprites(ComPtr<ID3D11DeviceContext>& context)
 	//context->Draw(m_particle->GetBufferSize(), 0);
 	context->DrawInstancedIndirect(m_indirectArgsBuffer->GetBuffer().Get(), sizeof(IndirectArgs) * 0);
 }
+

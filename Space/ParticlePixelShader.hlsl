@@ -11,12 +11,21 @@ float smootherstep(float x, float edge0 = 0.0f, float edge1 = 1.0f)
 
     return x * x * x * (3 * x * (2 * x - 5) + 10.0f);
 }
+float CubicSpline(const float q)
+{
+    float coeff = 3.0f / (2.0f * 3.141592f);
+
+    if (q < 1.0f)
+        return coeff * (2.0f / 3.0f - q * q + 0.5f * q * q * q);
+    else if (q < 2.0f)
+        return coeff * pow(2.0f - q, 3.0f) / 6.0f;
+    else // q >= 2.0f
+        return 0.0f;
+}
 float4 main(PSInput input) : SV_TARGET
 {
-    float2 center = 0.5f;
-    float dist = length(center- input.uv) * 2;
-    float3 color = input.color;
-    float scale = smootherstep(1 - dist);
-    color *= scale;
-    return float4(color, 1.0f);
+    float dist = length(float2(0.5, 0.5) - input.uv) * 2;
+    
+    float scale = CubicSpline(dist * 2);
+    return float4(input.color.rgb * scale, 1);
 }

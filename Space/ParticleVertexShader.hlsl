@@ -10,8 +10,12 @@ struct Particle
     float3 pos;
     float3 color;
     float3 velocity;
+    float3 force;
     float lifeTime;
     float radius;
+    float density;
+    float pressure;
+    float size;
 };
 StructuredBuffer<Particle> g_particle : register(t0);
 GSInput main(uint vertexID : SV_VertexID)

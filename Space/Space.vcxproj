@@ -163,6 +163,8 @@
     <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="Space.h" />
     <ClInclude Include="SpaceScene.h" />
+    <ClInclude Include="SPHKernels.h" />
+    <ClInclude Include="SPHScene.h" />
     <ClInclude Include="SpriteScene.h" />
     <ClInclude Include="Struct.h" />
     <ClInclude Include="StructuredBuffer.h" />
@@ -193,6 +195,8 @@
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="SpaceScene.cpp" />
     <ClCompile Include="RenderScene.cpp" />
+    <ClCompile Include="SPHKernels.cpp" />
+    <ClCompile Include="SPHScene.cpp" />
     <ClCompile Include="SpriteScene.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />
     <ClCompile Include="Texture2D.cpp" />
