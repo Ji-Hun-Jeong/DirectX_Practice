@@ -221,7 +221,7 @@ void SPHScene::Enter()
 {
 	AnimateScene::Enter();
 	m_density.Init(m_particle->GetBufferSize(), 1, DXGI_FORMAT_R32_FLOAT);
-	"d";
+	
 	D3DUtils::GetInst().CreateConstantBuffer<OrderConst>(m_orderConst, m_orderBuffer);
 }
 
