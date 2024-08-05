@@ -36,6 +36,7 @@ namespace Graphics
 	extern ComPtr<ID3D11PixelShader> g_depthOnlyPS;
 	extern ComPtr<ID3D11PixelShader> g_postEffectsPS;
 	extern ComPtr<ID3D11PixelShader> g_particlePS;
+	extern ComPtr<ID3D11PixelShader> g_sphPS;
 	extern ComPtr<ID3D11PixelShader> g_dirArrowPS;
 
 	// ComputeShader
@@ -76,6 +77,7 @@ namespace Graphics
 	extern GraphicsPSO g_postEffectsPSO;
 	extern GraphicsPSO g_postProcessPSO;
 	extern GraphicsPSO g_particlePSO;
+	extern GraphicsPSO g_sphPSO;
 	extern GraphicsPSO g_computeDensityPSO;
 	
 	void InitCommonStates();

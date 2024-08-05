@@ -24,8 +24,8 @@ float CubicSpline(const float q)
 }
 float4 main(PSInput input) : SV_TARGET
 {
-    float dist = length(float2(0.5, 0.5) - input.uv) * 2;
+    float dist = length(float2(0.5, 0.5) - input.uv) * 2.0f;
     
-    float scale = CubicSpline(dist * 2);
+    float scale = smootherstep(1.0f - dist);
     return float4(input.color.rgb * scale, 1);
 }

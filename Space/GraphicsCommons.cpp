@@ -39,6 +39,7 @@ namespace Graphics
 	ComPtr<ID3D11PixelShader> g_depthOnlyPS;
 	ComPtr<ID3D11PixelShader> g_postEffectsPS;
 	ComPtr<ID3D11PixelShader> g_particlePS;
+	ComPtr<ID3D11PixelShader> g_sphPS;
 	ComPtr<ID3D11PixelShader> g_dirArrowPS;
 
 	// ComputeShader
@@ -79,6 +80,7 @@ namespace Graphics
 	GraphicsPSO g_postEffectsPSO;
 	GraphicsPSO g_postProcessPSO;
 	GraphicsPSO g_particlePSO;
+	GraphicsPSO g_sphPSO;
 	GraphicsPSO g_computeDensityPSO;
 
 	void InitCommonStates()
@@ -147,6 +149,7 @@ namespace Graphics
 		D3DUtils::GetInst().CreatePixelShader(L"DepthOnly", g_depthOnlyPS);
 		D3DUtils::GetInst().CreatePixelShader(L"PostEffects", g_postEffectsPS);
 		D3DUtils::GetInst().CreatePixelShader(L"Particle", g_particlePS);
+		D3DUtils::GetInst().CreatePixelShader(L"SPH", g_sphPS);
 		D3DUtils::GetInst().CreatePixelShader(L"DirArrow", g_dirArrowPS);
 		
 		D3DUtils::GetInst().CreateGeometryShader(L"Basic", g_basicGS);
@@ -353,6 +356,9 @@ namespace Graphics
 		g_particlePSO.SetRS(g_solidCWRS);
 		g_particlePSO.SetTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 		g_particlePSO.SetBS(g_accumulateBS);
+
+		g_sphPSO = g_particlePSO;
+		g_sphPSO.SetPS(g_sphPS);
 
 		// ComputeDensityPSO
 		g_computeDensityPSO.SetCS(g_densityCS);

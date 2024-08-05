@@ -26,7 +26,7 @@ SceneMgr::SceneMgr()
 	m_arrScene[(UINT)SCENE_TYPE::RENDER] = make_shared<RenderScene>(this);
 	m_arrScene[(UINT)SCENE_TYPE::SPRITE] = make_shared<SpriteScene>(this);
 	m_arrScene[(UINT)SCENE_TYPE::SPH] = make_shared<SPHScene>(this);
-	m_curScene = m_arrScene[(UINT)SCENE_TYPE::SPH];
+	m_curScene = m_arrScene[(UINT)SCENE_TYPE::SPRITE];
 }
 
 bool SceneMgr::Init(float width, float height)
@@ -89,6 +89,12 @@ void SceneMgr::Update(float dt)
 
 	else if (KEYCHECK(B2, TAP))
 		ChangeCurScene(SCENE_TYPE::RENDER);
+
+	else if (KEYCHECK(B3, TAP))
+		ChangeCurScene(SCENE_TYPE::SPRITE);
+
+	else if (KEYCHECK(B4, TAP))
+		ChangeCurScene(SCENE_TYPE::SPH);
 }
 
 void SceneMgr::Render()

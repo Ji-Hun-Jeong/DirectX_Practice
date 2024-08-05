@@ -22,7 +22,7 @@ protected:
     virtual void InitSkyBox() {}
     void CreateIndirectArgsBuffer(UINT count);
     void ComputeShaderBarrier(ComPtr<ID3D11DeviceContext>& context);
-    void DrawSprites(ComPtr<ID3D11DeviceContext>& context);
+    virtual void DrawSprites(ComPtr<ID3D11DeviceContext>& context);
 
 protected:
     shared_ptr<IndirectArgsBuffer<IndirectArgs>> m_indirectArgsBuffer;

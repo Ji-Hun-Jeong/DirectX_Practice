@@ -101,6 +101,11 @@ void SpriteScene::AdvectParticles(ComPtr<ID3D11DeviceContext>& context)
 
 	this->ComputeShaderBarrier(context);
 }
+void SpriteScene::DrawSprites(ComPtr<ID3D11DeviceContext>& context)
+{
+	Graphics::g_particlePSO.Setting();
+	AnimateScene::DrawSprites(context);
+}
 void SpriteScene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
 {
 	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };

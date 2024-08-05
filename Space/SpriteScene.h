@@ -11,6 +11,7 @@ public:
 private:
     void DissipateDensity(ComPtr<ID3D11DeviceContext>& context);
     void AdvectParticles(ComPtr<ID3D11DeviceContext>& context);
+    void DrawSprites(ComPtr<ID3D11DeviceContext>& context) override;
 private:
 
 };

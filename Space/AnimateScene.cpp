@@ -67,7 +67,6 @@ void AnimateScene::ComputeShaderBarrier(ComPtr<ID3D11DeviceContext>& context)
 
 void AnimateScene::DrawSprites(ComPtr<ID3D11DeviceContext>& context)
 {
-	Graphics::g_particlePSO.Setting();
 	context->RSSetViewports(1, &m_pOwner->GetViewPort());
 	context->OMSetRenderTargets(1, m_stagingBuffer->GetRTV().GetAddressOf(), nullptr);
 

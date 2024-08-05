@@ -76,6 +76,9 @@
       <FullPath>E:\source\repos\DX_Space\x64\Release\PhongPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
+      <FullPath>E:\source\repos\DX_Space\x64\Release\SPHPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>E:\source\repos\DX_Space\x64\Release\DirArrowVertexShader.cso</FullPath>
     </ContentFile>
   </ContentFiles>

@@ -384,6 +384,9 @@
     <FxCompile Include="DensityComputeShader.hlsl">
       <Filter>Engine\Shader\ParticleShader</Filter>
     </FxCompile>
+    <FxCompile Include="SPHPixelShader.hlsl">
+      <Filter>Engine\Shader\ParticleShader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Header.hlsli">

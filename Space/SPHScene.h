@@ -9,6 +9,7 @@ public:
     virtual void Update(float dt) override;
     virtual void Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame) override;
     virtual void Enter() override;
+    virtual void DrawSprites(ComPtr<ID3D11DeviceContext>& context) override;
 
 private:
     float m_radius;
