@@ -76,6 +76,7 @@ namespace Graphics
 	extern GraphicsPSO g_postEffectsPSO;
 	extern GraphicsPSO g_postProcessPSO;
 	extern GraphicsPSO g_particlePSO;
+	extern GraphicsPSO g_computeDensityPSO;
 	
 	void InitCommonStates();
 	void InitSamplers();

@@ -56,3 +56,6 @@ void Texture2D::Init(UINT width, UINT height, DXGI_FORMAT pixelFormat)
 	CHECKRESULT(device->CreateRenderTargetView(m_texture.Get(), nullptr, m_rtv.GetAddressOf()));
 	CHECKRESULT(device->CreateUnorderedAccessView(m_texture.Get(), nullptr, m_uav.GetAddressOf()));
 }
+
+
+

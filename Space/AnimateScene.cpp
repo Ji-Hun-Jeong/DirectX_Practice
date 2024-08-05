@@ -55,12 +55,12 @@ void AnimateScene::CreateIndirectArgsBuffer(UINT count)
 
 void AnimateScene::ComputeShaderBarrier(ComPtr<ID3D11DeviceContext>& context)
 {
-	ID3D11ShaderResourceView* arrSRV[] =
+	ID3D11ShaderResourceView* arrSRV[6] =
 	{ nullptr };
-	context->CSSetShaderResources(0, 1, arrSRV);
-	ID3D11UnorderedAccessView* arrUAV[] =
+	context->CSSetShaderResources(0, 6, arrSRV);
+	ID3D11UnorderedAccessView* arrUAV[6] =
 	{ nullptr };
-	context->CSSetUnorderedAccessViews(0, 1, arrUAV, nullptr);
+	context->CSSetUnorderedAccessViews(0, 6, arrUAV, nullptr);
 }
 
 

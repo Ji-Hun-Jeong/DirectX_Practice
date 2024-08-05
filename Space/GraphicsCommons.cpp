@@ -79,6 +79,7 @@ namespace Graphics
 	GraphicsPSO g_postEffectsPSO;
 	GraphicsPSO g_postProcessPSO;
 	GraphicsPSO g_particlePSO;
+	GraphicsPSO g_computeDensityPSO;
 
 	void InitCommonStates()
 	{
@@ -352,5 +353,8 @@ namespace Graphics
 		g_particlePSO.SetRS(g_solidCWRS);
 		g_particlePSO.SetTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 		g_particlePSO.SetBS(g_accumulateBS);
+
+		// ComputeDensityPSO
+		g_computeDensityPSO.SetCS(g_densityCS);
 	}
 }

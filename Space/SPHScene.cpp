@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SPHScene.h"
 #include "SPHKernels.h"
+#include "Texture2D.h"
 
 SPHScene::SPHScene(SceneMgr* pOwner)
 	: AnimateScene(pOwner)
@@ -57,6 +58,11 @@ void SPHScene::Update(float dt)
 		--newCount;
 	}
 
+	m_particle->UploadToBuffer();
+
+	auto& context = D3DUtils::GetInst().GetContext();
+	Graphics::g_computeDensityPSO.Setting();
+	
 #pragma omp parallel for
 	for (int i = 0; i < vec.size(); ++i)
 	{
@@ -64,22 +70,55 @@ void SPHScene::Update(float dt)
 			continue;
 
 		vec[i].density = 0.0f;
+		vector<float> density(vec.size(), vec[i].density);
+		m_density.Upload<float>(density);
 
-		for (int j = 0; j < vec.size(); ++j)
+		m_orderConst.i = i;
+		D3DUtils::GetInst().UpdateBuffer<OrderConst>(m_orderConst, m_orderBuffer);
+
+		vector<ID3D11UnorderedAccessView*> uav =
 		{
-			if (vec[j].lifeTime < 0.0f)
-				continue;
+			m_density.GetUAV().Get(),
+			m_particle->GetUAV()
+		};
+		context->CSSetUnorderedAccessViews(0, uav.size(), uav.data(), nullptr);
+		context->CSSetConstantBuffers(0, 1, m_orderBuffer.GetAddressOf());
+		context->Dispatch(ceil(vec.size() / 1024.0f), 1, 1);
+		ComputeShaderBarrier(context);
 
-			const float dist = (vec[i].pos - vec[j].pos).Length();
-
-			if (dist >= m_radius)
-				continue;
-
-			vec[i].density += m_mass * SPHKernels::CubicSpline(dist / m_radius);
-		}
-		const float diviceDensity0 = vec[i].density / m_density0;
-		vec[i].pressure = m_pressureCoeff * (pow(diviceDensity0, 7.0f) - 1.0f);
+		m_density.Download<float>(density);
+		for (auto& f : density)
+			vec[i].density += f;
+		
+		vec[i].pressure = m_pressureCoeff *
+			(pow(vec[i].density / m_density0, 7.0f) - 1.0f);
 	}
+//#pragma omp parallel for
+//	for (int i = 0; i < vec.size(); ++i)
+//	{
+//		if (vec[i].lifeTime < 0.0f)
+//			continue;
+//
+//		vec[i].density = 0.0f;
+//		for (int j = 0; j < vec.size(); ++j)
+//		{
+//			if (vec[j].lifeTime < 0.0f)
+//				continue;
+//
+//			const float dist =
+//				(vec[i].pos - vec[j].pos)
+//				.Length();
+//
+//			if (dist >= m_radius)
+//				continue;
+//
+//			vec[i].density +=
+//				m_mass * SPHKernels::CubicSpline(dist / m_radius);
+//		}
+//
+//		vec[i].pressure = m_pressureCoeff *
+//			(pow(vec[i].density / m_density0, 7.0f) - 1.0f);
+//	}
 
 #pragma omp parallel for
 	for (int i = 0; i < vec.size(); ++i)
@@ -176,4 +215,12 @@ void SPHScene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
 	AnimateScene::DrawSprites(context);
 
 	context->CopyResource(m_pOwner->GetBackBufferTexture().Get(), m_stagingBuffer->GetTexture().Get());
+}
+
+void SPHScene::Enter()
+{
+	AnimateScene::Enter();
+	m_density.Init(m_particle->GetBufferSize(), 1, DXGI_FORMAT_R32_FLOAT);
+
+	D3DUtils::GetInst().CreateConstantBuffer<OrderConst>(m_orderConst, m_orderBuffer);
 }

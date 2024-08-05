@@ -1,6 +1,5 @@
-﻿  AnimateScene.cpp
-E:\source\repos\DX_Space\Space\AnimateScene.cpp(42,58): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-E:\source\repos\DX_Space\Space\IndirectArgsBuffer.h(14,66): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-E:\source\repos\DX_Space\Space\IndirectArgsBuffer.h(15,79): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  SPHScene.cpp
+﻿  SPHScene.cpp
+E:\source\repos\DX_Space\Space\SPHScene.cpp(84,49): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\source\repos\DX_Space\Space\SPHScene.cpp(86,25): warning C4244: '인수': 'float'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+E:\source\repos\DX_Space\Space\SPHScene.cpp(224,42): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   Space.vcxproj -> E:\source\repos\DX_Space\x64\Debug\Space.exe
