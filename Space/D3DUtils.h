@@ -48,7 +48,6 @@ private:
 		textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
 		// BindFlags를 SRV로 하면 안됨
 
-		// 스테이징 텍스쳐를 사용할 때는 저절로 텍스쳐가 만들어지지 않고 복사를 하나하나 해야함
 		m_device->CreateTexture2D(&textureDesc, nullptr, stagingTexture.GetAddressOf());
 
 		UINT pixelSize = sizeof(uint8_t) * 4;

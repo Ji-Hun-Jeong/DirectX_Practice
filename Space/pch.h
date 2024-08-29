@@ -44,6 +44,7 @@ using std::wstring;
 using std::string;
 using std::vector;
 using std::shared_ptr;
+using std::weak_ptr;
 using std::make_shared;
 using std::reverse;
 using std::random_device;

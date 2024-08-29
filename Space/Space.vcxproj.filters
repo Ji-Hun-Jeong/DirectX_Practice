@@ -110,6 +110,12 @@
     <Filter Include="Engine\Scene\AnimateScene\SPHScene">
       <UniqueIdentifier>{d548819e-c726-4909-b801-7c9ce7fad530}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Scene\AnimateScene\GridSimulation">
+      <UniqueIdentifier>{6b0c8fd2-768a-4477-8f35-0f72eb8530bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Shader\GridSimulationShader">
+      <UniqueIdentifier>{2100bea9-cb9a-4b99-8d6f-4c4ddf703c75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -214,6 +220,9 @@
     <ClInclude Include="SPHKernels.h">
       <Filter>Engine\Scene\AnimateScene\SPHScene</Filter>
     </ClInclude>
+    <ClInclude Include="GridSimulation.h">
+      <Filter>Engine\Scene\AnimateScene\GridSimulation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -310,6 +319,9 @@
     <ClCompile Include="SPHKernels.cpp">
       <Filter>Engine\Scene\AnimateScene\SPHScene</Filter>
     </ClCompile>
+    <ClCompile Include="GridSimulation.cpp">
+      <Filter>Engine\Scene\AnimateScene\GridSimulation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="BasicVertexShader.hlsl">
@@ -387,10 +399,28 @@
     <FxCompile Include="SPHPixelShader.hlsl">
       <Filter>Engine\Shader\ParticleShader</Filter>
     </FxCompile>
+    <FxCompile Include="GridDensityComputeShader.hlsl">
+      <Filter>Engine\Shader\GridSimulationShader</Filter>
+    </FxCompile>
+    <FxCompile Include="GridAdvectionComputeShader.hlsl">
+      <Filter>Engine\Shader\GridSimulationShader</Filter>
+    </FxCompile>
+    <FxCompile Include="GridDivergenceComputeShader.hlsl">
+      <Filter>Engine\Shader\GridSimulationShader</Filter>
+    </FxCompile>
+    <FxCompile Include="GridJacobiComputeShader.hlsl">
+      <Filter>Engine\Shader\GridSimulationShader</Filter>
+    </FxCompile>
+    <FxCompile Include="GridApplyPressureComputeShader.hlsl">
+      <Filter>Engine\Shader\GridSimulationShader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Header.hlsli">
       <Filter>Engine\Shader</Filter>
+    </None>
+    <None Include="GridSimulationHeader.hlsli">
+      <Filter>Engine\Shader\GridSimulationShader</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -104,18 +104,13 @@ void RenderScene::InitMesh()
 	m_vecMesh.push_back(light);
 	m_vecLights.push_back(light);
 
-	/*auto l = make_shared<Mesh>();
-	l->Init(md);
-	l->m_translation = Vector3(0.0f, 2.0f, 4.0f);
-	m_vecMesh.push_back(l);*/
-
 	MeshData sq = GeometryGenerator::MakeSquare();
-	/*auto ground = make_shared<Mesh>();
+	auto ground = make_shared<Mesh>();
 	ground->Init(sq);
 	ground->ReadImage("Image/Ground.png", TEXTURE_TYPE::ALBEDO, true);
 	ground->m_rotation1 = Vector3(XM_PI / 2.0f, 0.0f, 0.0f);
 	ground->m_scale = Vector3(5.0f);
-	m_vecMesh.push_back(ground);*/
+	m_vecMesh.push_back(ground);
 
 
 	auto mirror = make_shared<Mirror>("Mirror", Vector3(2.0f, 1.6f, 0.0f), Vector3(0.0f, 90.0f, 0.0f), Vector3(0.0f), Vector3(1.0f, 1.66f, 1.0f));
@@ -261,7 +256,8 @@ void RenderScene::RenderObject(ComPtr<ID3D11DeviceContext>& context, bool drawWi
 				mesh->DrawNormal(context);
 		}
 		drawWireFrame ? Graphics::g_defaultWirePSO.Setting() : Graphics::g_defaultSolidPSO.Setting();
-		context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get(), D3D11_CLEAR_STENCIL, 1.0f, 0);
+		context->ClearDepthStencilView(SceneMgr::GetInst().GetDepthStencilView().Get()
+			, D3D11_CLEAR_STENCIL, 1.0f, 0);
 		for (int i = 0; i < m_vecMirrors.size(); ++i)
 		{
 			GraphicsPSO::SetStencilRef(i + 1);
@@ -313,7 +309,7 @@ void RenderScene::RenderMirrorWorld(ComPtr<ID3D11DeviceContext>& context, shared
 	drawWireFrame ? Graphics::g_drawMaskSkyBoxWirePSO.Setting() : Graphics::g_drawMaskSkyBoxSolidPSO.Setting();
 	m_skybox->Render(context);
 
-	float alpha[4] = { m_fAlpha,m_fAlpha ,m_fAlpha ,m_fAlpha };
+	float alpha[4] = { m_fAlpha, m_fAlpha, m_fAlpha, m_fAlpha };
 	GraphicsPSO::SetBlendFactor(alpha);
 	drawWireFrame ? Graphics::g_blendWirePSO.Setting() : Graphics::g_blendSolidPSO.Setting();
 

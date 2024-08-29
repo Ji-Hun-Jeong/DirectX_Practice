@@ -84,8 +84,10 @@ void SpriteScene::Update(float dt)
 
 	m_particle->UploadToBuffer();
 }
+
 void SpriteScene::DissipateDensity(ComPtr<ID3D11DeviceContext>& context)
 {
+	// 이건 그 전 시뮬레이션 코드
 	context->CSSetShader(Graphics::g_densityCS.Get(), nullptr, 0);
 	context->CSSetUnorderedAccessViews(0, 1, m_stagingBuffer->GetUAV().GetAddressOf(), nullptr);
 	context->Dispatch(ceil(m_stagingBuffer->m_iWidth / 32), ceil(m_stagingBuffer->m_iHeight / 32), 1);
@@ -101,6 +103,7 @@ void SpriteScene::AdvectParticles(ComPtr<ID3D11DeviceContext>& context)
 
 	this->ComputeShaderBarrier(context);
 }
+
 void SpriteScene::DrawSprites(ComPtr<ID3D11DeviceContext>& context)
 {
 	Graphics::g_particlePSO.Setting();

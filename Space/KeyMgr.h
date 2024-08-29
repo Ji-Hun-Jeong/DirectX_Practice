@@ -25,12 +25,9 @@ private:
 	POINT m_cursorPos;
 	Vector2 m_prevCursorPos;
 	Vector2 m_curCursorPos;
-
-	Vector2 m_curDiffCursorPos;
-	Vector2 m_prevDiffCursorPos;
 public:
 	Vector2 GetMouseNDCPos();
-	Vector2 GetCursorDiff() { return m_curDiffCursorPos - m_prevDiffCursorPos; }
+	Vector2 GetMouseScreenPos();
 
 SINGLE(KeyMgr)
 };

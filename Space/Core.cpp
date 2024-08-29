@@ -121,7 +121,7 @@ LRESULT Core::MsgProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 		// cout << "Mouse " << LOWORD(lParam) << " " << HIWORD(lParam) << endl;
 		break;
-	case WM_LBUTTONUP:
+	case WM_LBUTTONDOWN:
 		// cout << "WM_LBUTTONUP Left mouse button" << endl;
 		break;
 	case WM_RBUTTONUP:

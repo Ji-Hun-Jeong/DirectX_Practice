@@ -291,7 +291,7 @@ void D3DUtils::CreateIndirectArgsBuffer(UINT numOfElement, ComPtr<ID3D11Buffer>&
 	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.NumElements = numOfElement;
 
-	m_device->CreateUnorderedAccessView(buffer.Get(), &uavDesc, uav.GetAddressOf());
+	//m_device->CreateUnorderedAccessView(buffer.Get(), &uavDesc, uav.GetAddressOf());
 }
 
 void D3DUtils::ReadCubeImage(const string& fileName, ComPtr<ID3D11Texture2D>& texture, ComPtr<ID3D11ShaderResourceView>& shaderResourceView)

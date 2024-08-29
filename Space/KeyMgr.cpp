@@ -7,7 +7,7 @@ UINT g_keyValue[(UINT)KEY_TYPE::END] =
 {
 	0x51, 0x57, 0x45, 0x41, 0x53, 0x44, 0x46,
 	MK_LBUTTON, MK_RBUTTON, VK_ESCAPE,
-	0x31, 0x32, 0x33, 0x34, VK_SPACE
+	0x31, 0x32, 0x33, 0x34, 0x35, VK_SPACE
 };
 KeyMgr::KeyMgr()
 	: m_arrKey{}
@@ -33,6 +33,11 @@ Vector2 KeyMgr::GetMouseNDCPos()
 	y = -(y * 2.0f) / screenHeight + 1.0f;
 	x /= aspect;
 	return Vector2(x, y);
+}
+
+Vector2 KeyMgr::GetMouseScreenPos()
+{
+	return Vector2(float(m_cursorPos.x), float(m_cursorPos.y));
 }
 
 void KeyMgr::KeyUpdate()

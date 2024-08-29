@@ -28,7 +28,7 @@ cbuffer MaterialConstant : register(b2)
 
 float CalcAttenuation(float dist)
 {
-    return saturate((light.fallOfEnd - dist) / (light.fallOfEnd - light.fallOfStart));
+    return saturate((dist - light.fallOfStart) / (light.fallOfEnd - light.fallOfStart));
 }
 
 float3 GetNormal(PSInput input)
@@ -150,6 +150,7 @@ float3 DirectLight(float3 posWorld, float3 albedo, float3 normal, float3 l, floa
     
     // 빛의 세기를 난반사와 정반사에 나눠서 주는 것
     // diffuse에는 1-F, specular에는 F
+    // Metallic에 의해서는 반사광의 세기가 결정되고 Roughness에 의해서는 반사광의 하이라이트가 결정된다.
     float3 diffuse = ((1.0f - F) * albedo) / PI;
     float3 specular = (F * D * G) / max(1e-5, 4.0f * ndotl * ndotv);
     float distance = length(l);
