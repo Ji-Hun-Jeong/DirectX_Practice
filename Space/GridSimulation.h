@@ -15,15 +15,19 @@ private:
     // 마우스 클릭좌표를 그대로 받고 cs로 넘겨주고 cs에서는 그 좌표랑 픽셀의 거리를 계산해서
     // 색깔결정하고(dist * color) -> 매 프레임마다 색깔 흐려지게 해주기
     ComPtr<ID3D11ComputeShader> m_densityCS;
-    ComPtr<ID3D11ComputeShader> m_advectionCS;
+    ComPtr<ID3D11ComputeShader> m_computeVorticityCS;
+    ComPtr<ID3D11ComputeShader> m_confineVorticityCS;
+    ComPtr<ID3D11ComputeShader> m_diffuseCS;
     ComPtr<ID3D11ComputeShader> m_divergenceCS;
     ComPtr<ID3D11ComputeShader> m_jacobiCS;
     ComPtr<ID3D11ComputeShader> m_applyPressureCS;
+    ComPtr<ID3D11ComputeShader> m_advectionCS;
 
     Texture2D m_density;
     Texture2D m_densityTemp;
     Texture2D m_velocity;
     Texture2D m_velocityTemp;
+    Texture2D m_vorticity;
     Texture2D m_divergence;
     Texture2D m_pressure;
     Texture2D m_pressureTemp;
@@ -35,7 +39,8 @@ private:
         UINT mouseX;
         UINT mouseY;
         float dt;
-        Vector3 dummy;
+        float viscosity;
+        Vector2 dummy;
     }m_constData;
     ComPtr<ID3D11Buffer> m_constBuffer;
 

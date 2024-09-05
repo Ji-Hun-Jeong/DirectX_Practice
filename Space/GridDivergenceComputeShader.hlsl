@@ -14,13 +14,12 @@ void main( uint3 dtID : SV_DispatchThreadID )
     uint2 up = uint2(dtID.x, dtID.y == height - 1 ? 0 : dtID.y + 1);
     uint2 down = uint2(dtID.x, dtID.y == 0 ? height - 1 : dtID.y - 1);
     
+    // Divergence를 계산(밀도가 늘어나고 있는지 감소하고 있는지)
     float deltaU = g_velocity[right].x - g_velocity[left].x;
     float deltaV = g_velocity[up].y - g_velocity[down].y;
-    
-    // Divergence를 계산
     g_divergence[dtID.xy] = (deltaU + deltaV) * 0.5f;
     
-    // 매 프레임마다 Pressure를 재계산하기 때문에 0으로 초기화
+    // 매 프레임마다 Pressure를 반복적으로 재계산하기 때문에 0으로 초기화
     g_pressure[dtID.xy] = 0.0f;
     g_pressureTemp[dtID.xy] = 0.0f;
 }

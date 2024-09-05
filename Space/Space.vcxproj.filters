@@ -113,7 +113,7 @@
     <Filter Include="Engine\Scene\AnimateScene\GridSimulation">
       <UniqueIdentifier>{6b0c8fd2-768a-4477-8f35-0f72eb8530bc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Shader\GridSimulationShader">
+    <Filter Include="Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader">
       <UniqueIdentifier>{2100bea9-cb9a-4b99-8d6f-4c4ddf703c75}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -400,19 +400,28 @@
       <Filter>Engine\Shader\ParticleShader</Filter>
     </FxCompile>
     <FxCompile Include="GridDensityComputeShader.hlsl">
-      <Filter>Engine\Shader\GridSimulationShader</Filter>
+      <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
     </FxCompile>
     <FxCompile Include="GridAdvectionComputeShader.hlsl">
-      <Filter>Engine\Shader\GridSimulationShader</Filter>
+      <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
     </FxCompile>
     <FxCompile Include="GridDivergenceComputeShader.hlsl">
-      <Filter>Engine\Shader\GridSimulationShader</Filter>
+      <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
     </FxCompile>
     <FxCompile Include="GridJacobiComputeShader.hlsl">
-      <Filter>Engine\Shader\GridSimulationShader</Filter>
+      <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
     </FxCompile>
     <FxCompile Include="GridApplyPressureComputeShader.hlsl">
-      <Filter>Engine\Shader\GridSimulationShader</Filter>
+      <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
+    </FxCompile>
+    <FxCompile Include="GridDiffuseComputeShader.hlsl">
+      <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
+    </FxCompile>
+    <FxCompile Include="GridComputeVorticityComputeShader.hlsl">
+      <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
+    </FxCompile>
+    <FxCompile Include="GridConfineVorticityComputeShader.hlsl">
+      <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -420,7 +429,7 @@
       <Filter>Engine\Shader</Filter>
     </None>
     <None Include="GridSimulationHeader.hlsli">
-      <Filter>Engine\Shader\GridSimulationShader</Filter>
+      <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
     </None>
   </ItemGroup>
 </Project>

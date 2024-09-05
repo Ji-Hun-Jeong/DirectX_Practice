@@ -5,7 +5,8 @@ cbuffer GridConst : register(b0)
     uint mouseX;
     uint mouseY;
     float dt;
-    float3 dummy;
+    float viscosity;
+    float2 dummy;
 }
 
 SamplerState g_linearSampler : register(s0);

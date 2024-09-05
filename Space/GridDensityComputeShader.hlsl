@@ -19,7 +19,7 @@ void main( uint3 dtID : SV_DispatchThreadID )
     g_velocity[dtID.xy] *= 0.999f;
     // unsigned int라서 마우스 입력이 없을 경우 CPU 코드에서 i = -1
     // 오버플로우로 인해 width 보다 큰 값으로 설정
-    int radius = 70;
+    int radius = 50;
     if (mouseX < 1280)
     {
         // (length > 50) -> (dist > 1) -> (scale == 0)
