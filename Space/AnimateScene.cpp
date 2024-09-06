@@ -11,10 +11,7 @@ AnimateScene::AnimateScene(SceneMgr* owner)
 
 void AnimateScene::Enter()
 {
-	m_particle = make_shared<StructuredBuffer<Particle>>();
-
-	m_stagingBuffer = make_shared<Texture2D>();
-	m_stagingBuffer->Init(UINT(m_pOwner->m_fWidth), UINT(m_pOwner->m_fHeight),
+	m_stagingBuffer.Init(UINT(m_pOwner->m_fWidth), UINT(m_pOwner->m_fHeight),
 		DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 	random_device rd;
@@ -31,15 +28,15 @@ void AnimateScene::Enter()
 		{0.5f, 0.0f, 1.0f}   // Violet/Purple
 	};
 
-	auto& vec = m_particle->GetVec();
+	auto& vec = m_particle.GetVec();
 	vec.resize(2048);
 
 	for (auto& p : vec)
 		p.color = rainbow[randomColor(gen)];
 
-	m_particle->Init();
+	m_particle.Init();
 
-	this->CreateIndirectArgsBuffer(m_particle->GetBufferSize());
+	this->CreateIndirectArgsBuffer(m_particle.GetBufferSize());
 }
 
 
@@ -68,9 +65,9 @@ void AnimateScene::ComputeShaderBarrier(ComPtr<ID3D11DeviceContext>& context)
 void AnimateScene::DrawSprites(ComPtr<ID3D11DeviceContext>& context)
 {
 	context->RSSetViewports(1, &m_pOwner->GetViewPort());
-	context->OMSetRenderTargets(1, m_stagingBuffer->GetRTV().GetAddressOf(), nullptr);
+	context->OMSetRenderTargets(1, m_stagingBuffer.GetRTV().GetAddressOf(), nullptr);
 
-	context->VSSetShaderResources(0, 1, m_particle->GetAddressSRV());
+	context->VSSetShaderResources(0, 1, m_particle.GetAddressSRV());
 
 	const float factor = 1.0f;
 	const float blendFactor[4] = { factor ,factor ,factor ,factor };

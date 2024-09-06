@@ -3,7 +3,6 @@
 #include "IndirectArgsBuffer.h"
 #include "Texture2D.h"
 #include "StructuredBuffer.h"
-class Texture2D;
 class AnimateScene :
     public Scene
 {
@@ -26,8 +25,8 @@ protected:
 
 protected:
     shared_ptr<IndirectArgsBuffer<IndirectArgs>> m_indirectArgsBuffer;
-    shared_ptr<StructuredBuffer<Particle>> m_particle;
-    shared_ptr<Texture2D> m_stagingBuffer;
+    StructuredBuffer<Particle> m_particle;
+    Texture2D m_stagingBuffer;
 
     const Vector3 m_gravity = Vector3(0.0f, -9.8f, 0.0f);
 };

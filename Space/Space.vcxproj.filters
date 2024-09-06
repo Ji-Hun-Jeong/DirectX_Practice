@@ -116,6 +116,12 @@
     <Filter Include="Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader">
       <UniqueIdentifier>{2100bea9-cb9a-4b99-8d6f-4c4ddf703c75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Scene\AnimateScene\CurlNoise">
+      <UniqueIdentifier>{4a7ab5da-cd69-4008-a971-78f529920002}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Scene\AnimateScene\CurlNoise\Shader">
+      <UniqueIdentifier>{3e4dc293-1834-4b65-a783-5f3465b32f14}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -223,6 +229,9 @@
     <ClInclude Include="GridSimulation.h">
       <Filter>Engine\Scene\AnimateScene\GridSimulation</Filter>
     </ClInclude>
+    <ClInclude Include="CurlNoise.h">
+      <Filter>Engine\Scene\AnimateScene\CurlNoise</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Space.rc">
@@ -321,6 +330,9 @@
     </ClCompile>
     <ClCompile Include="GridSimulation.cpp">
       <Filter>Engine\Scene\AnimateScene\GridSimulation</Filter>
+    </ClCompile>
+    <ClCompile Include="CurlNoise.cpp">
+      <Filter>Engine\Scene\AnimateScene\CurlNoise</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -423,6 +435,18 @@
     <FxCompile Include="GridConfineVorticityComputeShader.hlsl">
       <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
     </FxCompile>
+    <FxCompile Include="CurlNoiseComputeShader.hlsl">
+      <Filter>Engine\Scene\AnimateScene\CurlNoise\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="CurlNoiseVertexShader.hlsl">
+      <Filter>Engine\Scene\AnimateScene\CurlNoise\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="CurlNoiseGeometryShader.hlsl">
+      <Filter>Engine\Scene\AnimateScene\CurlNoise\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="CurlNoisePixelShader.hlsl">
+      <Filter>Engine\Scene\AnimateScene\CurlNoise\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Header.hlsli">
@@ -430,6 +454,9 @@
     </None>
     <None Include="GridSimulationHeader.hlsli">
       <Filter>Engine\Scene\AnimateScene\GridSimulation\GridSimulationShader</Filter>
+    </None>
+    <None Include="NoiseHeader.hlsli">
+      <Filter>Engine\Scene\AnimateScene\CurlNoise\Shader</Filter>
     </None>
   </ItemGroup>
 </Project>

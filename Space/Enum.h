@@ -3,7 +3,7 @@ enum class KEY_TYPE
 {
 	Q, W, E, A, S, D, F,
 	LBUTTON, RBUTTON, ESC,
-	B1, B2, B3, B4, B5, SPACE,
+	B1, B2, B3, B4, B5, B6, SPACE,
 	END,
 };
 enum class KEY_STATE
@@ -20,6 +20,7 @@ enum class SCENE_TYPE
 	SPRITE,
 	SPH,
 	GRIDSIMULATION,
+	CURLNOISE,
 	END,
 };
 enum class IBL_TYPE

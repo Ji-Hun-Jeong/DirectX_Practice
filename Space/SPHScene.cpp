@@ -25,7 +25,7 @@ void SPHScene::Update(float dt)
 	uniform_real_distribution<float> randomX(-1.0f, 1.0f);
 
 	UINT newCount = 1;
-	auto& vec = m_particle->GetVec();
+	auto& vec = m_particle.GetVec();
 	for (auto& p : vec)
 	{
 		if (newCount == 0)
@@ -58,7 +58,7 @@ void SPHScene::Update(float dt)
 		--newCount;
 	}
 
-	m_particle->UploadToBuffer();
+	m_particle.UploadToBuffer();
 
 	auto& context = D3DUtils::GetInst().GetContext();
 //	Graphics::g_computeDensityPSO.Setting();
@@ -200,13 +200,13 @@ void SPHScene::Update(float dt)
 		}
 	}
 
-	m_particle->UploadToBuffer();
+	m_particle.UploadToBuffer();
 }
 
 void SPHScene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
 {
 	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
-	context->ClearRenderTargetView(m_stagingBuffer->GetRTV().Get(), clearColor);
+	context->ClearRenderTargetView(m_stagingBuffer.GetRTV().Get(), clearColor);
 
 	//this->DissipateDensity(context);
 
@@ -214,13 +214,13 @@ void SPHScene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
 
 	this->DrawSprites(context);
 
-	context->CopyResource(m_pOwner->GetBackBufferTexture().Get(), m_stagingBuffer->GetTexture().Get());
+	context->CopyResource(m_pOwner->GetBackBufferTexture().Get(), m_stagingBuffer.GetTexture().Get());
 }
 
 void SPHScene::Enter()
 {
 	AnimateScene::Enter();
-	m_density.Init(m_particle->GetBufferSize(), 1, DXGI_FORMAT_R32_FLOAT);
+	m_density.Init(m_particle.GetBufferSize(), 1, DXGI_FORMAT_R32_FLOAT);
 	
 	D3DUtils::GetInst().CreateConstantBuffer<OrderConst>(m_orderConst, m_orderBuffer);
 }

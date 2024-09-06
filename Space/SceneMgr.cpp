@@ -13,6 +13,7 @@
 #include "SpriteScene.h"
 #include "SPHScene.h"
 #include "GridSimulation.h"
+#include "CurlNoise.h"
 
 SceneMgr SceneMgr::m_inst;
 SceneMgr::SceneMgr()
@@ -23,12 +24,7 @@ SceneMgr::SceneMgr()
 	, m_viewPort{}
 	, m_iNumOfMultiSamplingLevel(0)
 {
-	m_arrScene[(UINT)SCENE_TYPE::SPACE] = make_shared<SpaceScene>(this);
-	m_arrScene[(UINT)SCENE_TYPE::RENDER] = make_shared<RenderScene>(this);
-	m_arrScene[(UINT)SCENE_TYPE::SPRITE] = make_shared<SpriteScene>(this);
-	m_arrScene[(UINT)SCENE_TYPE::SPH] = make_shared<SPHScene>(this);
-	m_arrScene[(UINT)SCENE_TYPE::GRIDSIMULATION] = make_shared<GridSimulation>(this);
-	m_curScene = m_arrScene[(UINT)SCENE_TYPE::GRIDSIMULATION];
+	
 }
 
 bool SceneMgr::Init(float width, float height)
@@ -41,6 +37,14 @@ bool SceneMgr::Init(float width, float height)
 		return false;
 
 	Graphics::InitCommonStates();
+
+	m_arrScene[(UINT)SCENE_TYPE::SPACE] = make_shared<SpaceScene>(this);
+	m_arrScene[(UINT)SCENE_TYPE::RENDER] = make_shared<RenderScene>(this);
+	m_arrScene[(UINT)SCENE_TYPE::SPRITE] = make_shared<SpriteScene>(this);
+	m_arrScene[(UINT)SCENE_TYPE::SPH] = make_shared<SPHScene>(this);
+	m_arrScene[(UINT)SCENE_TYPE::GRIDSIMULATION] = make_shared<GridSimulation>(this);
+	m_arrScene[(UINT)SCENE_TYPE::CURLNOISE] = make_shared<CurlNoise>(this);
+	m_curScene = m_arrScene[(UINT)SCENE_TYPE::CURLNOISE];
 
 	for (auto& scene : m_arrScene)
 	{
@@ -86,8 +90,8 @@ void SceneMgr::Update(float dt)
 	m_curScene->Update(dt);
 
 	// m_postProcess->Update(dt);
-	if (KEYCHECK(B1, TAP))
-		ChangeCurScene(SCENE_TYPE::SPACE);
+	if (KEYCHECK(B1, TAP));
+		//ChangeCurScene(SCENE_TYPE::SPACE);
 
 	else if (KEYCHECK(B2, TAP))
 		ChangeCurScene(SCENE_TYPE::RENDER);
@@ -100,6 +104,9 @@ void SceneMgr::Update(float dt)
 
 	else if (KEYCHECK(B5, TAP))
 		ChangeCurScene(SCENE_TYPE::GRIDSIMULATION);
+
+	else if (KEYCHECK(B6, TAP))
+		ChangeCurScene(SCENE_TYPE::CURLNOISE);
 }
 
 void SceneMgr::Render()

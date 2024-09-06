@@ -18,7 +18,7 @@ void SpriteScene::Update(float dt)
 	uniform_real_distribution<float> randomLife(0.0f, 1.0f);
 	uniform_real_distribution<float> randomX(-1.0f, 1.0f);
 
-	auto& vec = m_particle->GetVec();
+	auto& vec = m_particle.GetVec();
 	int newCount = 50;
 	if (KEYCHECK(LBUTTON, HOLD))
 	{
@@ -59,7 +59,7 @@ void SpriteScene::Update(float dt)
 	const float ground = -0.8f;
 	const float cor = 0.5f;
 
-	for (auto& p : m_particle->GetVec())
+	for (auto& p : m_particle.GetVec())
 	{
 		if (p.lifeTime < 0)
 			continue;
@@ -82,15 +82,15 @@ void SpriteScene::Update(float dt)
 		}
 	}
 
-	m_particle->UploadToBuffer();
+	m_particle.UploadToBuffer();
 }
 
 void SpriteScene::DissipateDensity(ComPtr<ID3D11DeviceContext>& context)
 {
 	// 이건 그 전 시뮬레이션 코드
 	context->CSSetShader(Graphics::g_densityCS.Get(), nullptr, 0);
-	context->CSSetUnorderedAccessViews(0, 1, m_stagingBuffer->GetUAV().GetAddressOf(), nullptr);
-	context->Dispatch(ceil(m_stagingBuffer->m_iWidth / 32), ceil(m_stagingBuffer->m_iHeight / 32), 1);
+	context->CSSetUnorderedAccessViews(0, 1, m_stagingBuffer.GetUAV().GetAddressOf(), nullptr);
+	context->Dispatch(ceil(m_stagingBuffer.m_iWidth / 32), ceil(m_stagingBuffer.m_iHeight / 32), 1);
 
 	this->ComputeShaderBarrier(context);
 }
@@ -98,8 +98,8 @@ void SpriteScene::DissipateDensity(ComPtr<ID3D11DeviceContext>& context)
 void SpriteScene::AdvectParticles(ComPtr<ID3D11DeviceContext>& context)
 {
 	Graphics::g_particlePSO.Setting();
-	context->CSSetUnorderedAccessViews(0, 1, m_particle->GetAddressUAV(), nullptr);
-	context->Dispatch(ceil(m_particle->GetBufferSize() / 256.0f), 1, 1);
+	context->CSSetUnorderedAccessViews(0, 1, m_particle.GetAddressUAV(), nullptr);
+	context->Dispatch(ceil(m_particle.GetBufferSize() / 256.0f), 1, 1);
 
 	this->ComputeShaderBarrier(context);
 }
@@ -112,7 +112,7 @@ void SpriteScene::DrawSprites(ComPtr<ID3D11DeviceContext>& context)
 void SpriteScene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFrame)
 {
 	float clearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
-	context->ClearRenderTargetView(m_stagingBuffer->GetRTV().Get(), clearColor);
+	context->ClearRenderTargetView(m_stagingBuffer.GetRTV().Get(), clearColor);
 
 	//this->DissipateDensity(context);
 
@@ -120,5 +120,5 @@ void SpriteScene::Render(ComPtr<ID3D11DeviceContext>& context, bool drawWireFram
 
 	this->DrawSprites(context);
 
-	context->CopyResource(m_pOwner->GetBackBufferTexture().Get(), m_stagingBuffer->GetTexture().Get());
+	context->CopyResource(m_pOwner->GetBackBufferTexture().Get(), m_stagingBuffer.GetTexture().Get());
 }

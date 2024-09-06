@@ -9,12 +9,7 @@ GridSimulation::GridSimulation(SceneMgr* pOwner)
 	, m_density{}
 	, m_velocity{}
 {
-}
-
-
-void GridSimulation::Enter()
-{
-	auto d3dUtilsInst = D3DUtils::GetInst();
+	auto& d3dUtilsInst = D3DUtils::GetInst();
 	d3dUtilsInst.CreateComputeShader(L"GridDensity", m_densityCS);
 	d3dUtilsInst.CreateComputeShader(L"GridComputeVorticity", m_computeVorticityCS);
 	d3dUtilsInst.CreateComputeShader(L"GridConfineVorticity", m_confineVorticityCS);
@@ -49,6 +44,12 @@ void GridSimulation::Enter()
 		DXGI_FORMAT_R16_FLOAT);
 
 	d3dUtilsInst.CreateConstantBuffer<GridConst>(m_constData, m_constBuffer);
+}
+
+
+void GridSimulation::Enter()
+{
+	
 }
 
 
